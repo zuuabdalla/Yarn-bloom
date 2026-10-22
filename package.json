@@ -1,0 +1,46 @@
+{
+  "name": "yarn-and-bloom",
+  "version": "1.0.0",
+  "description": "Handmade crochet business website with custom orders, gift box builder, and WhatsApp integration",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "test": "jest --runInBand --detectOpenHandles --forceExit",
+    "seed": "node database/run-seed.js"
+  },
+  "keywords": [
+    "crochet",
+    "ecommerce",
+    "whatsapp-ordering",
+    "gift-box",
+    "express",
+    "mysql",
+    "ejs"
+  ],
+  "author": "Yarn & Bloom",
+  "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "connect-flash": "^0.1.1",
+    "dotenv": "^16.4.5",
+    "ejs": "^3.1.10",
+    "express": "^4.19.2",
+    "express-ejs-layouts": "^2.5.1",
+    "express-session": "^1.18.0",
+    "express-validator": "^7.1.0",
+    "helmet": "^7.1.0",
+    "multer": "^1.4.5-lts.1",
+    "mysql2": "^3.10.1"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "supertest": "^7.0.0"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "testMatch": [
+      "**/tests/**/*.test.js"
+    ]
+  }
+}

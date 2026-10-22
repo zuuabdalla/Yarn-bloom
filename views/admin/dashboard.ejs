@@ -1,0 +1,54 @@
+<section class="admin-section">
+  <h1>Dashboard</h1>
+  <div class="stats-grid">
+    <div class="stat-card">
+      <span>Total products</span>
+      <strong><%= stats.totalProducts %></strong>
+    </div>
+    <div class="stat-card">
+      <span>Pending orders</span>
+      <strong><%= stats.pendingOrders %></strong>
+    </div>
+    <div class="stat-card">
+      <span>Unread contacts</span>
+      <strong><%= stats.unreadContacts %></strong>
+    </div>
+    <div class="stat-card">
+      <span>Gift boxes</span>
+      <strong><%= stats.giftBoxCount %></strong>
+    </div>
+  </div>
+
+  <div class="page-card" style="margin-top:2rem;">
+    <h3>Business settings</h3>
+    <form action="/admin/settings" method="POST" class="form-grid">
+      <div class="form-group">
+        <label>WhatsApp number</label>
+        <input name="whatsapp_number" value="<%= settings && settings.whatsapp_number ? settings.whatsapp_number : '' %>" />
+      </div>
+      <div class="form-group">
+        <label>Business email</label>
+        <input name="business_email" value="<%= settings && settings.business_email ? settings.business_email : '' %>" />
+      </div>
+      <div class="form-group">
+        <label>Business phone</label>
+        <input name="business_phone" value="<%= settings && settings.business_phone ? settings.business_phone : '' %>" />
+      </div>
+      <div class="form-group">
+        <label>Business hours</label>
+        <input name="business_hours" value="<%= settings && settings.business_hours ? settings.business_hours : '' %>" />
+      </div>
+      <div class="form-group">
+        <label>Business location</label>
+        <input name="business_location" value="<%= settings && settings.business_location ? settings.business_location : '' %>" />
+      </div>
+      <div class="form-group full">
+        <label>Announcement bar</label>
+        <input name="announcement_bar" value="<%= settings && settings.announcement_bar ? settings.announcement_bar : '' %>" />
+      </div>
+      <div class="form-group full">
+        <button class="btn btn-primary" type="submit">Save settings</button>
+      </div>
+    </form>
+  </div>
+</section>

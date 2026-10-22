@@ -1,0 +1,50 @@
+    </main>
+
+    <footer class="site-footer">
+      <div class="container footer-grid">
+        <div>
+          <h4>Yarn & Bloom</h4>
+          <p>More than crochet — handmade gifts designed around your story.</p>
+          <div class="footer-socials" aria-label="Social media">
+            <a href="https://www.instagram.com/<%= settings && settings.instagram_handle ? settings.instagram_handle.replace(/^@/, '') : 'yarnandbloom.ke' %>/" target="_blank" rel="noreferrer">Instagram</a>
+            <a href="https://wa.me/<%= (settings && settings.whatsapp_number ? settings.whatsapp_number : settings && settings.business_phone ? settings.business_phone : '254141703242').replace(/\D/g, '') %>" target="_blank" rel="noreferrer">WhatsApp</a>
+          </div>
+        </div>
+        <div>
+          <h5>Shop</h5>
+          <ul>
+            <li><a href="/shop">Shop all</a></li>
+            <li><a href="/bag">Shopping bag</a></li>
+            <li><a href="/gift-box">Gift builder</a></li>
+            <li><a href="/gift-finder">Gift finder</a></li>
+          </ul>
+        </div>
+        <div>
+          <h5>Help & delivery</h5>
+          <ul>
+            <li><a href="/faq">FAQs</a></li>
+            <li><a href="/faq#delivery">Delivery information</a></li>
+            <li><a href="/custom-order">Custom orders</a></li>
+            <li><a href="/our-story">About our studio</a></li>
+          </ul>
+        </div>
+        <div>
+          <h5>Contact</h5>
+          <ul>
+            <li><a href="mailto:<%= settings && settings.business_email ? settings.business_email : 'zuhuraabdalla495@gmail.com' %>"><%= settings && settings.business_email ? settings.business_email : 'zuhuraabdalla495@gmail.com' %></a></li>
+            <li><a href="tel:<%= settings && settings.business_phone ? settings.business_phone.replace(/\s+/g, '') : '+254141703242' %>"><%= settings && settings.business_phone ? settings.business_phone : '+254141703242' %></a></li>
+            <li><span><%= settings && settings.business_location ? settings.business_location : 'Nairobi, Kenya' %></span></li>
+          </ul>
+        </div>
+        <div class="footer-delivery">
+          <h5>Delivery</h5>
+          <p><%= settings && settings.delivery_info ? settings.delivery_info : 'Delivery options and costs are confirmed when you place your order.' %></p>
+        </div>
+      </div>
+      <div class="container footer-bottom">
+        <span>© <%= currentYear %> Yarn & Bloom</span>
+        <span>Handmade with care</span>
+      </div>
+    </footer>
+  </body>
+</html>

@@ -1,0 +1,51 @@
+const express = require('express');
+const router = express.Router();
+const adminController = require('../controllers/adminController');
+const { isAuthenticated, isGuest } = require('../middleware/authMiddleware');
+const upload = require('../config/upload');
+const { productValidationRules, checkValidation } = require('../middleware/validateRequest');
+
+// Auth routes
+router.get('/login', isGuest, adminController.getLogin);
+router.post('/login', isGuest, adminController.postLogin);
+router.post('/logout', isAuthenticated, adminController.logout);
+
+// Dashboard
+router.get('/', isAuthenticated, adminController.getDashboard);
+router.get('/dashboard', isAuthenticated, adminController.getDashboard);
+
+// Products
+router.get('/products', isAuthenticated, adminController.getProducts);
+router.get('/products/new', isAuthenticated, adminController.getAddProduct);
+router.post(
+  '/products/new',
+  isAuthenticated,
+  upload.single('primary_image'),
+  productValidationRules,
+  checkValidation('/admin/products/new'),
+  adminController.postAddProduct
+);
+router.get('/products/:id/edit', isAuthenticated, adminController.getEditProduct);
+router.post(
+  '/products/:id/edit',
+  isAuthenticated,
+  upload.single('primary_image'),
+  productValidationRules,
+  checkValidation('back'),
+  adminController.postEditProduct
+);
+router.post('/products/:id/delete', isAuthenticated, adminController.deleteProduct);
+
+// Enquiries & Orders
+router.get('/enquiries', isAuthenticated, adminController.getEnquiries);
+router.post('/enquiries/custom-order/:id', isAuthenticated, adminController.updateCustomOrderStatus);
+router.post('/enquiries/contact/:id', isAuthenticated, adminController.updateContactStatus);
+
+// Reviews
+router.post('/reviews/:id/status', isAuthenticated, adminController.updateReviewStatus);
+router.post('/reviews/:id/delete', isAuthenticated, adminController.deleteReview);
+
+// Settings
+router.post('/settings', isAuthenticated, adminController.updateSettings);
+
+module.exports = router;

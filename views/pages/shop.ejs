@@ -1,0 +1,103 @@
+<section class="page-shell">
+  <div class="container">
+    <div class="section-header">
+      <div>
+        <div class="eyebrow">Shop all</div>
+        <h1>Handmade crochet treasures.</h1>
+      </div>
+    </div>
+
+    <div class="page-card">
+      <form method="GET" action="/shop" class="form-grid shop-filter-form">
+        <div class="form-group">
+          <label for="category">Category</label>
+          <select id="category" name="category">
+            <option value="all" <%= selectedCategory === 'all' ? 'selected' : '' %>>All products</option>
+            <% (categories || []).forEach((category) => { %>
+              <option value="<%= category.slug %>" <%= selectedCategory === category.slug ? 'selected' : '' %>><%= category.name %></option>
+            <% }) %>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="search">Search</label>
+          <input id="search" name="search" value="<%= searchQuery || '' %>" placeholder="Search products, colours, gifts..." />
+        </div>
+        <div class="form-group">
+          <label for="sort">Sort by</label>
+          <select id="sort" name="sort">
+            <option value="newest" <%= sortBy === 'newest' ? 'selected' : '' %>>Newest</option>
+            <option value="featured" <%= sortBy === 'featured' ? 'selected' : '' %>>Featured</option>
+            <option value="price-asc" <%= sortBy === 'price-asc' ? 'selected' : '' %>>Price: Low to high</option>
+            <option value="price-desc" <%= sortBy === 'price-desc' ? 'selected' : '' %>>Price: High to low</option>
+            <option value="name-asc" <%= sortBy === 'name-asc' ? 'selected' : '' %>>Name</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <button class="btn btn-primary" type="submit">Filter</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="shop-favorites-tools" id="saved-products">
+      <p class="favorites-status" data-favorites-status role="status" aria-live="polite"></p>
+      <button class="btn btn-secondary" type="button" data-favorites-filter aria-pressed="false">
+        <span data-favorites-filter-label>Show saved pieces</span>
+        <span class="saved-products-count" data-favorites-count>0</span>
+      </button>
+    </div>
+
+    <nav class="shop-category-links" aria-label="Browse product categories">
+      <a class="shop-category-link <%= selectedCategory === 'all' ? 'active' : '' %>" href="/shop">All pieces</a>
+      <% (categories || []).forEach((category) => { %>
+        <a class="shop-category-link <%= selectedCategory === category.slug ? 'active' : '' %>" href="/shop?category=<%= encodeURIComponent(category.slug) %>"><%= category.name %></a>
+      <% }) %>
+    </nav>
+
+    <div class="section" style="padding-top:2rem;">
+      <% if (products && products.length) { %>
+        <div class="shop-results-summary" data-shop-results-summary data-total-products="<%= totalProducts %>">
+          <p data-shop-results-count>
+            Showing <strong><%= products.length %></strong> of <strong><%= totalProducts %></strong> pieces
+            <% if (activeCategory) { %> in <strong><%= activeCategory.name %></strong><% } %>
+            <% if (searchQuery) { %> for “<strong><%= searchQuery %></strong>”<% } %>
+          </p>
+          <% if (selectedCategory !== 'all' || searchQuery) { %>
+            <a class="shop-clear-link" href="/shop">Clear filters</a>
+          <% } %>
+        </div>
+        <div class="product-grid" data-shop-product-grid>
+          <% products.forEach((product) => { %>
+            <%- include('../partials/product-card', { product, formatKSh, WhatsAppService }) %>
+          <% }) %>
+        </div>
+        <div class="empty-state favorites-empty-state" data-favorites-empty hidden>
+          <h3>No saved pieces on this page yet.</h3>
+          <p>Save a favorite with the heart button, or browse all pieces to find something you love.</p>
+          <a class="btn btn-primary" href="/shop">Browse the shop</a>
+        </div>
+
+        <% if (totalPages > 1) { %>
+          <div class="small-row shop-pagination" data-shop-pagination style="margin-top:2rem; justify-content:center;">
+            <% const currentPageNum = Number(currentPage || 1); %>
+            <% if (currentPageNum > 1) { %>
+              <a class="btn btn-secondary" href="/shop?category=<%= selectedCategory %>&search=<%= encodeURIComponent(searchQuery || '') %>&sort=<%= sortBy %>&page=<%= currentPageNum - 1 %>">Previous</a>
+            <% } %>
+            <span>Page <%= currentPageNum %> of <%= totalPages %></span>
+            <% if (currentPageNum < totalPages) { %>
+              <a class="btn btn-secondary" href="/shop?category=<%= selectedCategory %>&search=<%= encodeURIComponent(searchQuery || '') %>&sort=<%= sortBy %>&page=<%= currentPageNum + 1 %>">Next</a>
+            <% } %>
+          </div>
+        <% } %>
+      <% } else { %>
+        <div class="empty-state">
+          <h3>No products match your search.</h3>
+          <p>Try a different keyword or explore one of our collections.</p>
+          <div class="empty-state-actions">
+            <a class="btn btn-primary" href="/shop">Clear filters</a>
+            <a class="btn btn-secondary" href="/gift-finder">Try the gift finder</a>
+          </div>
+        </div>
+      <% } %>
+    </div>
+  </div>
+</section>

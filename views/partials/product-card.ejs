@@ -1,0 +1,39 @@
+<article class="product-card" data-product-card data-product-slug="<%= product.slug %>">
+  <div class="card-image-wrap">
+    <img src="<%= product.primary_image || product.image_url || '/images/products/placeholder.svg' %>" alt="<%= product.name %>" />
+    <% const cardStockStatus = product.stock_status || 'made_to_order'; %>
+    <span class="badge product-availability <%= cardStockStatus === 'out_of_stock' ? 'unavailable' : '' %>">
+      <%= cardStockStatus === 'out_of_stock' ? 'Currently unavailable' : cardStockStatus === 'in_stock' ? 'Ready to order' : 'Made to order' %>
+    </span>
+    <button class="favorite-toggle" type="button" data-favorite-toggle data-product-slug="<%= product.slug %>" data-product-name="<%= product.name %>" aria-pressed="false" aria-label="Save <%= product.name %> to favorites">
+      <span aria-hidden="true">♡</span>
+    </button>
+  </div>
+  <div class="card-body">
+    <div class="product-meta">
+      <span class="eyebrow"><%= product.category_name || product.category || 'Crochet Gift' %></span>
+      <strong class="price"><%= formatKSh ? formatKSh(product.price) : 'KSh ' + Number(product.price).toLocaleString('en-KE') %></strong>
+    </div>
+    <h3><%= product.name %></h3>
+    <p><%= product.short_description || product.detailed_description || 'Handmade with care.' %></p>
+    <% if (product.is_customizable) { %><span class="tag">Customisable</span><% } %>
+    <div class="card-actions">
+      <a class="btn btn-secondary" href="/shop/<%= product.slug %>">View product</a>
+      <% if (cardStockStatus !== 'out_of_stock') { %>
+        <button
+          class="btn btn-primary"
+          type="button"
+          data-add-to-bag
+          data-product-slug="<%= product.slug %>"
+          data-product-name="<%= product.name %>"
+          data-product-price="<%= product.price %>"
+          data-product-image="<%= product.primary_image || product.image_url || '/images/products/placeholder.svg' %>"
+          data-product-colors="<%= product.available_colors || '' %>"
+          data-product-availability="<%= cardStockStatus %>"
+        >Add to bag</button>
+      <% } else { %>
+        <button class="btn btn-primary" type="button" disabled>Unavailable</button>
+      <% } %>
+    </div>
+  </div>
+</article>

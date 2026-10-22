@@ -1,0 +1,87 @@
+<section class="page-shell">
+  <div class="container">
+    <div class="section-header">
+      <div>
+        <div class="eyebrow">Gift builder</div>
+        <h1>Create a custom crochet gift box.</h1>
+      </div>
+    </div>
+
+    <div class="page-card">
+      <form action="/gift-box" method="POST" class="form-grid">
+        <div class="form-group">
+          <label for="customer_name">Your name</label>
+          <input id="customer_name" name="customer_name" required />
+        </div>
+        <div class="form-group">
+          <label for="whatsapp_number">WhatsApp number</label>
+          <input id="whatsapp_number" name="whatsapp_number" placeholder="e.g. +254712345678" required />
+        </div>
+        <div class="form-group">
+          <label for="recipient_name">Recipient name</label>
+          <input id="recipient_name" name="recipient_name" />
+        </div>
+        <div class="form-group">
+          <label for="occasion">Occasion</label>
+          <input id="occasion" name="occasion" />
+        </div>
+        <div class="form-group">
+          <label for="color_theme">Colour theme</label>
+          <input id="color_theme" name="color_theme" value="Sage Meadow (Sage & Cream)" />
+        </div>
+        <div class="form-group">
+          <label for="max_budget">Budget (KSh)</label>
+          <input id="max_budget" name="max_budget" type="number" min="0" step="100" />
+        </div>
+        <div class="form-group full">
+          <label>Choose gift items</label>
+          <div class="result-list">
+            <div class="summary-box">
+              <h3>Bags</h3>
+              <% (bagItems || []).forEach((item) => { %>
+                <label style="display:flex; gap:.5rem; margin:.5rem 0; align-items:center;">
+                  <input type="checkbox" name="selected_product_ids" value="<%= item.id %>" />
+                  <span><%= item.name %> — <%= formatKSh(item.price) %></span>
+                </label>
+              <% }) %>
+            </div>
+            <div class="summary-box">
+              <h3>Flowers</h3>
+              <% (flowerItems || []).forEach((item) => { %>
+                <label style="display:flex; gap:.5rem; margin:.5rem 0; align-items:center;">
+                  <input type="checkbox" name="selected_product_ids" value="<%= item.id %>" />
+                  <span><%= item.name %> — <%= formatKSh(item.price) %></span>
+                </label>
+              <% }) %>
+            </div>
+            <div class="summary-box">
+              <h3>Toys</h3>
+              <% (toyItems || []).forEach((item) => { %>
+                <label style="display:flex; gap:.5rem; margin:.5rem 0; align-items:center;">
+                  <input type="checkbox" name="selected_product_ids" value="<%= item.id %>" />
+                  <span><%= item.name %> — <%= formatKSh(item.price) %></span>
+                </label>
+              <% }) %>
+            </div>
+            <div class="summary-box">
+              <h3>More favourites</h3>
+              <% (otherItems || []).forEach((item) => { %>
+                <label style="display:flex; gap:.5rem; margin:.5rem 0; align-items:center;">
+                  <input type="checkbox" name="selected_product_ids" value="<%= item.id %>" />
+                  <span><%= item.name %> — <%= formatKSh(item.price) %></span>
+                </label>
+              <% }) %>
+            </div>
+          </div>
+        </div>
+        <div class="form-group full">
+          <label for="gift_message">Gift message</label>
+          <textarea id="gift_message" name="gift_message" placeholder="Write a short message for the recipient."></textarea>
+        </div>
+        <div class="form-group full">
+          <button class="btn btn-primary" type="submit">Create my gift box</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>

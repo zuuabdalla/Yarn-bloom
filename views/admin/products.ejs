@@ -1,0 +1,32 @@
+<section class="admin-section">
+  <div class="small-row">
+    <h1>Products</h1>
+    <a class="btn btn-primary" href="/admin/products/new">Add new product</a>
+  </div>
+
+  <div class="page-card" style="margin-top:1.5rem;">
+    <% if (products && products.length) { %>
+      <div class="result-list">
+        <% products.forEach((product) => { %>
+          <div class="summary-box" style="display:flex; justify-content:space-between; gap:1rem; align-items:center; flex-wrap:wrap;">
+            <div>
+              <strong><%= product.name %></strong>
+              <div><%= product.category_name || 'General' %> • <%= formatKSh(product.price) %></div>
+            </div>
+            <div class="small-row">
+              <a class="btn btn-secondary small" href="/shop/<%= product.slug %>" target="_blank">View</a>
+              <a class="btn btn-secondary small" href="/admin/products/<%= product.id %>/edit">Edit</a>
+              <form action="/admin/products/<%= product.id %>/delete" method="POST" onsubmit="return confirm('Delete this product?');">
+                <button class="btn btn-primary small" type="submit">Delete</button>
+              </form>
+            </div>
+          </div>
+        <% }) %>
+      </div>
+    <% } else { %>
+      <div class="empty-state">
+        <p>No products yet.</p>
+      </div>
+    <% } %>
+  </div>
+</section>

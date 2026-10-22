@@ -1,0 +1,23 @@
+<section class="page-shell">
+  <div class="container">
+    <div class="page-card">
+      <div class="eyebrow">Enquiry received</div>
+      <h1>Thank you, <%= order.customer_name %>!</h1>
+      <p>Your custom crochet enquiry has been received. Reference: <strong><%= order.reference_number %></strong></p>
+
+      <div class="summary-box" style="margin:1.5rem 0;">
+        <p><strong>Category:</strong> <%= order.category_name || 'Custom crochet design' %></p>
+        <p><strong>Desired size:</strong> <%= order.desired_size || 'Not specified' %></p>
+        <p><strong>Occasion:</strong> <%= order.occasion || 'Not specified' %></p>
+        <p><strong>Budget:</strong> <%= order.budget ? formatKSh(order.budget) : 'Flexible' %></p>
+      </div>
+
+      <p>We’ll review your brief and get back to you on WhatsApp with availability, pricing, and next steps.</p>
+
+      <div class="small-row" style="justify-content:flex-start; margin-top:1.5rem;">
+        <a class="btn btn-primary" href="<%= whatsappUrl %>" target="_blank" rel="noreferrer">Continue on WhatsApp</a>
+        <a class="btn btn-secondary" href="/shop">Explore more pieces</a>
+      </div>
+    </div>
+  </div>
+</section>

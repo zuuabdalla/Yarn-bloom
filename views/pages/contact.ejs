@@ -1,0 +1,51 @@
+<section class="page-shell">
+  <div class="container">
+    <div class="section-header">
+      <div>
+        <div class="eyebrow">Contact</div>
+        <h1>Let’s chat about your next handmade moment.</h1>
+      </div>
+    </div>
+
+    <div class="feature-layout">
+      <div class="page-card">
+        <h3>Send a message</h3>
+        <form action="/contact" method="POST" class="form-grid">
+          <div class="form-group">
+            <label for="name">Full name</label>
+            <input id="name" name="name" value="<%= formData && formData.name ? formData.name : '' %>" required />
+          </div>
+          <div class="form-group">
+            <label for="email">Email address</label>
+            <input id="email" name="email" type="email" value="<%= formData && formData.email ? formData.email : '' %>" required />
+          </div>
+          <div class="form-group">
+            <label for="phone">Phone</label>
+            <input id="phone" name="phone" value="<%= formData && formData.phone ? formData.phone : '' %>" />
+          </div>
+          <div class="form-group">
+            <label for="subject">Subject</label>
+            <input id="subject" name="subject" value="<%= formData && formData.subject ? formData.subject : '' %>" required />
+          </div>
+          <div class="form-group full">
+            <label for="message">Message</label>
+            <textarea id="message" name="message" required><%= formData && formData.message ? formData.message : '' %></textarea>
+          </div>
+          <div class="form-group full">
+            <button class="btn btn-primary" type="submit">Send message</button>
+          </div>
+        </form>
+      </div>
+      <div>
+        <div class="summary-box">
+          <h3>Prefer WhatsApp?</h3>
+          <p>We’re usually quickest on WhatsApp for product checks, custom order questions, and gifting ideas.</p>
+          <a class="btn btn-primary" href="<%= generalWhatsAppUrl %>" target="_blank" rel="noreferrer">Message us on WhatsApp</a>
+          <p style="margin-top:1rem;"><strong>Email:</strong> <%= settings && settings.business_email ? settings.business_email : 'zuhuraabdalla495@gmail.com' %></p>
+          <p><strong>Phone:</strong> <%= settings && settings.business_phone ? settings.business_phone : '+254141703242' %></p>
+          <p><strong>Location:</strong> <%= settings && settings.business_location ? settings.business_location : 'Nairobi, Kenya' %></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

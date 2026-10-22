@@ -1,0 +1,14 @@
+<% const flashMessages = typeof messages !== 'undefined' ? messages : {}; %>
+<% const successMessages = Array.isArray(flashMessages.success) ? flashMessages.success : (flashMessages.success ? [flashMessages.success] : []); %>
+<% const errorMessages = Array.isArray(flashMessages.error) ? flashMessages.error : (flashMessages.error ? [flashMessages.error] : []); %>
+
+<% if (successMessages.length || errorMessages.length) { %>
+  <div class="flash-stack container" aria-live="polite">
+    <% successMessages.forEach((msg) => { %>
+      <div class="flash flash-success"><%= msg %></div>
+    <% }); %>
+    <% errorMessages.forEach((msg) => { %>
+      <div class="flash flash-error"><%= msg %></div>
+    <% }); %>
+  </div>
+<% } %>

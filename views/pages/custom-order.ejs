@@ -1,0 +1,82 @@
+<section class="page-shell">
+  <div class="container">
+    <div class="section-header">
+      <div>
+        <div class="eyebrow">Custom crochet</div>
+        <h1>Bring your idea to life.</h1>
+      </div>
+    </div>
+
+    <div class="feature-layout" style="margin-bottom:2rem;">
+      <div>
+        <div class="page-card">
+          <h3>Tell us about your vision</h3>
+          <form action="/custom-order" method="POST" enctype="multipart/form-data" class="form-grid">
+            <div class="form-group">
+              <label for="customer_name">Your name</label>
+              <input id="customer_name" name="customer_name" value="<%= formData && formData.customer_name ? formData.customer_name : '' %>" required />
+            </div>
+            <div class="form-group">
+              <label for="whatsapp_number">WhatsApp number</label>
+              <input id="whatsapp_number" name="whatsapp_number" value="<%= formData && formData.whatsapp_number ? formData.whatsapp_number : '' %>" placeholder="e.g. +254712345678" required />
+            </div>
+            <div class="form-group">
+              <label for="category_id">Category</label>
+              <select id="category_id" name="category_id">
+                <option value="">Select a category</option>
+                <% (categories || []).forEach((category) => { %>
+                  <option value="<%= category.id %>" <%= formData && formData.category_id == category.id ? 'selected' : '' %>><%= category.name %></option>
+                <% }) %>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="preferred_colors">Preferred colours</label>
+              <input id="preferred_colors" name="preferred_colors" value="<%= formData && formData.preferred_colors ? formData.preferred_colors : '' %>" />
+            </div>
+            <div class="form-group">
+              <label for="desired_size">Desired size</label>
+              <input id="desired_size" name="desired_size" value="<%= formData && formData.desired_size ? formData.desired_size : '' %>" />
+            </div>
+            <div class="form-group">
+              <label for="occasion">Occasion</label>
+              <input id="occasion" name="occasion" value="<%= formData && formData.occasion ? formData.occasion : '' %>" />
+            </div>
+            <div class="form-group">
+              <label for="budget">Budget (KSh)</label>
+              <input id="budget" name="budget" type="number" min="0" step="100" value="<%= formData && formData.budget ? formData.budget : '' %>" />
+            </div>
+            <div class="form-group">
+              <label for="required_date">Preferred delivery date</label>
+              <input id="required_date" name="required_date" type="date" value="<%= formData && formData.required_date ? formData.required_date : '' %>" />
+            </div>
+            <div class="form-group full">
+              <label for="design_description">Design brief</label>
+              <textarea id="design_description" name="design_description" required><%= formData && formData.design_description ? formData.design_description : '' %></textarea>
+            </div>
+            <div class="form-group full">
+              <label for="additional_instructions">Extra notes</label>
+              <textarea id="additional_instructions" name="additional_instructions"><%= formData && formData.additional_instructions ? formData.additional_instructions : '' %></textarea>
+            </div>
+            <div class="form-group full">
+              <label for="reference_image">Reference image (optional)</label>
+              <input id="reference_image" name="reference_image" type="file" accept="image/*" />
+            </div>
+            <div class="form-group full">
+              <button class="btn btn-primary" type="submit">Send custom order enquiry</button>
+            </div>
+          </form>
+        </div>
+      </div>
+      <div>
+        <div class="summary-box">
+          <h3>What happens next?</h3>
+          <ul class="result-list">
+            <li>We review your brief, colours, and timeline.</li>
+            <li>We share a custom quote and design direction.</li>
+            <li>We confirm materials, production, and delivery options.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,23 @@
+<section class="page-shell">
+  <div class="container">
+    <div class="page-card">
+      <div class="eyebrow">Gift box ready</div>
+      <h1>Your crochet gift box is waiting for approval.</h1>
+      <p><strong>Reference:</strong> <%= referenceNumber %></p>
+      <div class="summary-box" style="margin:1.5rem 0;">
+        <p><strong>Recipient:</strong> <%= recipientName || 'Not specified' %></p>
+        <p><strong>Occasion:</strong> <%= occasion || 'Celebration' %></p>
+        <p><strong>Estimated total:</strong> <%= formatKSh(estimatedTotal) %></p>
+      </div>
+      <div class="result-list">
+        <% (selectedItems || []).forEach((item) => { %>
+          <div class="summary-box"><%= item.name %> — <%= formatKSh(item.price) %></div>
+        <% }) %>
+      </div>
+      <div class="small-row" style="justify-content:flex-start; margin-top:1.5rem;">
+        <a class="btn btn-primary" href="<%= whatsappUrl %>" target="_blank" rel="noreferrer">Confirm on WhatsApp</a>
+        <a class="btn btn-secondary" href="/gift-box">Build another box</a>
+      </div>
+    </div>
+  </div>
+</section>

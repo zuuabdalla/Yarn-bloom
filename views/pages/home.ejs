@@ -1,0 +1,216 @@
+<section class="hero">
+  <div class="container hero-grid">
+    <div>
+      <div class="eyebrow">Slow made, handmade with love</div>
+      <h1>Thoughtful crochet gifts for everyday moments and meaningful celebrations.</h1>
+      <p>Yarn & Bloom creates handcrafted tote bags, flowers, plush keepsakes, and bespoke gifts that feel personal, warm, and beautifully made.</p>
+      <div class="small-row btn-row">
+        <a class="btn btn-primary" href="/shop">Shop now</a>
+        <a class="btn btn-secondary" href="/custom-order">Start a custom order</a>
+      </div>
+      <form class="hero-search" action="/shop" method="GET" role="search">
+        <label class="sr-only" for="home-product-search">Search handmade products</label>
+        <input id="home-product-search" type="search" name="search" placeholder="Find a tote, bouquet, or keepsake..." />
+        <button class="btn btn-primary" type="submit">Search</button>
+      </form>
+      <div class="stat-boxes">
+        <div class="stat-box">
+          <h3>4.9/5</h3>
+          <p>Customer love across our crochet gift collections.</p>
+        </div>
+        <div class="stat-box">
+          <h3>3–7 days</h3>
+          <p>Often ready for gifting with custom finishing touches.</p>
+        </div>
+        <div class="stat-box">
+          <h3>100%</h3>
+          <p>Handmade in Nairobi, designed with care and detail.</p>
+        </div>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="hero-image">
+        <img src="/images/moodboard/sage-crochet-tote.png" alt="Sage crochet tote paired with a handmade flower bouquet" />
+      </div>
+      <div class="hero-note">
+        <strong>Best seller</strong>
+        <p><a href="/shop/the-sunday-tote">The Sunday Tote</a></p>
+        <span>From <%= formatKSh ? formatKSh(3200) : 'KSh 3,200' %></span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="section-header">
+      <div>
+        <div class="eyebrow">Featured collections</div>
+        <h2>Handmade pieces for the moments that matter.</h2>
+      </div>
+      <a class="btn btn-secondary" href="/shop">Browse all</a>
+    </div>
+    <div class="category-grid">
+      <% const featuredCategories = categories || []; %>
+      <% featuredCategories.slice(0, 3).forEach((category) => { %>
+        <div class="product-card">
+          <div class="card-image-wrap">
+            <img src="<%= category.image_url || '/images/products/placeholder-1.jpg' %>" alt="<%= category.name %>" />
+          </div>
+          <div class="card-body">
+            <div class="product-meta">
+              <span class="eyebrow">Collection</span>
+            </div>
+            <h3><%= category.name %></h3>
+            <p><%= category.description || 'Thoughtfully designed crochet pieces for your home, gifting, and everyday carry.' %></p>
+            <div class="card-actions">
+              <a class="btn btn-primary" href="/shop?category=<%= category.slug %>">Explore</a>
+            </div>
+          </div>
+        </div>
+      <% }) %>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="section-header">
+      <div>
+        <div class="eyebrow">A little handmade inspiration</div>
+        <h2>Made slowly, with love in every stitch.</h2>
+        <p>Explore the bags, blooms, keepsakes, and thoughtful details behind Yarn & Bloom.</p>
+      </div>
+      <a class="btn btn-secondary" href="/shop">Find your favourite</a>
+    </div>
+    <div class="moodboard-grid">
+      <figure class="moodboard-item">
+        <img src="/images/moodboard/crochet-tulip-bouquet.png" alt="Colorful handmade crochet tulip bouquet" loading="lazy" />
+        <figcaption>Blooms that last</figcaption>
+      </figure>
+      <figure class="moodboard-item">
+        <img src="/images/moodboard/crochet-teddy-bear.png" alt="Soft handmade crochet teddy bear" loading="lazy" />
+        <figcaption>Plush little keepsakes</figcaption>
+      </figure>
+      <figure class="moodboard-item">
+        <img src="/images/moodboard/cream-daisy-tote.png" alt="Cream crochet tote decorated with daisy flowers" loading="lazy" />
+        <figcaption>Everyday crochet bags</figcaption>
+      </figure>
+      <figure class="moodboard-item">
+        <img src="/images/moodboard/crochet-flower-bouquets.png" alt="Handmade crochet flower bouquets in soft colors" loading="lazy" />
+        <figcaption>Flowers for every occasion</figcaption>
+      </figure>
+      <figure class="moodboard-item">
+        <img src="/images/moodboard/crochet-animal-friends.png" alt="A group of handmade crochet animal toys" loading="lazy" />
+        <figcaption>Lovable handmade friends</figcaption>
+      </figure>
+      <figure class="moodboard-item">
+        <img src="/images/moodboard/crochet-in-progress.png" alt="Crochet hook, yarn, and a flower taking shape" loading="lazy" />
+        <figcaption>Thoughtful details, by hand</figcaption>
+      </figure>
+      <figure class="moodboard-item">
+        <img src="/images/moodboard/sage-crossbody-bag.png" alt="Sage crochet crossbody bag worn outdoors" loading="lazy" />
+        <figcaption>Made to go with you</figcaption>
+      </figure>
+      <figure class="moodboard-item">
+        <img src="/images/moodboard/crochet-gift-box.png" alt="A crochet teddy and flowers arranged in a gift box" loading="lazy" />
+        <figcaption>Ready-to-gift moments</figcaption>
+      </figure>
+      <figure class="moodboard-item">
+        <img src="/images/moodboard/hand-crocheting.png" alt="Hands crocheting a small flower by hand" loading="lazy" />
+        <figcaption>Made one stitch at a time</figcaption>
+      </figure>
+      <figure class="moodboard-item">
+        <img src="/images/moodboard/crochet-gift-basket.png" alt="Handmade crochet flowers and keepsakes in a gift basket" loading="lazy" />
+        <figcaption>Personal touches in every parcel</figcaption>
+      </figure>
+      <figure class="moodboard-item">
+        <img src="/images/moodboard/yarn-color-palette.png" alt="Soft sage, cream, and warm neutral yarn color palette" loading="lazy" />
+        <figcaption>Soft colors, chosen with care</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<section class="section" style="background: rgba(138,154,123,0.05);">
+  <div class="container">
+    <div class="section-header">
+      <div>
+        <div class="eyebrow">Bestsellers</div>
+        <h2>Customer favourites from our crochet studio.</h2>
+      </div>
+    </div>
+    <div class="product-grid">
+      <% const featuredProductsList = featuredProducts || []; %>
+      <% featuredProductsList.forEach((product) => { %>
+        <%- include('../partials/product-card', { product, formatKSh, WhatsAppService }) %>
+      <% }) %>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container feature-layout">
+    <div class="featured-image">
+      <img src="/images/moodboard/hand-crocheting.png" alt="Hands carefully crocheting a flower" loading="lazy" />
+    </div>
+    <div>
+      <div class="eyebrow">Why yarn & bloom</div>
+      <h2>Beautifully handmade pieces that feel personal from the first stitch to the final wrap.</h2>
+      <p>Every piece is designed in small batches and crafted with quality cotton yarn, thoughtful color palettes, and meaningful details that make gifting feel extra special.</p>
+      <ul class="result-list">
+        <li><strong>Small-batch crafted</strong> — every product is carefully made in our Nairobi studio.</li>
+        <li><strong>Custom gifting available</strong> — choose colors, themes, and personalized notes.</li>
+        <li><strong>Thoughtful support</strong> — from gift selection to gifting advice, we’re here to help.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="section-header">
+      <div>
+        <div class="eyebrow">Happy customers</div>
+        <h2>Kind words from our community.</h2>
+      </div>
+    </div>
+    <div class="testimonial-grid">
+      <% const testimonialsList = testimonials || []; %>
+      <% if (testimonialsList.length) { %>
+        <% testimonialsList.forEach((review) => { %>
+          <article class="product-card">
+            <div class="card-body">
+              <div class="tag-list">
+                <% for (let i = 0; i < (review.rating || 5); i++) { %>
+                  <span class="tag">★</span>
+                <% } %>
+              </div>
+              <p>“<%= review.comment %>”</p>
+              <strong><%= review.customer_name %></strong>
+            </div>
+          </article>
+        <% }) %>
+      <% } else { %>
+        <article class="product-card"><div class="card-body"><p>“I ordered a custom gift box and it felt so special.”</p><strong>— Aisha</strong></div></article>
+        <article class="product-card"><div class="card-body"><p>“The crochet tote is gorgeous and sturdy.”</p><strong>— Grace</strong></div></article>
+        <article class="product-card"><div class="card-body"><p>“The flowers looked exactly like the photos and lasted beautifully.”</p><strong>— Nadia</strong></div></article>
+      <% } %>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container newsletter">
+    <div class="section-header">
+      <div>
+        <div class="eyebrow">Stay in the loop</div>
+        <h2>Get fresh drops, gifting ideas, and handmade inspiration.</h2>
+      </div>
+    </div>
+    <form action="/newsletter" method="POST" data-newsletter-form>
+      <input type="email" name="email" placeholder="Your email address" aria-label="Email address" required />
+      <button class="btn btn-primary" type="submit">Join the list</button>
+    </form>
+  </div>
+</section>

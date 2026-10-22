@@ -1,0 +1,66 @@
+<section class="page-shell">
+  <div class="container">
+    <div class="section-header">
+      <div>
+        <div class="eyebrow">Gift finder</div>
+        <h1>Find the perfect crochet gift.</h1>
+      </div>
+    </div>
+
+    <div class="feature-layout">
+      <div class="page-card">
+        <form action="/gift-finder" method="POST" class="form-grid">
+          <div class="form-group">
+            <label for="recipient">Who are you shopping for?</label>
+            <input id="recipient" name="recipient" value="<%= answers && answers.recipient ? answers.recipient : '' %>" placeholder="Best friend, mum, baby, partner..." />
+          </div>
+          <div class="form-group">
+            <label for="occasion">Occasion</label>
+            <input id="occasion" name="occasion" value="<%= answers && answers.occasion ? answers.occasion : '' %>" placeholder="Birthday, anniversary, thank you..." />
+          </div>
+          <div class="form-group">
+            <label for="budget">Budget</label>
+            <input id="budget" name="budget" value="<%= answers && answers.budget ? answers.budget : '' %>" placeholder="KSh 1500" />
+          </div>
+          <div class="form-group">
+            <label for="colors">Favourite colours</label>
+            <input id="colors" name="colors" value="<%= answers && answers.colors ? answers.colors : '' %>" placeholder="sage, blush, cream..." />
+          </div>
+          <div class="form-group full">
+            <label for="preference">Style preference</label>
+            <input id="preference" name="preference" value="<%= answers && answers.preference ? answers.preference : '' %>" placeholder="Minimal, romantic, cosy, playful..." />
+          </div>
+          <div class="form-group full">
+            <button class="btn btn-primary" type="submit">Find gift ideas</button>
+          </div>
+        </form>
+      </div>
+
+      <div>
+        <% if (results && results.length) { %>
+          <div class="summary-box">
+            <h3>Recommended gifts</h3>
+            <div class="result-list">
+              <% results.forEach((product) => { %>
+                <div class="page-card" style="padding:1rem;">
+                  <h4><%= product.name %></h4>
+                  <p><%= product.short_description %></p>
+                  <div class="small-row" style="justify-content:flex-start;">
+                    <span><strong><%= formatKSh ? formatKSh(product.price) : 'KSh ' + product.price %></strong></span>
+                    <a class="btn btn-secondary small" href="/shop/<%= product.slug %>">View</a>
+                    <a class="btn btn-primary small" href="<%= product.whatsappUrl %>" target="_blank" rel="noreferrer">WhatsApp</a>
+                  </div>
+                </div>
+              <% }) %>
+            </div>
+          </div>
+        <% } else { %>
+          <div class="summary-box">
+            <h3>How it works</h3>
+            <p>Answer a few quick prompts and we’ll recommend crochet gifts suited to the recipient, the mood, and your budget.</p>
+          </div>
+        <% } %>
+      </div>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,32 @@
+<section class="page-shell">
+  <div class="container">
+    <div class="section-header">
+      <div>
+        <div class="eyebrow">Your selections</div>
+        <h1>Shopping bag</h1>
+        <p>Review your handmade favourites before sending your order enquiry.</p>
+      </div>
+      <a class="btn btn-secondary" href="/shop">Continue shopping</a>
+    </div>
+
+    <div class="bag-layout" data-shopping-bag data-business-number="<%= businessNumber %>">
+      <div>
+        <div class="bag-items" data-bag-items aria-live="polite"></div>
+        <div class="empty-state" data-bag-empty>
+          <h2>Your bag is waiting for something lovely.</h2>
+          <p>Browse handmade bags, bouquets, and keepsakes, then add your favourites here.</p>
+          <a class="btn btn-primary" href="/shop">Explore the shop</a>
+        </div>
+      </div>
+      <aside class="bag-summary" data-bag-summary hidden>
+        <div class="summary-box">
+          <div class="eyebrow">Order summary</div>
+          <h2 data-bag-total>KSh 0</h2>
+          <p>Final availability, delivery, and payment details will be confirmed with you on WhatsApp.</p>
+          <a class="btn btn-primary" href="#" target="_blank" rel="noreferrer" data-bag-checkout>Enquire on WhatsApp</a>
+          <button class="bag-clear-button" type="button" data-bag-clear>Clear bag</button>
+        </div>
+      </aside>
+    </div>
+  </div>
+</section>

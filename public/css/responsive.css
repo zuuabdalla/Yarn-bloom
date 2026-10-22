@@ -1,0 +1,22 @@
+.container { width: min(1180px, calc(100% - 1.5rem)); }
+@media (max-width: 640px) {
+  .topbar .small-row { flex-direction: column; align-items: flex-start; }
+  .brand-text strong { font-size: 1.5rem; }
+  .hero { padding-top: 2.5rem; }
+  .btn { width: 100%; }
+  .hero .btn-row { display: grid; gap: .75rem; }
+  .newsletter form { flex-direction: column; }
+  .hero-search { align-items: stretch; flex-direction: column; border-radius: 20px; }
+  .hero-search .btn { width: 100%; }
+  .bag-item { grid-template-columns: 76px minmax(0, 1fr); gap: .75rem; }
+  .bag-item-image { width: 76px; }
+  .bag-line-total { grid-column: 2; }
+  .bag-item-controls { flex-wrap: wrap; }
+  .shop-results-summary { align-items: flex-start; flex-direction: column; }
+  .shop-favorites-tools { align-items: flex-start; flex-direction: column; }
+  .favorites-status:empty { display: none; }
+  .empty-state-actions { flex-direction: column; }
+  .product-gallery-thumbnails { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .5rem; }
+  .product-order-controls { gap: .65rem; }
+  .section { padding: 3.5rem 0; }
+}

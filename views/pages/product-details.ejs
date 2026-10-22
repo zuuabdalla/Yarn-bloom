@@ -1,0 +1,157 @@
+<section class="page-shell">
+  <div class="container">
+    <div class="feature-layout" style="align-items:flex-start;">
+      <div class="product-gallery">
+        <% const productImages = images && images.length ? images : [{ image_url: product.primary_image || '/images/products/placeholder-1.jpg', alt_text: product.name }]; %>
+        <div class="featured-image product-gallery-main">
+          <img src="<%= productImages[0].image_url %>" alt="<%= productImages[0].alt_text || product.name %>" data-product-main-image />
+        </div>
+        <% if (productImages.length > 1) { %>
+          <div class="product-gallery-thumbnails" aria-label="More product photos">
+            <% productImages.forEach((image, index) => { %>
+              <button
+                class="product-gallery-thumbnail<%= index === 0 ? ' active' : '' %>"
+                type="button"
+                data-product-thumbnail
+                data-image-src="<%= image.image_url %>"
+                data-image-alt="<%= image.alt_text || product.name %>"
+                aria-label="Show product photo <%= index + 1 %>"
+                aria-pressed="<%= index === 0 ? 'true' : 'false' %>"
+              >
+                <img src="<%= image.image_url %>" alt="" loading="lazy" />
+              </button>
+            <% }) %>
+          </div>
+        <% } %>
+      </div>
+      <div>
+        <div class="eyebrow"><%= product.category_name || 'Crochet design' %></div>
+        <h1><%= product.name %></h1>
+        <button class="favorite-toggle favorite-toggle-inline" type="button" data-favorite-toggle data-product-slug="<%= product.slug %>" data-product-name="<%= product.name %>" aria-pressed="false" aria-label="Save <%= product.name %> to favorites">
+          <span aria-hidden="true">♡</span>
+          <span data-favorite-label>Save to favorites</span>
+        </button>
+        <p class="favorites-status" data-favorites-status role="status" aria-live="polite"></p>
+        <div class="product-meta" style="justify-content:flex-start; margin-bottom:1rem;">
+          <strong class="price"><%= formatKSh(product.price) %></strong>
+          <% if (product.compare_at_price) { %>
+            <span style="text-decoration:line-through; color:rgba(52,75,59,0.6);"><%= formatKSh(product.compare_at_price) %></span>
+          <% } %>
+        </div>
+        <p><%= product.short_description %></p>
+        <% const colors = colorsList && colorsList.length ? colorsList : ['Natural Cream', 'Sage Green', 'Warm Honey']; %>
+        <div class="product-order-controls" data-product-order
+          data-product-name="<%= product.name %>"
+          data-product-price="<%= product.price %>"
+          data-business-number="<%= businessNumber %>"
+          data-product-slug="<%= product.slug %>"
+          data-product-image="<%= product.primary_image || productImages[0].image_url %>"
+          data-product-availability="<%= product.stock_status || 'made_to_order' %>">
+          <div class="form-group">
+            <label for="product-color">Choose a colour</label>
+            <select id="product-color" data-product-color>
+              <% colors.forEach((color) => { %>
+                <option value="<%= color %>"><%= color %></option>
+              <% }) %>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="product-quantity">Quantity</label>
+            <input id="product-quantity" type="number" value="1" min="1" max="99" step="1" inputmode="numeric" data-product-quantity />
+          </div>
+        </div>
+        <div class="small-row" style="justify-content:flex-start; margin-bottom:1rem;">
+          <% if (product.stock_status !== 'out_of_stock') { %>
+            <button class="btn btn-secondary" type="button" data-add-to-bag data-product-slug="<%= product.slug %>" data-product-name="<%= product.name %>" data-product-price="<%= product.price %>" data-product-image="<%= product.primary_image || productImages[0].image_url %>" data-product-colors="<%= product.available_colors || '' %>" data-product-availability="<%= product.stock_status || 'made_to_order' %>" data-product-quantity-source data-product-color-source>Add to bag</button>
+          <% } %>
+          <a class="btn btn-primary" href="<%= defaultWhatsAppUrl %>" target="_blank" rel="noreferrer" data-product-order-link><%= product.stock_status === 'out_of_stock' ? 'Ask about availability' : 'Order on WhatsApp' %></a>
+          <a class="btn btn-secondary" href="/shop">Continue shopping</a>
+        </div>
+        <p class="favorites-status" data-bag-status role="status" aria-live="polite"></p>
+        <div class="summary-box">
+          <p><strong>Availability:</strong> <%= product.stock_status === 'in_stock' ? 'Ready to order' : product.stock_status === 'out_of_stock' ? 'Currently unavailable' : 'Made to order' %></p>
+          <p><strong>Production time:</strong> <%= product.estimated_production_days || 3 %>–<%= (product.estimated_production_days || 3) + 2 %> days</p>
+          <p><strong>Materials:</strong> <%= product.materials || 'Handmade cotton yarn' %></p>
+          <p><strong>Best for:</strong> <%= product.occasions || 'Everyday gifting and keepsakes' %></p>
+        </div>
+      </div>
+    </div>
+
+    <div class="section" style="padding-top:2rem; padding-bottom:1rem;">
+      <div class="summary-box">
+        <h3>About this piece</h3>
+        <p><%= product.detailed_description %></p>
+      </div>
+    </div>
+
+    <div class="section" style="padding-top:0;">
+      <div class="section-header">
+        <div>
+          <div class="eyebrow">Related products</div>
+          <h2>You may also love</h2>
+        </div>
+      </div>
+      <div class="product-grid">
+        <% (relatedProducts || []).forEach((productItem) => { %>
+          <%- include('../partials/product-card', { product: productItem, formatKSh, WhatsAppService }) %>
+        <% }) %>
+      </div>
+    </div>
+
+    <div class="section" id="reviews" style="padding-top:0;">
+      <div class="section-header">
+        <div>
+          <div class="eyebrow">Reviews</div>
+          <h2>Kind words from our customers</h2>
+        </div>
+      </div>
+
+      <% if (reviews && reviews.length) { %>
+        <div class="testimonial-grid">
+          <% reviews.forEach((review) => { %>
+            <article class="product-card">
+              <div class="card-body">
+                <div class="tag-list">
+                  <% for (let i = 0; i < (review.rating || 5); i++) { %><span class="tag">★</span><% } %>
+                </div>
+                <p>“<%= review.comment %>”</p>
+                <strong><%= review.customer_name %></strong>
+              </div>
+            </article>
+          <% }) %>
+        </div>
+      <% } else { %>
+        <div class="empty-state">
+          <p>Be the first to share your thoughts on this thoughtful handmade piece.</p>
+        </div>
+      <% } %>
+
+      <div class="page-card" style="margin-top:2rem;">
+        <h3>Leave a review</h3>
+        <form method="POST" action="/shop/<%= product.slug %>/review" class="form-grid">
+          <div class="form-group">
+            <label for="customer_name">Your name</label>
+            <input id="customer_name" name="customer_name" required />
+          </div>
+          <div class="form-group">
+            <label for="rating">Rating</label>
+            <select id="rating" name="rating">
+              <option value="5">5 stars</option>
+              <option value="4">4 stars</option>
+              <option value="3">3 stars</option>
+              <option value="2">2 stars</option>
+              <option value="1">1 star</option>
+            </select>
+          </div>
+          <div class="form-group full">
+            <label for="comment">Your review</label>
+            <textarea id="comment" name="comment" required></textarea>
+          </div>
+          <div class="form-group full">
+            <button class="btn btn-primary" type="submit">Submit review</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
