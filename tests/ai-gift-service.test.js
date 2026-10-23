@@ -49,6 +49,7 @@ describe('AI gift recommendation service', () => {
   test('parses typed and ranged budgets', () => {
     expect(AiGiftService.getBudgetMaximum('KSh 1,500')).toBe(1500);
     expect(AiGiftService.getBudgetMaximum('1500-3500')).toBe(3500);
+    expect(AiGiftService.getBudgetRange('1500-3500')).toEqual({ min: 1500, max: 3500 });
     expect(AiGiftService.getBudgetMaximum('above-6000')).toBe(Infinity);
   });
 
@@ -62,6 +63,16 @@ describe('AI gift recommendation service', () => {
     expect(result.source).toBe('catalog');
     expect(result.recommendations.map(product => product.id)).toContain(1);
     expect(result.recommendations.every(product => Number(product.price) <= 1000)).toBe(true);
+  });
+
+  test('respects both ends of a gift finder budget range', async () => {
+    const result = await AiGiftService.getGiftFinderRecommendations(products, {
+      budget: '1500-3500',
+      preference: 'flowers'
+    });
+
+    expect(result.recommendations.map(product => product.id)).toContain(2);
+    expect(result.recommendations.every(product => Number(product.price) >= 1500 && Number(product.price) <= 3500)).toBe(true);
   });
 
   test('keeps gift box product suggestions within budget after reserving extras', async () => {

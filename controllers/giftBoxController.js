@@ -42,7 +42,7 @@ exports.getGiftBoxPage = async (req, res, next) => {
 exports.getGiftBoxSuggestions = async (req, res, next) => {
   try {
     const answers = {
-      recipient: req.body.recipient_name,
+      recipient: req.body.recipient,
       occasion: req.body.occasion,
       budget: req.body.max_budget,
       colors: req.body.color_theme,

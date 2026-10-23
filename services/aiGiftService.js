@@ -9,14 +9,28 @@ function text(value, maxLength = 120) {
 }
 
 function getBudgetMaximum(value) {
+  return getBudgetRange(value).max;
+}
+
+function getBudgetRange(value) {
   const budget = text(value, 40).toLowerCase();
-  if (!budget || /^(above|over|more than)\b/.test(budget)) return Infinity;
+  if (!budget) return { min: 0, max: Infinity };
 
   const range = budget.match(/(\d[\d,]*)\s*(?:-|to)\s*(\d[\d,]*)/);
-  if (range) return Number(range[2].replace(/,/g, ''));
+  if (range) {
+    return {
+      min: Number(range[1].replace(/,/g, '')),
+      max: Number(range[2].replace(/,/g, ''))
+    };
+  }
 
   const amount = budget.match(/\d[\d,]*/);
-  return amount ? Number(amount[0].replace(/,/g, '')) : Infinity;
+  if (!amount) return { min: 0, max: Infinity };
+  const parsedAmount = Number(amount[0].replace(/,/g, ''));
+  if (/^(above|over|more than)\b/.test(budget)) {
+    return { min: parsedAmount, max: Infinity };
+  }
+  return { min: 0, max: parsedAmount };
 }
 
 function isAIConfigured() {
@@ -62,7 +76,11 @@ async function generateRecommendations({ kind, answers, products, limit }) {
   return output;
 }
 
-function matchCatalogProducts(products, recommendations, { budgetMaximum = Infinity, limit = 4 } = {}) {
+function matchCatalogProducts(products, recommendations, {
+  budgetMinimum = 0,
+  budgetMaximum = Infinity,
+  limit = 4
+} = {}) {
   const productsById = new Map(products.map(product => [String(product.id), product]));
   const seenIds = new Set();
   const matches = [];
@@ -71,7 +89,7 @@ function matchCatalogProducts(products, recommendations, { budgetMaximum = Infin
     const id = String(recommendation.id);
     const product = productsById.get(id);
     const price = Number(product && product.price);
-    if (!product || seenIds.has(id) || !Number.isFinite(price) || price < 0 || price > budgetMaximum) continue;
+    if (!product || seenIds.has(id) || !Number.isFinite(price) || price < budgetMinimum || price > budgetMaximum) continue;
     seenIds.add(id);
     matches.push({
       ...product,
@@ -83,15 +101,18 @@ function matchCatalogProducts(products, recommendations, { budgetMaximum = Infin
   return matches;
 }
 
-function getCatalogFallback(products, answers, budgetMaximum) {
+function getCatalogFallback(products, answers, budgetRange) {
   const recommendations = GiftRecommendationService.recommend(products, answers)
-    .filter(product => Number(product.price) <= budgetMaximum)
+    .filter(product => Number(product.price) >= budgetRange.min && Number(product.price) <= budgetRange.max)
     .map(product => ({
       id: product.id,
       reason: product.matchReasons.join('. ')
     }));
 
-  return matchCatalogProducts(products, recommendations);
+  return matchCatalogProducts(products, recommendations, {
+    budgetMinimum: budgetRange.min,
+    budgetMaximum: budgetRange.max
+  });
 }
 
 async function getGiftFinderRecommendations(products, rawAnswers) {
@@ -102,8 +123,8 @@ async function getGiftFinderRecommendations(products, rawAnswers) {
     colors: text(rawAnswers.colors),
     preference: text(rawAnswers.preference)
   };
-  const budgetMaximum = getBudgetMaximum(answers.budget);
-  const fallbackResults = getCatalogFallback(products, answers, budgetMaximum);
+  const budgetRange = getBudgetRange(answers.budget);
+  const fallbackResults = getCatalogFallback(products, answers, budgetRange);
 
   if (!isAIConfigured()) {
     return {
@@ -117,10 +138,13 @@ async function getGiftFinderRecommendations(products, rawAnswers) {
     const result = await generateRecommendations({
       kind: 'Find crochet gifts for the recipient and occasion, within budget and color preferences.',
       answers,
-      products: products.filter(product => Number(product.price) <= budgetMaximum),
+      products: products.filter(product => Number(product.price) >= budgetRange.min && Number(product.price) <= budgetRange.max),
       limit: 4
     });
-    const recommendations = matchCatalogProducts(products, result.recommendations, { budgetMaximum });
+    const recommendations = matchCatalogProducts(products, result.recommendations, {
+      budgetMinimum: budgetRange.min,
+      budgetMaximum: budgetRange.max
+    });
     if (!recommendations.length) throw new Error('The AI did not select an available product within budget.');
     return {
       source: 'ai',
@@ -210,6 +234,7 @@ function getBoxFallback(products, answers, productBudget) {
 
 module.exports = {
   getBudgetMaximum,
+  getBudgetRange,
   getGiftFinderRecommendations,
   getGiftBoxRecommendations,
   isAIConfigured
