@@ -1,6 +1,7 @@
 const Product = require('../models/Product');
 const GiftBox = require('../models/GiftBox');
 const Admin = require('../models/Admin');
+const AiGiftService = require('../services/aiGiftService');
 const WhatsAppService = require('../services/whatsappService');
 const { generateReferenceNumber, sanitizeWhatsAppNumber } = require('../utils/validation');
 const { formatKSh } = require('../utils/money');
@@ -32,28 +33,28 @@ const CARD_OPTIONS = [
 
 exports.getGiftBoxPage = async (req, res, next) => {
   try {
-    const [products, settings] = await Promise.all([
-      Product.findForGiftBox(),
-      Admin.getSettings()
-    ]);
+    await renderGiftBoxPage(res);
+  } catch (error) {
+    next(error);
+  }
+};
 
-    // Group products into intuitive categories for the box builder
-    const bagItems = products.filter(p => (p.category_slug || '').includes('bag') || p.name.toLowerCase().includes('tote') || p.name.toLowerCase().includes('pouch'));
-    const flowerItems = products.filter(p => (p.category_slug || '').includes('flower') || p.name.toLowerCase().includes('bloom') || p.name.toLowerCase().includes('daisy'));
-    const toyItems = products.filter(p => (p.category_slug || '').includes('toy') || p.name.toLowerCase().includes('bear') || p.name.toLowerCase().includes('bunny'));
-    const otherItems = products.filter(p => !bagItems.includes(p) && !flowerItems.includes(p) && !toyItems.includes(p));
-
-    res.render('pages/gift-box', {
-      title: 'Create Your Own Crochet Gift Box — Yarn & Bloom',
-      activeNav: 'gift-box',
-      bagItems,
-      flowerItems,
-      toyItems,
-      otherItems,
-      packagingOptions: PACKAGING_OPTIONS,
-      cardOptions: CARD_OPTIONS,
-      settings,
-      formatKSh
+exports.getGiftBoxSuggestions = async (req, res, next) => {
+  try {
+    const answers = {
+      recipient: req.body.recipient_name,
+      occasion: req.body.occasion,
+      budget: req.body.max_budget,
+      colors: req.body.color_theme,
+      preference: req.body.gift_style
+    };
+    const products = await Product.findForGiftBox();
+    const suggestion = await AiGiftService.getGiftBoxRecommendations(products, answers);
+    await renderGiftBoxPage(res, {
+      answers,
+      suggestion,
+      products,
+      selectedProductIds: suggestion.recommendations.map(product => String(product.id))
     });
   } catch (error) {
     next(error);
@@ -145,6 +146,16 @@ exports.submitGiftBoxOrder = async (req, res, next) => {
       });
     }
 
+    const budget = max_budget ? Number(max_budget) : null;
+    if (max_budget && (!Number.isFinite(budget) || budget <= 0)) {
+      req.flash('error', 'Please enter a valid gift box budget.');
+      return res.redirect('/gift-box');
+    }
+    if (budget !== null && calculatedTotal > budget) {
+      req.flash('error', 'Your selected items and extras exceed your budget. Please remove an item or increase your budget.');
+      return res.redirect('/gift-box');
+    }
+
     const referenceNumber = generateReferenceNumber('GIFT');
     const sanitizedPhone = sanitizeWhatsAppNumber(whatsapp_number);
 
@@ -156,7 +167,7 @@ exports.submitGiftBoxOrder = async (req, res, next) => {
       recipient_name: recipient_name ? recipient_name.trim() : null,
       gift_message: gift_message ? gift_message.trim() : null,
       occasion: occasion || 'Celebration',
-      max_budget: max_budget ? parseFloat(max_budget) : null,
+      max_budget: budget,
       estimated_total: calculatedTotal,
       selected_items: verifiedItems
     });
@@ -169,7 +180,7 @@ exports.submitGiftBoxOrder = async (req, res, next) => {
       recipientName: recipient_name,
       giftMessage: gift_message,
       occasion,
-      maxBudget: max_budget ? parseFloat(max_budget) : null,
+      maxBudget: budget,
       estimatedTotal: calculatedTotal,
       selectedItems: verifiedItems
     });
@@ -183,7 +194,7 @@ exports.submitGiftBoxOrder = async (req, res, next) => {
       recipientName: recipient_name,
       giftMessage: gift_message,
       occasion,
-      maxBudget: max_budget ? parseFloat(max_budget) : null,
+      maxBudget: budget,
       estimatedTotal: calculatedTotal,
       selectedItems: verifiedItems,
       whatsappUrl: whatsappData.url,
@@ -194,3 +205,36 @@ exports.submitGiftBoxOrder = async (req, res, next) => {
     next(error);
   }
 };
+
+async function renderGiftBoxPage(res, {
+  answers = {},
+  suggestion = null,
+  products: providedProducts,
+  selectedProductIds = []
+} = {}) {
+  const [products, settings] = await Promise.all([
+    providedProducts ? Promise.resolve(providedProducts) : Product.findForGiftBox(),
+    Admin.getSettings()
+  ]);
+
+  const bagItems = products.filter(p => (p.category_slug || '').includes('bag') || p.name.toLowerCase().includes('tote') || p.name.toLowerCase().includes('pouch'));
+  const flowerItems = products.filter(p => (p.category_slug || '').includes('flower') || p.name.toLowerCase().includes('bloom') || p.name.toLowerCase().includes('daisy'));
+  const toyItems = products.filter(p => (p.category_slug || '').includes('toy') || p.name.toLowerCase().includes('bear') || p.name.toLowerCase().includes('bunny'));
+  const otherItems = products.filter(p => !bagItems.includes(p) && !flowerItems.includes(p) && !toyItems.includes(p));
+
+  res.render('pages/gift-box', {
+    title: 'Create Your Own Crochet Gift Box — Yarn & Bloom',
+    activeNav: 'gift-box',
+    bagItems,
+    flowerItems,
+    toyItems,
+    otherItems,
+    packagingOptions: PACKAGING_OPTIONS,
+    cardOptions: CARD_OPTIONS,
+    settings,
+    answers,
+    suggestion,
+    selectedProductIds,
+    formatKSh
+  });
+}

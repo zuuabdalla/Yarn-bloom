@@ -1,6 +1,6 @@
 const Product = require('../models/Product');
 const Admin = require('../models/Admin');
-const GiftRecommendationService = require('../services/giftRecommendationService');
+const AiGiftService = require('../services/aiGiftService');
 const WhatsAppService = require('../services/whatsappService');
 const { formatKSh } = require('../utils/money');
 
@@ -12,7 +12,9 @@ exports.getGiftFinderPage = async (req, res, next) => {
       activeNav: 'gift-finder',
       settings,
       results: null,
-      answers: null
+      answers: null,
+      recommendationSource: null,
+      recommendationSummary: null
     });
   } catch (error) {
     next(error);
@@ -29,7 +31,8 @@ exports.getRecommendations = async (req, res, next) => {
       Admin.getSettings()
     ]);
 
-    const recommended = GiftRecommendationService.recommend(allProducts, answers);
+    const recommendation = await AiGiftService.getGiftFinderRecommendations(allProducts, answers);
+    const recommended = recommendation.recommendations;
 
     // Attach WhatsApp URLs for each recommended product
     const enhancedResults = recommended.map(product => {
@@ -51,7 +54,9 @@ exports.getRecommendations = async (req, res, next) => {
       return res.json({
         success: true,
         count: enhancedResults.length,
-        results: enhancedResults
+        results: enhancedResults,
+        source: recommendation.source,
+        summary: recommendation.summary
       });
     }
 
@@ -61,6 +66,8 @@ exports.getRecommendations = async (req, res, next) => {
       settings,
       results: enhancedResults,
       answers,
+      recommendationSource: recommendation.source,
+      recommendationSummary: recommendation.summary,
       formatKSh
     });
   } catch (error) {

@@ -9,14 +9,14 @@ A handmade crochet storefront and enquiry platform built with Express.js, EJS, M
 - Product detail pages with WhatsApp ordering links
 - Custom order enquiry form and confirmation page
 - Gift box builder with live price estimation
-- Crochet gift finder quiz using a rule-based recommendation engine
+- AI-assisted crochet gift finder and gift box builder, with catalog-matching fallback
 - Contact and FAQ pages
 - Admin authentication and product/enquiry management
 - Secure session handling and validation
 
 ## Local setup on Windows (PowerShell)
 
-1. Install Node.js 18+ from https://nodejs.org/
+1. Install Node.js 22+ from https://nodejs.org/
 2. Install MySQL Server or use XAMPP/WAMP with MySQL enabled.
 3. Open PowerShell in the project folder:
 
@@ -40,8 +40,12 @@ A handmade crochet storefront and enquiry platform built with Express.js, EJS, M
    DB_PASSWORD=
    DB_NAME=yarn_bloom
    SESSION_SECRET=replace_with_a_long_random_secret
+   AI_GATEWAY_API_KEY=your_private_gateway_key
+   AI_GATEWAY_MODEL=google/gemini-2.5-flash-lite
    WHATSAPP_NUMBER=254141703242
    ```
+
+   The AI gift features use the Vercel AI Gateway. Add your API key to the local `.env` file (never commit it); without a key, both tools continue to suggest items using the local catalog matcher. You can change `AI_GATEWAY_MODEL` to another current model ID supported by your Gateway account.
 
 6. Create the database and load sample data:
 

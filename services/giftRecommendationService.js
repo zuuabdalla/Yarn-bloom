@@ -11,6 +11,7 @@ class GiftRecommendationService {
    * @returns {{ min: number, max: number }}
    */
   static parseBudgetRange(budgetKey) {
+    const budgetText = String(budgetKey || '').toLowerCase();
     switch (budgetKey) {
       case 'under-1500':
         return { min: 0, max: 1500 };
@@ -21,7 +22,22 @@ class GiftRecommendationService {
       case 'above-6000':
         return { min: 6000, max: 999999 };
       default:
-        return { min: 0, max: 999999 };
+        if (/^(above|over|more than)\b/.test(budgetText)) {
+          return { min: 0, max: 999999 };
+        }
+
+        const range = budgetText.match(/(\d[\d,]*)\s*(?:-|to)\s*(\d[\d,]*)/);
+        if (range) {
+          return {
+            min: Number(range[1].replace(/,/g, '')),
+            max: Number(range[2].replace(/,/g, ''))
+          };
+        }
+
+        const amount = budgetText.match(/\d[\d,]*/);
+        return amount
+          ? { min: 0, max: Number(amount[0].replace(/,/g, '')) }
+          : { min: 0, max: 999999 };
     }
   }
 

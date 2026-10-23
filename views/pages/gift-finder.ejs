@@ -2,8 +2,9 @@
   <div class="container">
     <div class="section-header">
       <div>
-        <div class="eyebrow">Gift finder</div>
+        <div class="eyebrow">AI gift finder</div>
         <h1>Find the perfect crochet gift.</h1>
+        <p>Tell us a little about them and our gift assistant will match your ideas to real pieces in the Yarn &amp; Bloom collection.</p>
       </div>
     </div>
 
@@ -31,20 +32,27 @@
             <input id="preference" name="preference" value="<%= answers && answers.preference ? answers.preference : '' %>" placeholder="Minimal, romantic, cosy, playful..." />
           </div>
           <div class="form-group full">
-            <button class="btn btn-primary" type="submit">Find gift ideas</button>
+            <button class="btn btn-primary" type="submit">Find my gift</button>
           </div>
         </form>
+        <p class="ai-privacy-note">Only your gift preferences and product details are used for AI suggestions. Contact details are not sent.</p>
       </div>
 
       <div>
         <% if (results && results.length) { %>
           <div class="summary-box">
-            <h3>Recommended gifts</h3>
+            <div class="ai-result-note">
+              <strong><%= recommendationSource === 'ai' ? 'AI-curated gift ideas' : recommendationSource === 'fallback' ? 'Catalog suggestions' : 'Preference-matched gifts' %></strong>
+              <p><%= recommendationSummary %></p>
+            </div>
             <div class="result-list">
               <% results.forEach((product) => { %>
-                <div class="page-card" style="padding:1rem;">
+                <div class="page-card ai-gift-result">
                   <h4><%= product.name %></h4>
                   <p><%= product.short_description %></p>
+                  <% if (product.matchReasons && product.matchReasons.length) { %>
+                    <p class="ai-match-reason"><%= product.matchReasons[0] %></p>
+                  <% } %>
                   <div class="small-row" style="justify-content:flex-start;">
                     <span><strong><%= formatKSh ? formatKSh(product.price) : 'KSh ' + product.price %></strong></span>
                     <a class="btn btn-secondary small" href="/shop/<%= product.slug %>">View</a>
@@ -54,10 +62,16 @@
               <% }) %>
             </div>
           </div>
+        <% } else if (recommendationSummary) { %>
+          <div class="summary-box">
+            <h3>No exact matches yet</h3>
+            <p><%= recommendationSummary %></p>
+            <p>Try a broader budget, colour, or style to see more of our handmade collection.</p>
+          </div>
         <% } else { %>
           <div class="summary-box">
-            <h3>How it works</h3>
-            <p>Answer a few quick prompts and we’ll recommend crochet gifts suited to the recipient, the mood, and your budget.</p>
+            <h3>Your thoughtful gift, made easier</h3>
+            <p>Answer a few quick prompts and the AI gift finder will suggest real crochet pieces suited to the recipient, occasion, colours, and budget.</p>
           </div>
         <% } %>
       </div>

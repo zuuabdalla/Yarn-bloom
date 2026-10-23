@@ -1,4 +1,9 @@
 const request = require('supertest');
+
+jest.mock('../config/database', () => ({
+  testConnection: jest.fn().mockResolvedValue(true)
+}));
+
 const app = require('../app');
 
 describe('admin authentication pages', () => {

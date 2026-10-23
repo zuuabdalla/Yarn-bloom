@@ -183,6 +183,18 @@ textarea { min-height: 110px; resize: vertical; }
 .tag-list { display: flex; flex-wrap: wrap; gap: 0.5rem; }
 .tag { background: rgba(138,154,123,0.14); color: var(--forest); padding: 0.4rem 0.7rem; border-radius: 999px; font-size: 0.8rem; }
 .empty-state { text-align: center; padding: 3rem 1rem; border: 1px dashed rgba(52,75,59,0.24); border-radius: 24px; background: rgba(138,154,123,0.05); }
+.ai-builder-panel { margin-bottom: 2rem; background: linear-gradient(135deg, #f4eee3, #eef2e9); }
+.ai-builder-panel h2 { font-size: clamp(2rem, 4vw, 2.8rem); margin: .5rem 0; }
+.ai-builder-form { margin-top: 1.25rem; }
+.ai-privacy-note { margin: .75rem 0 0; color: rgba(52,75,59,.68); font-size: .88rem; }
+.ai-result-note { margin-bottom: 1rem; padding: 1rem; border-left: 3px solid var(--sage); border-radius: 0 14px 14px 0; background: rgba(255,255,255,.65); }
+.ai-result-note strong { display: block; margin-bottom: .35rem; color: var(--forest); }
+.ai-result-note p { margin: 0; }
+.ai-suggestion-list { display: grid; gap: .75rem; margin: 1rem 0 0; padding: 0; list-style: none; }
+.ai-suggestion-list li { display: grid; grid-template-columns: 1fr auto; gap: .25rem 1rem; padding: .85rem 1rem; border-radius: 14px; background: rgba(255,255,255,.7); }
+.ai-suggestion-list li p { grid-column: 1 / -1; margin: 0; font-size: .9rem; }
+.ai-gift-result { padding: 1rem; }
+.ai-match-reason { margin-bottom: .75rem; font-size: .92rem; }
 @media (max-width: 900px) {
   .hero-grid, .feature-layout, .product-grid, .category-grid, .gallery-grid, .testimonial-grid, .footer-grid, .form-grid { grid-template-columns: 1fr; }
   .bag-layout { grid-template-columns: 1fr; }

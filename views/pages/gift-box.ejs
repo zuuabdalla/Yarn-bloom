@@ -3,9 +3,61 @@
     <div class="section-header">
       <div>
         <div class="eyebrow">Gift builder</div>
-        <h1>Create a custom crochet gift box.</h1>
+        <h1>Build a gift box with a little AI help.</h1>
       </div>
     </div>
+
+    <section class="ai-builder-panel page-card" aria-labelledby="ai-builder-heading">
+      <div class="eyebrow">AI gift builder</div>
+      <h2 id="ai-builder-heading">Start with a thoughtful suggestion.</h2>
+      <p>Share who the gift is for and your budget. We’ll suggest real handmade items and preselect them below for you to review.</p>
+      <form action="/gift-box/ai-suggest" method="POST" class="form-grid ai-builder-form">
+        <div class="form-group">
+          <label for="ai_recipient_name">Who is the gift for?</label>
+          <input id="ai_recipient_name" name="recipient_name" value="<%= answers && answers.recipient ? answers.recipient : '' %>" placeholder="Mum, a friend, a new baby..." />
+        </div>
+        <div class="form-group">
+          <label for="ai_occasion">Occasion</label>
+          <input id="ai_occasion" name="occasion" value="<%= answers && answers.occasion ? answers.occasion : '' %>" placeholder="Birthday, thank you, anniversary..." />
+        </div>
+        <div class="form-group">
+          <label for="ai_max_budget">Budget (KSh)</label>
+          <input id="ai_max_budget" name="max_budget" type="number" min="800" max="1000000" step="100" value="<%= answers && answers.budget ? answers.budget : '' %>" placeholder="5000" />
+        </div>
+        <div class="form-group">
+          <label for="ai_color_theme">Colour theme</label>
+          <input id="ai_color_theme" name="color_theme" value="<%= answers && answers.colors ? answers.colors : 'Sage Meadow (Sage & Cream)' %>" placeholder="Sage, blush, warm neutrals..." />
+        </div>
+        <div class="form-group full">
+          <label for="gift_style">Gift style or interests</label>
+          <input id="gift_style" name="gift_style" value="<%= answers && answers.preference ? answers.preference : '' %>" placeholder="Cosy, playful, elegant, loves flowers..." />
+        </div>
+        <div class="form-group full">
+          <button class="btn btn-secondary" type="submit">Suggest a gift box</button>
+        </div>
+      </form>
+      <p class="ai-privacy-note">AI suggestions use gift preferences and catalog details only. They can be changed before you order.</p>
+
+      <% if (suggestion) { %>
+        <div class="ai-result-note" role="status">
+          <strong><%= suggestion.source === 'ai' ? 'AI gift idea' : suggestion.source === 'fallback' ? 'Catalog suggestions' : 'Preference-matched suggestions' %></strong>
+          <p><%= suggestion.summary %></p>
+        </div>
+        <% if (suggestion.recommendations.length) { %>
+          <ul class="ai-suggestion-list">
+            <% suggestion.recommendations.forEach((product) => { %>
+              <li>
+                <strong><%= product.name %></strong>
+                <span><%= formatKSh(product.price) %></span>
+                <% if (product.matchReasons && product.matchReasons.length) { %>
+                  <p><%= product.matchReasons[0] %></p>
+                <% } %>
+              </li>
+            <% }) %>
+          </ul>
+        <% } %>
+      <% } %>
+    </section>
 
     <div class="page-card">
       <form action="/gift-box" method="POST" class="form-grid">
@@ -19,19 +71,19 @@
         </div>
         <div class="form-group">
           <label for="recipient_name">Recipient name</label>
-          <input id="recipient_name" name="recipient_name" />
+          <input id="recipient_name" name="recipient_name" value="<%= answers && answers.recipient ? answers.recipient : '' %>" />
         </div>
         <div class="form-group">
           <label for="occasion">Occasion</label>
-          <input id="occasion" name="occasion" />
+          <input id="occasion" name="occasion" value="<%= answers && answers.occasion ? answers.occasion : '' %>" />
         </div>
         <div class="form-group">
           <label for="color_theme">Colour theme</label>
-          <input id="color_theme" name="color_theme" value="Sage Meadow (Sage & Cream)" />
+          <input id="color_theme" name="color_theme" value="<%= answers && answers.colors ? answers.colors : 'Sage Meadow (Sage & Cream)' %>" />
         </div>
         <div class="form-group">
           <label for="max_budget">Budget (KSh)</label>
-          <input id="max_budget" name="max_budget" type="number" min="0" step="100" />
+          <input id="max_budget" name="max_budget" type="number" min="800" max="1000000" step="100" value="<%= answers && answers.budget ? answers.budget : '' %>" />
         </div>
         <div class="form-group full">
           <label>Choose gift items</label>
@@ -40,7 +92,7 @@
               <h3>Bags</h3>
               <% (bagItems || []).forEach((item) => { %>
                 <label style="display:flex; gap:.5rem; margin:.5rem 0; align-items:center;">
-                  <input type="checkbox" name="selected_product_ids" value="<%= item.id %>" />
+                  <input type="checkbox" name="selected_product_ids" value="<%= item.id %>" <%= selectedProductIds && selectedProductIds.includes(String(item.id)) ? 'checked' : '' %> />
                   <span><%= item.name %> — <%= formatKSh(item.price) %></span>
                 </label>
               <% }) %>
@@ -49,7 +101,7 @@
               <h3>Flowers</h3>
               <% (flowerItems || []).forEach((item) => { %>
                 <label style="display:flex; gap:.5rem; margin:.5rem 0; align-items:center;">
-                  <input type="checkbox" name="selected_product_ids" value="<%= item.id %>" />
+                  <input type="checkbox" name="selected_product_ids" value="<%= item.id %>" <%= selectedProductIds && selectedProductIds.includes(String(item.id)) ? 'checked' : '' %> />
                   <span><%= item.name %> — <%= formatKSh(item.price) %></span>
                 </label>
               <% }) %>
@@ -58,7 +110,7 @@
               <h3>Toys</h3>
               <% (toyItems || []).forEach((item) => { %>
                 <label style="display:flex; gap:.5rem; margin:.5rem 0; align-items:center;">
-                  <input type="checkbox" name="selected_product_ids" value="<%= item.id %>" />
+                  <input type="checkbox" name="selected_product_ids" value="<%= item.id %>" <%= selectedProductIds && selectedProductIds.includes(String(item.id)) ? 'checked' : '' %> />
                   <span><%= item.name %> — <%= formatKSh(item.price) %></span>
                 </label>
               <% }) %>
@@ -67,7 +119,7 @@
               <h3>More favourites</h3>
               <% (otherItems || []).forEach((item) => { %>
                 <label style="display:flex; gap:.5rem; margin:.5rem 0; align-items:center;">
-                  <input type="checkbox" name="selected_product_ids" value="<%= item.id %>" />
+                  <input type="checkbox" name="selected_product_ids" value="<%= item.id %>" <%= selectedProductIds && selectedProductIds.includes(String(item.id)) ? 'checked' : '' %> />
                   <span><%= item.name %> — <%= formatKSh(item.price) %></span>
                 </label>
               <% }) %>
