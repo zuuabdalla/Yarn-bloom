@@ -11,6 +11,7 @@ const { formatKSh } = require('../utils/money');
  * Render admin login page
  */
 exports.getLogin = (req, res) => {
+  res.set('X-Robots-Tag', 'noindex, nofollow, noarchive');
   res.render('admin/login', {
     title: 'Admin Portal Login — Yarn & Bloom',
     layout: false
@@ -41,16 +42,22 @@ exports.postLogin = async (req, res, next) => {
       return res.redirect('/admin/login');
     }
 
-    // Set session
-    req.session.adminUser = {
-      id: admin.id,
-      username: admin.username,
-      email: admin.email,
-      role: admin.role
-    };
+    req.session.regenerate(error => {
+      if (error) return next(error);
 
-    req.flash('success', `Welcome back, ${admin.username}!`);
-    res.redirect('/admin/dashboard');
+      req.session.adminUser = {
+        id: admin.id,
+        username: admin.username,
+        email: admin.email,
+        role: admin.role
+      };
+
+      req.flash('success', `Welcome back, ${admin.username}!`);
+      req.session.save(saveError => {
+        if (saveError) return next(saveError);
+        res.redirect('/admin/dashboard');
+      });
+    });
   } catch (error) {
     next(error);
   }

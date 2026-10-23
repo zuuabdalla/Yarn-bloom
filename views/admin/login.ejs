@@ -3,27 +3,33 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, nofollow, noarchive" />
     <title><%= title || 'Admin Login' %></title>
     <link rel="stylesheet" href="/css/style.css" />
     <link rel="stylesheet" href="/css/admin.css" />
   </head>
   <body class="admin-auth-body">
-    <div class="admin-auth-card page-card">
-      <div class="eyebrow">Admin portal</div>
+    <main class="admin-auth-card page-card">
+      <div class="admin-auth-brand" aria-hidden="true">Y&amp;B</div>
+      <div class="eyebrow">Private admin portal</div>
       <h1>Welcome back</h1>
-      <form action="/admin/login" method="POST" class="form-grid">
-        <div class="form-group full">
+      <p class="admin-auth-description">Sign in to manage your products and customer enquiries.</p>
+
+      <%- include('../partials/flash-messages') %>
+
+      <form action="/admin/login" method="POST" class="admin-auth-form">
+        <div class="form-group">
           <label for="username">Username</label>
-          <input id="username" name="username" required />
+          <input id="username" name="username" type="text" autocomplete="username" required />
         </div>
-        <div class="form-group full">
+        <div class="form-group">
           <label for="password">Password</label>
-          <input id="password" name="password" type="password" required />
+          <input id="password" name="password" type="password" autocomplete="current-password" required />
         </div>
-        <div class="form-group full">
-          <button class="btn btn-primary" type="submit">Login</button>
-        </div>
+        <button class="btn btn-primary admin-auth-submit" type="submit">Sign in</button>
       </form>
-    </div>
+
+      <p class="admin-auth-note">Authorized administrators only.</p>
+    </main>
   </body>
 </html>

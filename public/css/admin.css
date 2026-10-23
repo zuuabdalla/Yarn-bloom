@@ -74,11 +74,66 @@
   min-height: 100vh;
   display: grid;
   place-items: center;
-  background: linear-gradient(135deg, #f7efe8, #edf1e9);
+  padding: 2rem 0;
+  background:
+    radial-gradient(circle at 12% 14%, rgba(194, 157, 119, 0.18), transparent 30rem),
+    radial-gradient(circle at 88% 86%, rgba(138, 154, 123, 0.18), transparent 28rem),
+    #f7f4ee;
 }
 
 .admin-auth-card {
-  width: min(480px, calc(100% - 2rem));
+  width: min(440px, calc(100% - 2rem));
+  padding: clamp(1.75rem, 6vw, 3rem);
+  border-radius: 28px;
+  box-shadow: 0 24px 70px rgba(36, 58, 47, 0.12);
+}
+
+.admin-auth-brand {
+  display: grid;
+  width: 3.5rem;
+  height: 3.5rem;
+  place-items: center;
+  margin-bottom: 1.5rem;
+  border-radius: 50%;
+  background: #243a2f;
+  color: #fff;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.35rem;
+  font-weight: 700;
+}
+
+.admin-auth-card h1 {
+  margin: 0.5rem 0;
+  font-size: clamp(2.6rem, 8vw, 3.5rem);
+}
+
+.admin-auth-description {
+  margin-bottom: 1.75rem;
+}
+
+.admin-auth-form {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.admin-auth-form input {
+  background: #fff;
+}
+
+.admin-auth-submit {
+  width: 100%;
+  margin-top: 0.25rem;
+}
+
+.admin-auth-note {
+  margin: 1.5rem 0 0;
+  color: rgba(52, 75, 59, 0.65);
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+.admin-auth-card .flash-stack {
+  padding: 0 0 1rem;
 }
 
 @media (max-width: 900px) {
