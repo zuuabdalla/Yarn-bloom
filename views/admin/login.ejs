@@ -10,26 +10,40 @@
   </head>
   <body class="admin-auth-body">
     <main class="admin-auth-card page-card">
-      <div class="admin-auth-brand" aria-hidden="true">Y&amp;B</div>
-      <div class="eyebrow">Private admin portal</div>
-      <h1>Welcome back</h1>
-      <p class="admin-auth-description">Sign in to manage your products and customer enquiries.</p>
-
-      <%- include('../partials/flash-messages') %>
-
-      <form action="/admin/login" method="POST" class="admin-auth-form">
-        <div class="form-group">
-          <label for="username">Username</label>
-          <input id="username" name="username" type="text" autocomplete="username" required />
+      <section class="admin-auth-story" aria-label="Yarn & Bloom">
+        <a href="/" class="admin-auth-wordmark" aria-label="Yarn & Bloom home">
+          <img src="/images/moodboard/brand-panel.png" alt="Yarn & Bloom, handmade gifts designed around your story" />
+        </a>
+        <div class="admin-auth-story-copy">
+          <span class="admin-auth-flower" aria-hidden="true">✿</span>
+          <p>Every stitch tells a story.</p>
+          <span>Made with love in Nairobi</span>
         </div>
-        <div class="form-group">
-          <label for="password">Password</label>
-          <input id="password" name="password" type="password" autocomplete="current-password" required />
-        </div>
-        <button class="btn btn-primary admin-auth-submit" type="submit">Sign in</button>
-      </form>
+      </section>
 
-      <p class="admin-auth-note">Authorized administrators only.</p>
+      <section class="admin-auth-content">
+        <a class="admin-auth-back" href="/">← Back to shop</a>
+        <div class="admin-auth-brand" aria-hidden="true">Y&amp;B</div>
+        <div class="eyebrow">Private admin portal</div>
+        <h1>Welcome back</h1>
+        <p class="admin-auth-description">Sign in to manage your products and customer enquiries.</p>
+
+        <%- include('../partials/flash-messages') %>
+
+        <form action="/admin/login" method="POST" class="admin-auth-form">
+          <div class="form-group">
+            <label for="username">Username</label>
+            <input id="username" name="username" type="text" autocomplete="username" placeholder="Enter your username" required />
+          </div>
+          <div class="form-group">
+            <label for="password">Password</label>
+            <input id="password" name="password" type="password" autocomplete="current-password" placeholder="Enter your password" required />
+          </div>
+          <button class="btn btn-primary admin-auth-submit" type="submit">Sign in to dashboard <span aria-hidden="true">→</span></button>
+        </form>
+
+        <p class="admin-auth-note"><span aria-hidden="true">▣</span> Authorized administrators only</p>
+      </section>
     </main>
   </body>
 </html>

@@ -147,3 +147,195 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
+
+.admin-auth-body {
+  min-height: 100vh;
+  padding: 1.5rem;
+  background:
+    radial-gradient(ellipse at 9% 12%, rgba(196, 177, 139, .2), transparent 28rem),
+    radial-gradient(ellipse at 92% 88%, rgba(131, 151, 125, .22), transparent 30rem),
+    #f5f4ed;
+}
+
+.admin-auth-card {
+  display: grid;
+  grid-template-columns: minmax(0, .9fr) minmax(400px, 1fr);
+  width: min(940px, 100%);
+  min-height: 590px;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid rgba(52, 75, 59, .08);
+  border-radius: 24px;
+  background: #fffef9;
+  box-shadow: 0 28px 80px rgba(36, 58, 47, .14);
+}
+
+.admin-auth-story {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: space-between;
+  min-height: 590px;
+  padding: 2rem;
+  overflow: hidden;
+  background:
+    linear-gradient(180deg, rgba(28, 48, 36, .06) 0%, rgba(28, 48, 36, .08) 40%, rgba(28, 48, 36, .78) 100%),
+    url('/images/moodboard/hand-crocheting.png') center / cover,
+    #dfe4d8;
+}
+
+.admin-auth-wordmark {
+  display: block;
+  width: 150px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, .7);
+  border-radius: 14px;
+  background: rgba(255, 253, 248, .92);
+  box-shadow: 0 8px 24px rgba(30, 45, 34, .12);
+}
+
+.admin-auth-wordmark img {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+}
+
+.admin-auth-story-copy {
+  color: #fffef8;
+}
+
+.admin-auth-story-copy p {
+  margin: 0 0 .45rem;
+  color: inherit;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(2.2rem, 4vw, 3.3rem);
+  font-weight: 600;
+  line-height: .98;
+}
+
+.admin-auth-story-copy > span:last-child {
+  font-size: .76rem;
+  font-weight: 700;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+
+.admin-auth-flower {
+  display: inline-block;
+  margin-bottom: .7rem;
+  color: #e4d59e;
+  font-size: 1.5rem;
+}
+
+.admin-auth-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: clamp(2rem, 5vw, 4rem);
+}
+
+.admin-auth-back {
+  align-self: flex-start;
+  margin-bottom: 2.5rem;
+  color: rgba(52, 75, 59, .72);
+  font-size: .82rem;
+  font-weight: 700;
+}
+
+.admin-auth-back:hover { color: var(--forest); }
+
+.admin-auth-content .admin-auth-brand {
+  width: 46px;
+  height: 46px;
+  margin-bottom: 1.25rem;
+  background: var(--forest);
+  font-size: 1rem;
+}
+
+.admin-auth-content .eyebrow {
+  margin-bottom: .35rem;
+  color: #7a806a;
+}
+
+.admin-auth-content h1 {
+  margin-bottom: .65rem;
+  font-size: clamp(2.6rem, 5vw, 3.6rem);
+}
+
+.admin-auth-description {
+  max-width: 340px;
+  margin-bottom: 1.4rem;
+  font-size: .9rem;
+}
+
+.admin-auth-form {
+  gap: .15rem;
+}
+
+.admin-auth-form .form-group {
+  gap: .4rem;
+  margin-bottom: .85rem;
+}
+
+.admin-auth-form label {
+  font-size: .82rem;
+}
+
+.admin-auth-form input {
+  min-height: 48px;
+  border-radius: 9px;
+  background: #fbfaf6;
+}
+
+.admin-auth-form input::placeholder {
+  color: rgba(52, 75, 59, .42);
+}
+
+.admin-auth-submit {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  min-height: 48px;
+  margin-top: .35rem;
+  padding-inline: 1rem;
+  border-radius: 9px;
+}
+
+.admin-auth-submit span { font-size: 1.15rem; }
+
+.admin-auth-note {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .45rem;
+  margin: 1.25rem 0 0;
+  font-size: .73rem;
+}
+
+.admin-auth-content .flash-stack { padding-top: 0; }
+.admin-auth-content .flash { font-size: .82rem; }
+
+@media (max-width: 700px) {
+  .admin-auth-body { padding: .8rem; }
+  .admin-auth-card {
+    grid-template-columns: 1fr;
+    width: min(480px, 100%);
+    min-height: 0;
+    border-radius: 18px;
+  }
+  .admin-auth-story {
+    min-height: 185px;
+    padding: 1rem 1.2rem;
+    flex-direction: row;
+    align-items: flex-end;
+  }
+  .admin-auth-wordmark { width: 78px; border-radius: 9px; }
+  .admin-auth-story-copy { text-align: right; }
+  .admin-auth-story-copy p { margin-bottom: .3rem; font-size: 1.8rem; }
+  .admin-auth-story-copy > span:last-child { font-size: .56rem; }
+  .admin-auth-flower { margin-bottom: .2rem; font-size: 1rem; }
+  .admin-auth-content { padding: 1.5rem; }
+  .admin-auth-back { margin-bottom: 1.35rem; }
+  .admin-auth-content h1 { font-size: 2.6rem; }
+}
