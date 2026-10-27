@@ -1,4 +1,4 @@
-<section class="page-shell">
+<section class="page-shell product-details">
   <div class="container">
     <div class="feature-layout" style="align-items:flex-start;">
       <div class="product-gallery">
@@ -68,19 +68,26 @@
           <a class="btn btn-secondary" href="/shop">Continue shopping</a>
         </div>
         <p class="favorites-status" data-bag-status role="status" aria-live="polite"></p>
-        <div class="summary-box">
-          <p><strong>Availability:</strong> <%= product.stock_status === 'in_stock' ? 'Ready to order' : product.stock_status === 'out_of_stock' ? 'Currently unavailable' : 'Made to order' %></p>
-          <p><strong>Production time:</strong> <%= product.estimated_production_days || 3 %>–<%= (product.estimated_production_days || 3) + 2 %> days</p>
-          <p><strong>Materials:</strong> <%= product.materials || 'Handmade cotton yarn' %></p>
-          <p><strong>Best for:</strong> <%= product.occasions || 'Everyday gifting and keepsakes' %></p>
+        <div class="product-accordions">
+          <details open>
+            <summary>Product details</summary>
+            <p><%= product.detailed_description || product.short_description %></p>
+          </details>
+          <details>
+            <summary>Materials &amp; dimensions</summary>
+            <p><strong>Materials:</strong> <%= product.materials || 'Handmade cotton yarn' %></p>
+            <% if (product.dimensions) { %><p><strong>Dimensions:</strong> <%= product.dimensions %></p><% } %>
+          </details>
+          <details>
+            <summary>Care instructions</summary>
+            <p>Handle with care and keep dry where possible. Contact us if you'd like specific care advice for this piece.</p>
+          </details>
+          <details>
+            <summary>Customer reviews</summary>
+            <p><%= (reviews || []).length ? `${reviews.length} customer review${reviews.length === 1 ? '' : 's'} below.` : 'Be the first to share your thoughts on this handmade piece.' %></p>
+            <a href="#reviews">Read or leave a review</a>
+          </details>
         </div>
-      </div>
-    </div>
-
-    <div class="section" style="padding-top:2rem; padding-bottom:1rem;">
-      <div class="summary-box">
-        <h3>About this piece</h3>
-        <p><%= product.detailed_description %></p>
       </div>
     </div>
 

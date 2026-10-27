@@ -1,16 +1,18 @@
 <section class="page-shell">
   <div class="container">
-    <div class="section-header">
+    <div class="section-header custom-order-heading">
       <div>
-        <div class="eyebrow">Custom crochet</div>
-        <h1>Bring your idea to life.</h1>
+        <div class="eyebrow">Handmade just for you</div>
+        <h1>Custom Crochet Order</h1>
+        <p>Have a unique idea? We'd love to make it for you!</p>
       </div>
+      <img src="/images/moodboard/crochet-gift-box.png" alt="A handmade crochet gift box with flowers and keepsakes" />
     </div>
 
     <div class="feature-layout" style="margin-bottom:2rem;">
       <div>
         <div class="page-card">
-          <h3>Tell us about your vision</h3>
+          <h2>Tell us what you have in mind</h2>
           <form action="/custom-order" method="POST" enctype="multipart/form-data" class="form-grid">
             <div class="form-group">
               <label for="customer_name">Your name</label>
@@ -34,7 +36,7 @@
               <input id="preferred_colors" name="preferred_colors" value="<%= formData && formData.preferred_colors ? formData.preferred_colors : '' %>" />
             </div>
             <div class="form-group">
-              <label for="desired_size">Desired size</label>
+              <label for="desired_size">Size / dimensions</label>
               <input id="desired_size" name="desired_size" value="<%= formData && formData.desired_size ? formData.desired_size : '' %>" />
             </div>
             <div class="form-group">
@@ -50,7 +52,7 @@
               <input id="required_date" name="required_date" type="date" value="<%= formData && formData.required_date ? formData.required_date : '' %>" />
             </div>
             <div class="form-group full">
-              <label for="design_description">Design brief</label>
+              <label for="design_description">Design description</label>
               <textarea id="design_description" name="design_description" required><%= formData && formData.design_description ? formData.design_description : '' %></textarea>
             </div>
             <div class="form-group full">

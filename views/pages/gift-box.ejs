@@ -7,8 +7,9 @@
       </div>
     </div>
 
-    <section class="ai-builder-panel page-card" aria-labelledby="ai-builder-heading">
-      <div class="eyebrow">AI gift builder</div>
+    <details class="ai-builder-panel page-card">
+      <summary><span class="eyebrow">AI gift builder</span><strong>Need a little inspiration? Get an AI suggestion.</strong></summary>
+      <div class="ai-builder-content">
       <h2 id="ai-builder-heading">Start with a thoughtful suggestion.</h2>
       <p>Share who the gift is for and your budget. We’ll suggest real handmade items and preselect them below for you to review.</p>
       <form action="/gift-box/ai-suggest" method="POST" class="form-grid ai-builder-form">
@@ -57,82 +58,65 @@
           </ul>
         <% } %>
       <% } %>
-    </section>
+      </div>
+    </details>
 
     <div class="page-card">
-      <form action="/gift-box" method="POST" class="form-grid">
-        <div class="form-group">
-          <label for="customer_name">Your name</label>
-          <input id="customer_name" name="customer_name" required />
-        </div>
-        <div class="form-group">
-          <label for="whatsapp_number">WhatsApp number</label>
-          <input id="whatsapp_number" name="whatsapp_number" placeholder="e.g. +254712345678" required />
-        </div>
-        <div class="form-group">
-          <label for="recipient_name">Recipient name</label>
-          <input id="recipient_name" name="recipient_name" />
-        </div>
-        <div class="form-group">
-          <label for="occasion">Occasion</label>
-          <input id="occasion" name="occasion" value="<%= answers && answers.occasion ? answers.occasion : '' %>" />
-        </div>
-        <div class="form-group">
-          <label for="color_theme">Colour theme</label>
-          <input id="color_theme" name="color_theme" value="<%= answers && answers.colors ? answers.colors : 'Sage Meadow (Sage & Cream)' %>" />
-        </div>
-        <div class="form-group">
-          <label for="max_budget">Budget (KSh)</label>
-          <input id="max_budget" name="max_budget" type="number" min="800" max="1000000" step="100" value="<%= answers && answers.budget ? answers.budget : '' %>" />
-        </div>
-        <div class="form-group full">
-          <label>Choose gift items</label>
-          <div class="result-list">
-            <div class="summary-box">
-              <h3>Bags</h3>
-              <% (bagItems || []).forEach((item) => { %>
-                <label style="display:flex; gap:.5rem; margin:.5rem 0; align-items:center;">
-                  <input type="checkbox" name="selected_product_ids" value="<%= item.id %>" <%= selectedProductIds && selectedProductIds.includes(String(item.id)) ? 'checked' : '' %> />
-                  <span><%= item.name %> — <%= formatKSh(item.price) %></span>
-                </label>
-              <% }) %>
-            </div>
-            <div class="summary-box">
-              <h3>Flowers</h3>
-              <% (flowerItems || []).forEach((item) => { %>
-                <label style="display:flex; gap:.5rem; margin:.5rem 0; align-items:center;">
-                  <input type="checkbox" name="selected_product_ids" value="<%= item.id %>" <%= selectedProductIds && selectedProductIds.includes(String(item.id)) ? 'checked' : '' %> />
-                  <span><%= item.name %> — <%= formatKSh(item.price) %></span>
-                </label>
-              <% }) %>
-            </div>
-            <div class="summary-box">
-              <h3>Toys</h3>
-              <% (toyItems || []).forEach((item) => { %>
-                <label style="display:flex; gap:.5rem; margin:.5rem 0; align-items:center;">
-                  <input type="checkbox" name="selected_product_ids" value="<%= item.id %>" <%= selectedProductIds && selectedProductIds.includes(String(item.id)) ? 'checked' : '' %> />
-                  <span><%= item.name %> — <%= formatKSh(item.price) %></span>
-                </label>
-              <% }) %>
-            </div>
-            <div class="summary-box">
-              <h3>More favourites</h3>
-              <% (otherItems || []).forEach((item) => { %>
-                <label style="display:flex; gap:.5rem; margin:.5rem 0; align-items:center;">
-                  <input type="checkbox" name="selected_product_ids" value="<%= item.id %>" <%= selectedProductIds && selectedProductIds.includes(String(item.id)) ? 'checked' : '' %> />
-                  <span><%= item.name %> — <%= formatKSh(item.price) %></span>
-                </label>
-              <% }) %>
-            </div>
+      <form action="/gift-box" method="POST" class="gift-box-form" data-gift-box-form>
+        <div class="gift-box-selection">
+          <div class="section-header"><div><div class="eyebrow">Step 1</div><h2>Choose your handmade gifts</h2></div></div>
+          <div class="gift-item-groups">
+            <% const giftGroups = [['Bags', bagItems], ['Flowers', flowerItems], ['Toys', toyItems], ['More favourites', otherItems]]; %>
+            <% giftGroups.forEach(([groupName, groupItems]) => { if (groupItems && groupItems.length) { %>
+              <fieldset class="gift-item-group">
+                <legend><%= groupName %></legend>
+                <div class="gift-item-list">
+                  <% groupItems.forEach((item) => { %>
+                    <label class="gift-item-choice">
+                      <input type="checkbox" name="selected_product_ids" value="<%= item.id %>" <%= selectedProductIds && selectedProductIds.includes(String(item.id)) ? 'checked' : '' %> data-gift-price="<%= item.price %>" />
+                      <img src="<%= item.primary_image || item.image_url || '/images/products/placeholder.svg' %>" alt="" loading="lazy" />
+                      <span><strong><%= item.name %></strong><small><%= formatKSh(item.price) %></small></span>
+                    </label>
+                  <% }) %>
+                </div>
+              </fieldset>
+            <% } }) %>
           </div>
         </div>
-        <div class="form-group full">
-          <label for="gift_message">Gift message</label>
-          <textarea id="gift_message" name="gift_message" placeholder="Write a short message for the recipient."></textarea>
-        </div>
-        <div class="form-group full">
+        <aside class="gift-box-options">
+          <div class="eyebrow">Step 2</div>
+          <h2>Make it personal</h2>
+          <div class="form-group">
+            <label for="customer_name">Your name</label>
+            <input id="customer_name" name="customer_name" required />
+          </div>
+          <div class="form-group">
+            <label for="whatsapp_number">WhatsApp number</label>
+            <input id="whatsapp_number" name="whatsapp_number" placeholder="e.g. +254712345678" required />
+          </div>
+          <div class="form-group">
+            <label for="recipient_name">Recipient name (optional)</label>
+            <input id="recipient_name" name="recipient_name" />
+          </div>
+          <div class="form-group">
+            <label for="occasion">Occasion</label>
+            <input id="occasion" name="occasion" value="<%= answers && answers.occasion ? answers.occasion : '' %>" placeholder="Birthday, thank you..." />
+          </div>
+          <div class="form-group">
+            <label for="color_theme">Colour theme</label>
+            <input id="color_theme" name="color_theme" value="<%= answers && answers.colors ? answers.colors : 'Sage Meadow (Sage & Cream)' %>" />
+          </div>
+          <div class="form-group">
+            <label for="max_budget">Budget (KSh)</label>
+            <input id="max_budget" name="max_budget" type="number" min="800" max="1000000" step="100" value="<%= answers && answers.budget ? answers.budget : '' %>" />
+          </div>
+          <div class="form-group">
+            <label for="gift_message">Gift message</label>
+            <textarea id="gift_message" name="gift_message" placeholder="Write a short message for the recipient."></textarea>
+          </div>
+          <div class="gift-estimate"><span>Estimated total</span><strong data-gift-box-total>KSh 0</strong><small>Final total is confirmed after we review your selection.</small></div>
           <button class="btn btn-primary" type="submit">Create my gift box</button>
-        </div>
+        </aside>
       </form>
     </div>
   </div>

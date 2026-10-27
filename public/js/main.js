@@ -360,4 +360,66 @@ document.addEventListener('DOMContentLoaded', () => {
     quantityInput.addEventListener('blur', updateOrderLink);
     updateOrderLink();
   }
+
+  const giftBoxForm = document.querySelector('[data-gift-box-form]');
+  if (giftBoxForm) {
+    const totalDisplay = giftBoxForm.querySelector('[data-gift-box-total]');
+    const giftMessage = giftBoxForm.querySelector('[name="gift_message"]');
+    const updateGiftBoxTotal = () => {
+      const selectedTotal = [...giftBoxForm.querySelectorAll('[name="selected_product_ids"]:checked')]
+        .reduce((total, item) => total + (Number(item.dataset.giftPrice) || 0), 0);
+      const estimatedTotal = selectedTotal
+        ? selectedTotal + 350 + (giftMessage.value.trim() ? 150 : 0)
+        : 0;
+      totalDisplay.textContent = new Intl.NumberFormat('en-KE', {
+        style: 'currency',
+        currency: 'KES',
+        maximumFractionDigits: 0
+      }).format(estimatedTotal);
+    };
+
+    giftBoxForm.addEventListener('change', updateGiftBoxTotal);
+    giftMessage.addEventListener('input', updateGiftBoxTotal);
+    updateGiftBoxTotal();
+  }
+
+  const giftFinder = document.querySelector('[data-gift-finder-form]');
+  if (giftFinder) {
+    const steps = [...giftFinder.querySelectorAll('[data-quiz-step]')];
+    const progressItems = [...giftFinder.querySelectorAll('.gift-quiz-progress li')];
+    const backButton = giftFinder.querySelector('[data-quiz-back]');
+    const nextButton = giftFinder.querySelector('[data-quiz-next]');
+    const submitButton = giftFinder.querySelector('[data-quiz-submit]');
+    let activeStep = 0;
+
+    const showGiftFinderStep = (index) => {
+      activeStep = Math.min(steps.length - 1, Math.max(0, index));
+      steps.forEach((step, stepIndex) => {
+        step.hidden = stepIndex !== activeStep;
+      });
+      progressItems.forEach((item, stepIndex) => {
+        if (stepIndex === activeStep) item.setAttribute('aria-current', 'step');
+        else item.removeAttribute('aria-current');
+        item.classList.toggle('is-complete', stepIndex < activeStep);
+      });
+      backButton.hidden = activeStep === 0;
+      nextButton.hidden = activeStep === steps.length - 1;
+      submitButton.hidden = activeStep !== steps.length - 1;
+    };
+
+    giftFinder.querySelectorAll('[data-gift-answer]').forEach((choice) => {
+      choice.addEventListener('click', () => {
+        const answer = giftFinder.querySelector(`[name="${choice.dataset.giftAnswer}"]`);
+        if (!answer) return;
+        answer.value = choice.dataset.giftValue;
+        choice.closest('.gift-choice-grid, .gift-budget-options, .gift-color-options')
+          .querySelectorAll('.gift-choice')
+          .forEach((item) => item.classList.toggle('is-selected', item === choice));
+      });
+    });
+
+    nextButton.addEventListener('click', () => showGiftFinderStep(activeStep + 1));
+    backButton.addEventListener('click', () => showGiftFinderStep(activeStep - 1));
+    showGiftFinderStep(0);
+  }
 });

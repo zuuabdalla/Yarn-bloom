@@ -1,80 +1,105 @@
-<section class="page-shell">
+<section class="page-shell gift-finder-page">
   <div class="container">
-    <div class="section-header">
+    <div class="section-header gift-finder-heading">
       <div>
-        <div class="eyebrow">AI gift finder</div>
-        <h1>Find the perfect crochet gift.</h1>
-        <p>Tell us a little about them and our gift assistant will match your ideas to real pieces in the Yarn &amp; Bloom collection.</p>
+        <div class="eyebrow">AI gift finder · a little help from us</div>
+        <h1>Find the Perfect Gift</h1>
+        <p>Answer a few quick questions and we'll find a handmade gift they'll love.</p>
       </div>
     </div>
 
-    <div class="feature-layout">
-      <div class="page-card">
-        <form action="/gift-finder" method="POST" class="form-grid">
-          <div class="form-group">
-            <label for="recipient">Who are you shopping for?</label>
-            <input id="recipient" name="recipient" value="<%= answers && answers.recipient ? answers.recipient : '' %>" placeholder="Best friend, mum, baby, partner..." />
+    <div class="gift-quiz-shell">
+      <form action="/gift-finder" method="POST" class="gift-quiz" data-gift-finder-form>
+        <ol class="gift-quiz-progress" aria-label="Gift finder steps">
+          <li aria-current="step">1</li><li>2</li><li>3</li><li>4</li><li>5</li>
+        </ol>
+        <section class="gift-quiz-step" data-quiz-step="1">
+          <span class="eyebrow">Step 1 of 5</span>
+          <h2>Who are you shopping for?</h2>
+          <div class="gift-choice-grid">
+            <% [['Mum','♡'],['Partner','♧'],['Child','✿'],['Friend','✧'],['Other','＋']].forEach(([recipient, icon]) => { %>
+              <button class="gift-choice" type="button" data-gift-answer="recipient" data-gift-value="<%= recipient %>"><span aria-hidden="true"><%= icon %></span><%= recipient %></button>
+            <% }) %>
           </div>
-          <div class="form-group">
-            <label for="occasion">Occasion</label>
-            <input id="occasion" name="occasion" value="<%= answers && answers.occasion ? answers.occasion : '' %>" placeholder="Birthday, anniversary, thank you..." />
+          <label class="gift-custom-answer" for="recipient">Or tell us who</label>
+          <input id="recipient" name="recipient" value="<%= answers && answers.recipient ? answers.recipient : '' %>" placeholder="A friend, new parent, colleague..." />
+        </section>
+        <section class="gift-quiz-step" data-quiz-step="2" hidden>
+          <span class="eyebrow">Step 2 of 5</span>
+          <h2>What's the occasion?</h2>
+          <div class="gift-choice-grid">
+            <% [['Birthday','🎂'],['Thank you','♡'],['Anniversary','✿'],['Just because','✧'],['New baby','☼']].forEach(([occasion, icon]) => { %>
+              <button class="gift-choice" type="button" data-gift-answer="occasion" data-gift-value="<%= occasion %>"><span aria-hidden="true"><%= icon %></span><%= occasion %></button>
+            <% }) %>
           </div>
-          <div class="form-group">
-            <label for="budget">Budget</label>
-            <input id="budget" name="budget" value="<%= answers && answers.budget ? answers.budget : '' %>" placeholder="KSh 1500" />
+          <label class="gift-custom-answer" for="occasion">Or add a different occasion</label>
+          <input id="occasion" name="occasion" value="<%= answers && answers.occasion ? answers.occasion : '' %>" placeholder="A little celebration..." />
+        </section>
+        <section class="gift-quiz-step" data-quiz-step="3" hidden>
+          <span class="eyebrow">Step 3 of 5</span>
+          <h2>What's your budget?</h2>
+          <div class="gift-budget-options">
+            <% [['Under KSh 2,000','1500'],['KSh 2,000–5,000','3500'],['KSh 5,000–10,000','7500'],['KSh 10,000+','12000']].forEach(([label, amount]) => { %>
+              <button class="gift-choice" type="button" data-gift-answer="budget" data-gift-value="<%= amount %>"><%= label %></button>
+            <% }) %>
           </div>
-          <div class="form-group">
-            <label for="colors">Favourite colours</label>
-            <input id="colors" name="colors" value="<%= answers && answers.colors ? answers.colors : '' %>" placeholder="sage, blush, cream..." />
+          <label class="gift-custom-answer" for="budget">Or enter your budget (KSh)</label>
+          <input id="budget" name="budget" value="<%= answers && answers.budget ? answers.budget : '' %>" inputmode="numeric" placeholder="e.g. 3,500" />
+        </section>
+        <section class="gift-quiz-step" data-quiz-step="4" hidden>
+          <span class="eyebrow">Step 4 of 5</span>
+          <h2>Any favorite colors?</h2>
+          <div class="gift-color-options">
+            <% [['Sage','sage'],['Blush','blush'],['Cream','cream'],['Warm neutrals','warm neutrals'],['Surprise me','any']].forEach(([label, color]) => { %>
+              <button class="gift-choice" type="button" data-gift-answer="colors" data-gift-value="<%= color %>"><span class="color-swatch color-<%= color.replace(' ', '-') %>" aria-hidden="true"></span><%= label %></button>
+            <% }) %>
           </div>
-          <div class="form-group full">
-            <label for="preference">Style preference</label>
-            <input id="preference" name="preference" value="<%= answers && answers.preference ? answers.preference : '' %>" placeholder="Minimal, romantic, cosy, playful..." />
+          <label class="gift-custom-answer" for="colors">Or name a color</label>
+          <input id="colors" name="colors" value="<%= answers && answers.colors ? answers.colors : '' %>" placeholder="Sage, blush, cream..." />
+        </section>
+        <section class="gift-quiz-step" data-quiz-step="5" hidden>
+          <span class="eyebrow">Step 5 of 5</span>
+          <h2>What style feels like them?</h2>
+          <div class="gift-choice-grid">
+            <% [['Cosy','☁'],['Playful','✿'],['Elegant','✧'],['Practical','▱'],['Romantic','♡']].forEach(([label, icon]) => { %>
+              <button class="gift-choice" type="button" data-gift-answer="preference" data-gift-value="<%= label %>"><span aria-hidden="true"><%= icon %></span><%= label %></button>
+            <% }) %>
           </div>
-          <div class="form-group full">
-            <button class="btn btn-primary" type="submit">Find my gift</button>
-          </div>
-        </form>
-        <p class="ai-privacy-note">Share a recipient type, not a name or contact details. Gift preferences and catalog details are used for AI suggestions.</p>
-      </div>
+          <label class="gift-custom-answer" for="preference">Tell us a little more</label>
+          <input id="preference" name="preference" value="<%= answers && answers.preference ? answers.preference : '' %>" placeholder="Their hobbies or style..." />
+        </section>
+        <div class="gift-quiz-controls">
+          <button class="btn btn-secondary" type="button" data-quiz-back hidden>Back</button>
+          <button class="btn btn-primary" type="button" data-quiz-next>Next</button>
+          <button class="btn btn-primary" type="submit" data-quiz-submit hidden>Find my gift</button>
+        </div>
+      </form>
 
-      <div>
-        <% if (results && results.length) { %>
-          <div class="summary-box">
-            <div class="ai-result-note">
-              <strong><%= recommendationSource === 'ai' ? 'AI-curated gift ideas' : recommendationSource === 'fallback' ? 'Catalog suggestions' : 'Preference-matched gifts' %></strong>
-              <p><%= recommendationSummary %></p>
-            </div>
-            <div class="result-list">
-              <% results.forEach((product) => { %>
-                <div class="page-card ai-gift-result">
-                  <h4><%= product.name %></h4>
-                  <p><%= product.short_description %></p>
-                  <% if (product.matchReasons && product.matchReasons.length) { %>
-                    <p class="ai-match-reason"><%= product.matchReasons[0] %></p>
-                  <% } %>
-                  <div class="small-row" style="justify-content:flex-start;">
-                    <span><strong><%= formatKSh ? formatKSh(product.price) : 'KSh ' + product.price %></strong></span>
-                    <a class="btn btn-secondary small" href="/shop/<%= product.slug %>">View</a>
-                    <a class="btn btn-primary small" href="<%= product.whatsappUrl %>" target="_blank" rel="noreferrer">WhatsApp</a>
-                  </div>
-                </div>
-              <% }) %>
-            </div>
-          </div>
-        <% } else if (recommendationSummary) { %>
-          <div class="summary-box">
-            <h3>No exact matches yet</h3>
+      <% if (results && results.length) { %>
+        <div class="gift-results">
+          <div class="ai-result-note">
+            <strong><%= recommendationSource === 'ai' ? 'AI-curated gift ideas' : recommendationSource === 'fallback' ? 'Catalog suggestions' : 'Preference-matched gifts' %></strong>
             <p><%= recommendationSummary %></p>
-            <p>Try a broader budget, colour, or style to see more of our handmade collection.</p>
           </div>
-        <% } else { %>
-          <div class="summary-box">
-            <h3>Your thoughtful gift, made easier</h3>
-            <p>Answer a few quick prompts and the AI gift finder will suggest real crochet pieces suited to the recipient, occasion, colours, and budget.</p>
+          <div class="gift-result-grid">
+            <% results.forEach((product) => { %>
+              <article class="page-card ai-gift-result">
+                <h3><%= product.name %></h3>
+                <p><%= product.short_description %></p>
+                <% if (product.matchReasons && product.matchReasons.length) { %><p class="ai-match-reason"><%= product.matchReasons[0] %></p><% } %>
+                <div class="small-row" style="justify-content:flex-start;">
+                  <strong><%= formatKSh ? formatKSh(product.price) : 'KSh ' + product.price %></strong>
+                  <a class="btn btn-secondary small" href="/shop/<%= product.slug %>">View</a>
+                  <a class="btn btn-primary small" href="<%= product.whatsappUrl %>" target="_blank" rel="noreferrer">WhatsApp</a>
+                </div>
+              </article>
+            <% }) %>
           </div>
-        <% } %>
-      </div>
+        </div>
+      <% } else if (recommendationSummary) { %>
+        <div class="summary-box gift-results"><h3>No exact matches yet</h3><p><%= recommendationSummary %></p><p>Try a broader budget, color, or style to see more handmade pieces.</p></div>
+      <% } %>
     </div>
+    <p class="ai-privacy-note">Share a recipient type, not a name or contact details. Gift preferences and catalog details are used for recommendations.</p>
   </div>
 </section>
