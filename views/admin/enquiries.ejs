@@ -1,0 +1,223 @@
+<section class="admin-section admin-enquiries">
+  <header class="admin-page-heading">
+    <div>
+      <div class="eyebrow">Customer care</div>
+      <h1>Enquiries</h1>
+      <p>Review custom requests, gift box orders, and customer messages.</p>
+    </div>
+  </header>
+
+  <%- include('../partials/flash-messages') %>
+
+  <nav class="enquiry-jump-links" aria-label="Enquiry sections">
+    <a href="#custom-orders">Custom orders <span><%= customOrders.length %></span></a>
+    <a href="#gift-boxes">Gift boxes <span><%= giftBoxes.length %></span></a>
+    <a href="#contact-messages">Messages <span><%= contacts.length %></span></a>
+    <a href="#reviews">Reviews <span><%= reviews.length %></span></a>
+  </nav>
+
+  <section class="enquiry-group" id="custom-orders">
+    <div class="enquiry-group-heading">
+      <div>
+        <h2>Custom orders</h2>
+        <p>Personalized crochet requests from customers.</p>
+      </div>
+      <span class="enquiry-count"><%= customOrders.length %></span>
+    </div>
+    <% if (customOrders.length) { %>
+      <div class="enquiry-list">
+        <% customOrders.forEach((order) => { %>
+          <article class="enquiry-card">
+            <div class="enquiry-card-heading">
+              <div>
+                <span class="enquiry-reference"><%= order.reference_number %></span>
+                <h3><%= order.customer_name %></h3>
+                <p><%= order.created_at ? new Date(order.created_at).toLocaleString('en-KE') : '' %></p>
+              </div>
+              <span class="enquiry-status"><%= order.status.replace(/_/g, ' ') %></span>
+            </div>
+            <dl class="enquiry-details">
+              <div><dt>WhatsApp</dt><dd><%= order.whatsapp_number %></dd></div>
+              <div><dt>Category</dt><dd><%= order.category_name || 'Not specified' %></dd></div>
+              <div><dt>Occasion</dt><dd><%= order.occasion || 'Not specified' %></dd></div>
+              <div><dt>Budget</dt><dd><%= order.budget ? formatKSh(order.budget) : 'Flexible' %></dd></div>
+              <div><dt>Colors</dt><dd><%= order.preferred_colors || 'Not specified' %></dd></div>
+              <div><dt>Size</dt><dd><%= order.desired_size || 'Not specified' %></dd></div>
+              <div class="enquiry-detail-wide"><dt>Design request</dt><dd><%= order.design_description %></dd></div>
+              <% if (order.additional_instructions) { %>
+                <div class="enquiry-detail-wide"><dt>Additional instructions</dt><dd><%= order.additional_instructions %></dd></div>
+              <% } %>
+              <% if (order.admin_notes) { %>
+                <div class="enquiry-detail-wide"><dt>Admin notes</dt><dd><%= order.admin_notes %></dd></div>
+              <% } %>
+            </dl>
+            <% if (order.reference_image_url) { %>
+              <a class="enquiry-attachment" href="<%= order.reference_image_url %>" target="_blank" rel="noopener noreferrer">View reference image</a>
+            <% } %>
+            <form class="enquiry-update-form" action="/admin/enquiries/custom-order/<%= order.id %>" method="POST">
+              <label>
+                Status
+                <select name="status" required>
+                  <% ['pending', 'in_review', 'quoted', 'in_production', 'completed', 'cancelled'].forEach((status) => { %>
+                    <option value="<%= status %>" <%= order.status === status ? 'selected' : '' %>><%= status.replace(/_/g, ' ') %></option>
+                  <% }) %>
+                </select>
+              </label>
+              <label class="enquiry-notes-field">
+                Admin notes
+                <input name="admin_notes" value="<%= order.admin_notes || '' %>" placeholder="Add an internal note" />
+              </label>
+              <button class="btn btn-primary small" type="submit">Save update</button>
+            </form>
+          </article>
+        <% }) %>
+      </div>
+    <% } else { %>
+      <div class="enquiry-empty">No custom order enquiries yet.</div>
+    <% } %>
+  </section>
+
+  <section class="enquiry-group" id="gift-boxes">
+    <div class="enquiry-group-heading">
+      <div>
+        <h2>Gift box orders</h2>
+        <p>Customer-selected gift boxes and delivery details.</p>
+      </div>
+      <span class="enquiry-count"><%= giftBoxes.length %></span>
+    </div>
+    <% if (giftBoxes.length) { %>
+      <div class="enquiry-list">
+        <% giftBoxes.forEach((giftBox) => { %>
+          <article class="enquiry-card">
+            <div class="enquiry-card-heading">
+              <div>
+                <span class="enquiry-reference"><%= giftBox.reference_number %></span>
+                <h3><%= giftBox.customer_name %></h3>
+                <p><%= giftBox.created_at ? new Date(giftBox.created_at).toLocaleString('en-KE') : '' %></p>
+              </div>
+              <span class="enquiry-status"><%= giftBox.status.replace(/_/g, ' ') %></span>
+            </div>
+            <dl class="enquiry-details">
+              <div><dt>WhatsApp</dt><dd><%= giftBox.whatsapp_number %></dd></div>
+              <div><dt>Theme</dt><dd><%= giftBox.color_theme %></dd></div>
+              <div><dt>Occasion</dt><dd><%= giftBox.occasion || 'Not specified' %></dd></div>
+              <div><dt>Recipient</dt><dd><%= giftBox.recipient_name || 'Not specified' %></dd></div>
+              <div><dt>Estimated total</dt><dd><%= formatKSh(giftBox.estimated_total) %></dd></div>
+              <div><dt>Budget</dt><dd><%= giftBox.max_budget ? formatKSh(giftBox.max_budget) : 'Not specified' %></dd></div>
+              <% if (giftBox.selected_items && giftBox.selected_items.length) { %>
+                <div class="enquiry-detail-wide">
+                  <dt>Selected items</dt>
+                  <dd><%= giftBox.selected_items.map((item) => item.name).join(', ') %></dd>
+                </div>
+              <% } %>
+              <% if (giftBox.gift_message) { %>
+                <div class="enquiry-detail-wide"><dt>Gift message</dt><dd><%= giftBox.gift_message %></dd></div>
+              <% } %>
+              <% if (giftBox.admin_notes) { %>
+                <div class="enquiry-detail-wide"><dt>Admin notes</dt><dd><%= giftBox.admin_notes %></dd></div>
+              <% } %>
+            </dl>
+          </article>
+        <% }) %>
+      </div>
+    <% } else { %>
+      <div class="enquiry-empty">No gift box orders yet.</div>
+    <% } %>
+  </section>
+
+  <section class="enquiry-group" id="contact-messages">
+    <div class="enquiry-group-heading">
+      <div>
+        <h2>Contact messages</h2>
+        <p>Questions and messages sent through the contact form.</p>
+      </div>
+      <span class="enquiry-count"><%= contacts.length %></span>
+    </div>
+    <% if (contacts.length) { %>
+      <div class="enquiry-list">
+        <% contacts.forEach((contact) => { %>
+          <article class="enquiry-card">
+            <div class="enquiry-card-heading">
+              <div>
+                <span class="enquiry-reference"><%= contact.subject %></span>
+                <h3><%= contact.name %></h3>
+                <p><%= contact.created_at ? new Date(contact.created_at).toLocaleString('en-KE') : '' %></p>
+              </div>
+              <span class="enquiry-status"><%= contact.status.replace(/_/g, ' ') %></span>
+            </div>
+            <dl class="enquiry-details">
+              <div><dt>Email</dt><dd><a href="mailto:<%= contact.email %>"><%= contact.email %></a></dd></div>
+              <div><dt>Phone</dt><dd><%= contact.phone || 'Not provided' %></dd></div>
+              <div class="enquiry-detail-wide"><dt>Message</dt><dd><%= contact.message %></dd></div>
+              <% if (contact.admin_notes) { %>
+                <div class="enquiry-detail-wide"><dt>Admin notes</dt><dd><%= contact.admin_notes %></dd></div>
+              <% } %>
+            </dl>
+            <form class="enquiry-update-form" action="/admin/enquiries/contact/<%= contact.id %>" method="POST">
+              <label>
+                Status
+                <select name="status" required>
+                  <% ['unread', 'read', 'responded', 'archived'].forEach((status) => { %>
+                    <option value="<%= status %>" <%= contact.status === status ? 'selected' : '' %>><%= status.replace(/_/g, ' ') %></option>
+                  <% }) %>
+                </select>
+              </label>
+              <label class="enquiry-notes-field">
+                Admin notes
+                <input name="admin_notes" value="<%= contact.admin_notes || '' %>" placeholder="Add an internal note" />
+              </label>
+              <button class="btn btn-primary small" type="submit">Save update</button>
+            </form>
+          </article>
+        <% }) %>
+      </div>
+    <% } else { %>
+      <div class="enquiry-empty">No contact messages yet.</div>
+    <% } %>
+  </section>
+
+  <section class="enquiry-group" id="reviews">
+    <div class="enquiry-group-heading">
+      <div>
+        <h2>Customer reviews</h2>
+        <p>Approve reviews and choose featured testimonials.</p>
+      </div>
+      <span class="enquiry-count"><%= reviews.length %></span>
+    </div>
+    <% if (reviews.length) { %>
+      <div class="enquiry-list">
+        <% reviews.forEach((review) => { %>
+          <article class="enquiry-card">
+            <div class="enquiry-card-heading">
+              <div>
+                <span class="enquiry-reference"><%= review.product_name || 'Store review' %></span>
+                <h3><%= review.customer_name %></h3>
+                <p><%= review.created_at ? new Date(review.created_at).toLocaleString('en-KE') : '' %></p>
+              </div>
+              <span class="enquiry-status"><%= review.is_approved ? 'approved' : 'pending review' %></span>
+            </div>
+            <p class="enquiry-review-rating" aria-label="<%= review.rating %> out of 5 stars"><%= '★'.repeat(Number(review.rating) || 0) %><%= '☆'.repeat(Math.max(0, 5 - (Number(review.rating) || 0))) %></p>
+            <p class="enquiry-review-comment"><%= review.comment %></p>
+            <div class="enquiry-review-actions">
+              <form action="/admin/reviews/<%= review.id %>/status" method="POST">
+                <input type="hidden" name="is_approved" value="<%= review.is_approved ? 'false' : 'true' %>" />
+                <input type="hidden" name="is_featured" value="<%= review.is_featured ? 'true' : 'false' %>" />
+                <button class="btn btn-secondary small" type="submit"><%= review.is_approved ? 'Unpublish review' : 'Approve review' %></button>
+              </form>
+              <form action="/admin/reviews/<%= review.id %>/status" method="POST">
+                <input type="hidden" name="is_approved" value="<%= review.is_approved ? 'true' : 'false' %>" />
+                <input type="hidden" name="is_featured" value="<%= review.is_featured ? 'false' : 'true' %>" />
+                <button class="btn btn-secondary small" type="submit"><%= review.is_featured ? 'Remove featured' : 'Feature review' %></button>
+              </form>
+              <form action="/admin/reviews/<%= review.id %>/delete" method="POST" onsubmit="return confirm('Delete this review?');">
+                <button class="btn btn-secondary small" type="submit">Delete</button>
+              </form>
+            </div>
+          </article>
+        <% }) %>
+      </div>
+    <% } else { %>
+      <div class="enquiry-empty">No customer reviews yet.</div>
+    <% } %>
+  </section>
+</section>
