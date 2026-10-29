@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, nofollow, noarchive" />
+    <title><%= title || 'Create Admin Account' %></title>
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="/css/admin.css" />
+  </head>
+  <body class="admin-auth-body">
+    <main class="admin-auth-card page-card">
+      <section class="admin-auth-story" aria-label="Yarn & Bloom">
+        <a href="/" class="admin-auth-wordmark" aria-label="Yarn & Bloom home">
+          <img src="/images/moodboard/brand-panel.png" alt="Yarn & Bloom, handmade gifts designed around your story" />
+        </a>
+        <div class="admin-auth-story-copy">
+          <span class="admin-auth-flower" aria-hidden="true">✿</span>
+          <p>Every stitch tells a story.</p>
+          <span>Made with love in Nairobi</span>
+        </div>
+      </section>
+
+      <section class="admin-auth-content">
+        <a class="admin-auth-back" href="/admin/dashboard">← Back to dashboard</a>
+        <div class="admin-auth-brand" aria-hidden="true">Y&amp;B</div>
+        <div class="eyebrow">Private admin portal</div>
+        <h1>Create admin</h1>
+        <p class="admin-auth-description">Add an administrator account for the Yarn &amp; Bloom team.</p>
+
+        <%- include('../partials/flash-messages') %>
+
+        <form action="/admin/signup" method="POST" class="admin-auth-form">
+          <div class="form-group">
+            <label for="username">Username</label>
+            <input id="username" name="username" type="text" autocomplete="username" minlength="3" maxlength="50" pattern="[A-Za-z0-9._-]+" placeholder="Choose a username" required />
+          </div>
+          <div class="form-group">
+            <label for="email">Email</label>
+            <input id="email" name="email" type="email" autocomplete="email" maxlength="120" placeholder="name@example.com" required />
+          </div>
+          <div class="form-group">
+            <label for="password">Password</label>
+            <input id="password" name="password" type="password" autocomplete="new-password" minlength="12" maxlength="128" placeholder="At least 12 characters" required />
+          </div>
+          <div class="form-group">
+            <label for="password_confirmation">Confirm password</label>
+            <input id="password_confirmation" name="password_confirmation" type="password" autocomplete="new-password" minlength="12" maxlength="128" placeholder="Enter the password again" required />
+          </div>
+          <button class="btn btn-primary admin-auth-submit" type="submit">Create account <span aria-hidden="true">→</span></button>
+        </form>
+
+        <p class="admin-auth-note"><span aria-hidden="true">▣</span> Admin accounts are created by a superadmin</p>
+      </section>
+    </main>
+  </body>
+</html>

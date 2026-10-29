@@ -19,6 +19,49 @@ exports.getLogin = (req, res) => {
 };
 
 /**
+ * Render the superadmin-only admin account sign-up page
+ */
+exports.getSignup = (req, res) => {
+  res.set('X-Robots-Tag', 'noindex, nofollow, noarchive');
+  res.render('admin/signup', {
+    title: 'Create Admin Account — Yarn & Bloom',
+    layout: false
+  });
+};
+
+/**
+ * Create an admin account and send the creator to sign in
+ */
+exports.postSignup = async (req, res, next) => {
+  try {
+    const { username, email, password } = req.body;
+    const passwordHash = await Admin.hashPassword(password);
+
+    try {
+      await Admin.create({ username, email, passwordHash });
+    } catch (error) {
+      if (error.code === 'ER_DUP_ENTRY') {
+        req.flash('error', 'An admin account with that username or email already exists.');
+        return res.redirect('/admin/signup');
+      }
+      throw error;
+    }
+
+    req.session.regenerate(error => {
+      if (error) return next(error);
+
+      req.flash('success', 'Admin account created. Please sign in with the new account.');
+      req.session.save(saveError => {
+        if (saveError) return next(saveError);
+        res.redirect('/admin/login');
+      });
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
  * Process admin login
  */
 exports.postLogin = async (req, res, next) => {

@@ -73,6 +73,8 @@ Default admin account from the sample data:
 - Email: `admin@yarnandbloom.co.ke`
 - Password: `Admin@YarnBloom2025!`
 
+Only a signed-in superadmin can create additional admin accounts from **Create admin account** in the admin dashboard. New accounts are assigned the admin role and are sent to the login page after sign-up.
+
 ## Testing
 
 Run the automated tests:

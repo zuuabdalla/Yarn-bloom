@@ -1,6 +1,27 @@
 const { body, validationResult } = require('express-validator');
 
 /**
+ * Administrator sign-up validation rules
+ */
+const adminSignupValidationRules = [
+  body('username')
+    .trim()
+    .notEmpty().withMessage('Please provide a username.')
+    .isLength({ min: 3, max: 50 }).withMessage('Username must be between 3 and 50 characters.')
+    .matches(/^[a-zA-Z0-9._-]+$/).withMessage('Username can only contain letters, numbers, periods, underscores, and hyphens.'),
+  body('email')
+    .trim()
+    .isEmail().withMessage('Please enter a valid email address.')
+    .isLength({ max: 120 }).withMessage('Email address cannot exceed 120 characters.')
+    .normalizeEmail(),
+  body('password')
+    .isLength({ min: 12, max: 128 }).withMessage('Password must be between 12 and 128 characters.'),
+  body('password_confirmation')
+    .custom((value, { req }) => value === req.body.password)
+    .withMessage('Password confirmation does not match.')
+];
+
+/**
  * Custom order form validation rules
  */
 const customOrderValidationRules = [
@@ -83,6 +104,7 @@ function checkValidation(redirectUrl = 'back') {
 }
 
 module.exports = {
+  adminSignupValidationRules,
   customOrderValidationRules,
   contactValidationRules,
   productValidationRules,

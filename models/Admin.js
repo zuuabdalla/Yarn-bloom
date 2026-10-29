@@ -31,6 +31,17 @@ class Admin {
   }
 
   /**
+   * Create an administrator account
+   */
+  static async create({ username, email, passwordHash }) {
+    const sql = `
+      INSERT INTO admins (username, email, password_hash, role)
+      VALUES (?, ?, ?, 'admin')
+    `;
+    return await db.query(sql, [username, email, passwordHash]);
+  }
+
+  /**
    * Compare plain password with bcrypt hash
    */
   static async verifyPassword(plainPassword, passwordHash) {
