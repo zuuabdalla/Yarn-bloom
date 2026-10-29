@@ -304,7 +304,7 @@ exports.postAddProduct = async (req, res, next) => {
     });
 
     req.flash('success', `Product "${name}" has been successfully created!`);
-    res.redirect('/admin/products');
+    res.redirect('/shop');
   } catch (error) {
     next(error);
   }
