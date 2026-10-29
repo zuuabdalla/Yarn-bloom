@@ -331,5 +331,6 @@ label { font-size: .82rem; }
   .story-cta .btn { width: auto; }
   .footer-grid { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 1rem; }
   .footer-brand { grid-column: 1 / -1; }
+  .footer-contact a { overflow-wrap: anywhere; }
   .footer-bottom { align-items: flex-start; flex-direction: column; gap: .25rem; }
 }
