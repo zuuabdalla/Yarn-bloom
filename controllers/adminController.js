@@ -235,12 +235,15 @@ exports.getProducts = async (req, res, next) => {
 exports.getAddProduct = async (req, res, next) => {
   try {
     const categories = await Category.findAll();
+    const product = req.session.formData || {};
+    delete req.session.formData;
+
     res.render('admin/product-form', {
       title: 'Add New Crochet Product — Yarn & Bloom Admin',
       layout: 'admin/layout',
       activeTab: 'products',
       isEdit: false,
-      product: {},
+      product,
       categories
     });
   } catch (error) {
@@ -277,7 +280,7 @@ exports.postAddProduct = async (req, res, next) => {
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/^-+|-+$/g, '') + '-' + Math.floor(Math.random() * 1000);
 
-    let primaryImage = '/images/products/sunday-tote.svg';
+    let primaryImage = '/images/moodboard/brand-panel.png';
     if (req.file) {
       primaryImage = `/uploads/${req.file.filename}`;
     }

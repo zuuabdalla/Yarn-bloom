@@ -1,6 +1,6 @@
 <article class="product-card" data-product-card data-product-slug="<%= product.slug %>">
   <div class="card-image-wrap">
-    <img src="<%= product.primary_image || product.image_url || '/images/products/placeholder.svg' %>" alt="<%= product.name %>" />
+    <img src="<%= product.primary_image || product.image_url || '/images/moodboard/brand-panel.png' %>" alt="<%= product.name %>" loading="lazy" />
     <% const cardStockStatus = product.stock_status || 'made_to_order'; %>
     <span class="badge product-availability <%= cardStockStatus === 'out_of_stock' ? 'unavailable' : '' %>">
       <%= cardStockStatus === 'out_of_stock' ? 'Currently unavailable' : cardStockStatus === 'in_stock' ? 'Ready to order' : 'Made to order' %>
@@ -24,6 +24,7 @@
           class="btn btn-primary"
           type="button"
           data-add-to-bag
+          data-product-id="<%= product.id %>"
           data-product-slug="<%= product.slug %>"
           data-product-name="<%= product.name %>"
           data-product-price="<%= product.price %>"

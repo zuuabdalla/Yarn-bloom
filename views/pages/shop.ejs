@@ -92,8 +92,13 @@
         <% } %>
       <% } else { %>
         <div class="empty-state">
-          <h3>No products match your search.</h3>
-          <p>Try a different keyword or explore one of our collections.</p>
+          <% if (searchQuery || (selectedCategory && selectedCategory !== 'all')) { %>
+            <h3>No products match your filters.</h3>
+            <p>Try a different keyword or category, or browse all handmade pieces.</p>
+          <% } else { %>
+            <h3>Our shop is being refreshed.</h3>
+            <p>There are no products listed just now. Please check back soon or <a href="/contact">contact us</a> for a handmade order.</p>
+          <% } %>
           <div class="empty-state-actions">
             <a class="btn btn-primary" href="/shop">Clear filters</a>
             <a class="btn btn-secondary" href="/gift-finder">Try the AI gift finder</a>

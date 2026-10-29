@@ -53,6 +53,7 @@ app.use('/', require('./routes/customOrderRoutes'));
 app.use('/', require('./routes/giftBoxRoutes'));
 app.use('/', require('./routes/giftFinderRoutes'));
 app.use('/', require('./routes/contactRoutes'));
+app.use('/', require('./routes/checkoutRoutes'));
 app.use('/admin', require('./routes/adminRoutes'));
 
 app.use(notFound);

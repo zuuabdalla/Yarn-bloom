@@ -2,7 +2,7 @@
   <div class="container">
     <div class="feature-layout" style="align-items:flex-start;">
       <div class="product-gallery">
-        <% const productImages = images && images.length ? images : [{ image_url: product.primary_image || '/images/products/placeholder-1.jpg', alt_text: product.name }]; %>
+        <% const productImages = images && images.length ? images : [{ image_url: product.primary_image || '/images/moodboard/brand-panel.png', alt_text: product.name }]; %>
         <div class="featured-image product-gallery-main">
           <img src="<%= productImages[0].image_url %>" alt="<%= productImages[0].alt_text || product.name %>" data-product-main-image />
         </div>
@@ -39,8 +39,15 @@
           <% } %>
         </div>
         <p><%= product.short_description %></p>
+        <p class="product-stock-status">
+          <strong><%= product.stock_status === 'out_of_stock' ? 'Currently unavailable' : product.stock_status === 'in_stock' ? 'Ready to order' : 'Made to order' %></strong>
+          <% if (product.stock_status === 'made_to_order' && product.estimated_production_days) { %>
+            · Estimated production time: <%= product.estimated_production_days %> business days
+          <% } %>
+        </p>
         <% const colors = colorsList && colorsList.length ? colorsList : ['Natural Cream', 'Sage Green', 'Warm Honey']; %>
         <div class="product-order-controls" data-product-order
+          data-product-id="<%= product.id %>"
           data-product-name="<%= product.name %>"
           data-product-price="<%= product.price %>"
           data-business-number="<%= businessNumber %>"
@@ -60,9 +67,15 @@
             <input id="product-quantity" type="number" value="1" min="1" max="99" step="1" inputmode="numeric" data-product-quantity />
           </div>
         </div>
+        <% if (product.is_customizable) { %>
+          <div class="form-group">
+            <label for="product-customization">Personalisation (optional)</label>
+            <textarea id="product-customization" maxlength="500" data-product-customization placeholder="Share a preferred detail or personalisation request."></textarea>
+          </div>
+        <% } %>
         <div class="small-row" style="justify-content:flex-start; margin-bottom:1rem;">
           <% if (product.stock_status !== 'out_of_stock') { %>
-            <button class="btn btn-secondary" type="button" data-add-to-bag data-product-slug="<%= product.slug %>" data-product-name="<%= product.name %>" data-product-price="<%= product.price %>" data-product-image="<%= product.primary_image || productImages[0].image_url %>" data-product-colors="<%= product.available_colors || '' %>" data-product-availability="<%= product.stock_status || 'made_to_order' %>" data-product-quantity-source data-product-color-source>Add to bag</button>
+            <button class="btn btn-secondary" type="button" data-add-to-bag data-product-id="<%= product.id %>" data-product-slug="<%= product.slug %>" data-product-name="<%= product.name %>" data-product-price="<%= product.price %>" data-product-image="<%= product.primary_image || productImages[0].image_url %>" data-product-colors="<%= product.available_colors || '' %>" data-product-availability="<%= product.stock_status || 'made_to_order' %>">Add to bag</button>
           <% } %>
           <a class="btn btn-primary" href="<%= defaultWhatsAppUrl %>" target="_blank" rel="noreferrer" data-product-order-link><%= product.stock_status === 'out_of_stock' ? 'Ask about availability' : 'Order on WhatsApp' %></a>
           <a class="btn btn-secondary" href="/shop">Continue shopping</a>
@@ -81,6 +94,10 @@
           <details>
             <summary>Care instructions</summary>
             <p><%= product.care_instructions || 'Handle with care and keep dry where possible. Contact us if you would like specific care advice for this piece.' %></p>
+          </details>
+          <details>
+            <summary>Delivery &amp; ordering</summary>
+            <p>Delivery arrangements and final order details are confirmed with you after checkout. Read our <a href="/faq#delivery">delivery information</a>.</p>
           </details>
           <details>
             <summary>Customer reviews</summary>

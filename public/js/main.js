@@ -110,14 +110,14 @@ document.addEventListener('DOMContentLoaded', () => {
   const bagEmpty = document.querySelector('[data-bag-empty]');
   const bagSummary = document.querySelector('[data-bag-summary]');
   const bagTotal = document.querySelector('[data-bag-total]');
-  const bagCheckout = document.querySelector('[data-bag-checkout]');
   const bagStatus = document.querySelector('[data-bag-status]');
   let bagProducts = [];
 
   const normalizeBagProducts = (items) => {
     if (!Array.isArray(items)) return [];
-    return items.filter((item) => item && typeof item.slug === 'string' && typeof item.name === 'string')
+    return items.filter((item) => item && Number.isSafeInteger(Number(item.productId)) && Number(item.productId) > 0 && typeof item.slug === 'string' && typeof item.name === 'string')
       .map((item) => ({
+        productId: Number(item.productId),
         slug: item.slug,
         name: item.name,
         price: Math.max(0, Number(item.price) || 0),
@@ -126,6 +126,7 @@ document.addEventListener('DOMContentLoaded', () => {
           : '/images/products/placeholder-1.jpg',
         quantity: Math.min(99, Math.max(1, Number.parseInt(item.quantity, 10) || 1)),
         color: typeof item.color === 'string' ? item.color : 'As pictured',
+        customization: typeof item.customization === 'string' ? item.customization.slice(0, 500) : '',
         availability: item.availability === 'in_stock' ? 'Ready to order' : 'Made to order'
       }));
   };
@@ -180,8 +181,19 @@ document.addEventListener('DOMContentLoaded', () => {
       color.textContent = `Colour: ${item.color}`;
       const availability = document.createElement('p');
       availability.textContent = item.availability;
+      const customization = document.createElement('p');
+      customization.textContent = item.customization ? `Personalisation: ${item.customization}` : '';
       const controls = document.createElement('div');
       controls.className = 'bag-item-controls';
+      const decrease = document.createElement('button');
+      decrease.className = 'bag-quantity-button';
+      decrease.type = 'button';
+      decrease.textContent = '−';
+      decrease.setAttribute('aria-label', `Decrease quantity of ${item.name}`);
+      decrease.addEventListener('click', () => {
+        bagProducts[index].quantity = Math.max(1, bagProducts[index].quantity - 1);
+        saveBag('Bag quantity updated.');
+      });
       const quantityLabel = document.createElement('label');
       quantityLabel.htmlFor = `bag-quantity-${index}`;
       quantityLabel.textContent = 'Quantity';
@@ -197,6 +209,15 @@ document.addEventListener('DOMContentLoaded', () => {
         bagProducts[index].quantity = Math.min(99, Math.max(1, Number.parseInt(quantity.value, 10) || 1));
         saveBag('Bag quantity updated.');
       });
+      const increase = document.createElement('button');
+      increase.className = 'bag-quantity-button';
+      increase.type = 'button';
+      increase.textContent = '+';
+      increase.setAttribute('aria-label', `Increase quantity of ${item.name}`);
+      increase.addEventListener('click', () => {
+        bagProducts[index].quantity = Math.min(99, bagProducts[index].quantity + 1);
+        saveBag('Bag quantity updated.');
+      });
       const remove = document.createElement('button');
       remove.className = 'bag-remove';
       remove.type = 'button';
@@ -205,8 +226,10 @@ document.addEventListener('DOMContentLoaded', () => {
         bagProducts.splice(index, 1);
         saveBag(`${item.name} removed from your bag.`);
       });
-      controls.append(quantityLabel, quantity, remove);
-      details.append(title, color, availability, controls);
+      controls.append(decrease, quantityLabel, quantity, increase, remove);
+      details.append(title, color, availability);
+      if (item.customization) details.append(customization);
+      details.append(controls);
       row.append(details);
 
       const lineTotal = document.createElement('strong');
@@ -222,18 +245,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (hasItems) {
       const total = bagProducts.reduce((sum, item) => sum + item.price * item.quantity, 0);
       bagTotal.textContent = moneyLabel(total);
-      const message = [
-        'Hello Yarn & Bloom!',
-        '',
-        'I would like to enquire about the following items in my shopping bag:',
-        '',
-        ...bagProducts.map((item) => `• ${item.name} — ${item.color} × ${item.quantity} (${moneyLabel(item.price * item.quantity)})`),
-        '',
-        `Estimated total: ${moneyLabel(total)}`,
-        '',
-        'Please confirm availability, delivery, and payment details. Thank you!'
-      ].join('\n');
-      bagCheckout.href = `https://wa.me/${encodeURIComponent(bagPage.dataset.businessNumber)}?${new URLSearchParams({ text: message })}`;
+      if (bagTotal) bagTotal.textContent = moneyLabel(total);
     }
   };
 
@@ -242,21 +254,33 @@ document.addEventListener('DOMContentLoaded', () => {
       const productOrder = button.closest('[data-product-order]');
       const colorInput = productOrder && productOrder.querySelector('[data-product-color]');
       const quantityInput = productOrder && productOrder.querySelector('[data-product-quantity]');
+      const customizationInput = productOrder && productOrder.querySelector('[data-product-customization]');
       const colors = button.dataset.productColors ? button.dataset.productColors.split(',').map((color) => color.trim()).filter(Boolean) : [];
       const color = colorInput ? colorInput.value : (colors[0] || 'As pictured');
       const quantity = Math.min(99, Math.max(1, Number.parseInt(quantityInput ? quantityInput.value : '1', 10) || 1));
-      const existingItem = bagProducts.find((item) => item.slug === button.dataset.productSlug && item.color === color);
+      const customization = customizationInput ? customizationInput.value.trim().slice(0, 500) : '';
+      const productId = Number(button.dataset.productId);
+      if (!Number.isSafeInteger(productId) || productId < 1) {
+        console.error('Cannot add a product without a valid product ID.');
+        if (bagStatus) bagStatus.textContent = 'This product could not be added. Please refresh the page and try again.';
+        return;
+      }
+      const existingItem = bagProducts.find((item) =>
+        item.productId === productId && item.color === color && item.customization === customization
+      );
 
       if (existingItem) {
         existingItem.quantity = Math.min(99, existingItem.quantity + quantity);
       } else {
         bagProducts.push({
+          productId,
           slug: button.dataset.productSlug,
           name: button.dataset.productName,
           price: Number(button.dataset.productPrice),
           image: button.dataset.productImage,
           quantity,
           color,
+          customization,
           availability: button.dataset.productAvailability
         });
       }
@@ -278,6 +302,79 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       bagProducts = normalizeBagProducts(JSON.parse(event.newValue || '[]'));
       renderBag();
+
+      const checkoutForm = document.querySelector('[data-checkout-form]');
+      if (checkoutForm) {
+        const checkoutItems = checkoutForm.querySelector('[name="cart_items"]');
+        const checkoutSummary = document.querySelector('[data-checkout-summary]');
+        const checkoutStatus = document.querySelector('[data-checkout-status]');
+        const checkoutSubmit = checkoutForm.querySelector('[type="submit"]');
+
+        const renderQuote = (quote) => {
+          checkoutSummary.replaceChildren();
+          quote.items.forEach((item) => {
+            const row = document.createElement('p');
+            row.textContent = `${item.name} — ${item.color} × ${item.quantity}: ${moneyLabel(item.line_total)}`;
+            checkoutSummary.append(row);
+          });
+          const subtotal = document.createElement('p');
+          subtotal.textContent = `Subtotal: ${moneyLabel(quote.subtotal)}`;
+          const delivery = document.createElement('p');
+          delivery.textContent = `Delivery: ${moneyLabel(quote.deliveryFee)}`;
+          const total = document.createElement('strong');
+          total.textContent = `Estimated total: ${moneyLabel(quote.total)}`;
+          checkoutSummary.append(subtotal, delivery, total);
+        };
+
+        const checkoutCart = bagProducts.map(({ productId, quantity, color, customization }) => ({
+          productId,
+          quantity,
+          color,
+          customization
+        }));
+        checkoutItems.value = JSON.stringify(checkoutCart);
+        checkoutSubmit.disabled = true;
+
+        if (checkoutCart.length === 0) {
+          checkoutStatus.textContent = 'Your bag is empty. Add a product from the shop before checkout.';
+        } else {
+          fetch('/checkout/quote', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ items: checkoutCart })
+          }).then(async (response) => {
+            const result = await response.json();
+            if (!response.ok) throw new Error(result.error || 'Your order total could not be verified.');
+            renderQuote(result);
+            checkoutStatus.textContent = 'Prices are verified from the current product catalogue.';
+            checkoutSubmit.disabled = false;
+          }).catch((error) => {
+            console.error('Could not verify checkout prices.', error);
+            checkoutStatus.textContent = error.message || 'Your order total could not be verified. Please try again.';
+          });
+        }
+
+        checkoutForm.addEventListener('submit', (event) => {
+          checkoutItems.value = JSON.stringify(checkoutCart);
+          if (checkoutSubmit.disabled || checkoutCart.length === 0) {
+            event.preventDefault();
+            checkoutStatus.textContent = 'Please wait while we verify your order total.';
+          }
+        });
+      }
+
+      if (document.querySelector('[data-order-confirmation]')) {
+        try {
+          window.localStorage.removeItem(bagStorageKey);
+          bagProducts = [];
+          bagCounts.forEach((count) => {
+            count.textContent = '0';
+            count.setAttribute('aria-label', '0 items in shopping bag');
+          });
+        } catch (error) {
+          console.error('Could not clear the completed order from browser storage.', error);
+        }
+      }
     } catch (error) {
       console.error('Could not sync shopping bag from another tab.', error);
       if (bagStatus) bagStatus.textContent = 'The shopping bag could not sync from another tab.';
@@ -327,6 +424,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (productOrder && productOrderLink) {
     const colorInput = productOrder.querySelector('[data-product-color]');
     const quantityInput = productOrder.querySelector('[data-product-quantity]');
+    const customizationInput = productOrder.querySelector('[data-product-customization]');
     const productName = productOrder.dataset.productName;
     const productPrice = Number(productOrder.dataset.productPrice);
     const businessNumber = productOrder.dataset.businessNumber;

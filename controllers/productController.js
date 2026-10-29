@@ -7,22 +7,26 @@ const { formatKSh, calculateDiscount } = require('../utils/money');
 
 exports.getShop = async (req, res, next) => {
   try {
-    const { category, search, sort = 'newest', page = 1 } = req.query;
+    const category = typeof req.query.category === 'string' ? req.query.category : null;
+    const search = typeof req.query.search === 'string' ? req.query.search : '';
+    const sort = typeof req.query.sort === 'string' ? req.query.sort : 'newest';
+    const requestedPage = Number.parseInt(req.query.page, 10);
+    const page = Number.isFinite(requestedPage) && requestedPage > 0 ? requestedPage : 1;
     const limit = 12;
-    const offset = (Math.max(1, parseInt(page, 10)) - 1) * limit;
+    const offset = (page - 1) * limit;
 
     const [categories, products, totalProducts, settings] = await Promise.all([
       Category.findAll(),
       Product.findAll({
-        categorySlug: category || null,
-        search: search || '',
+        categorySlug: category,
+        search,
         sortBy: sort,
         limit,
         offset
       }),
       Product.countAll({
-        categorySlug: category || null,
-        search: search || ''
+        categorySlug: category,
+        search
       }),
       Admin.getSettings()
     ]);
@@ -36,11 +40,11 @@ exports.getShop = async (req, res, next) => {
       categories,
       products,
       totalProducts,
-      currentPage: parseInt(page, 10),
+      currentPage: page,
       totalPages,
       selectedCategory: category || 'all',
       activeCategory,
-      searchQuery: search || '',
+      searchQuery: search,
       sortBy: sort,
       settings,
       formatKSh,

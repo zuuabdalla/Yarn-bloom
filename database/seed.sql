@@ -12,11 +12,11 @@ WHERE `username` = 'admin'
 
 -- Categories
 INSERT INTO `categories` (`id`, `name`, `slug`, `description`, `image_url`, `display_order`) VALUES
-(1, 'Crochet Bags', 'crochet-bags', 'Handmade everyday totes, shoulder bags, and clutches crafted with durable, soft cotton cord.', '/images/products/sunday-tote.svg', 1),
-(2, 'Flower Bouquets', 'flower-bouquets', 'Everlasting crochet blooms and botanical arrangements that never wilt, perfect for thoughtful gifts.', '/images/products/forever-bloom.svg', 2),
-(3, 'Crochet Toys', 'crochet-toys', 'Adorable amigurumi plushies, nursery companions, and heirloom soft toys crocheted with gentle hypoallergenic yarn.', '/images/products/honey-bear.svg', 3),
-(4, 'Gift Sets', 'gift-sets', 'Curated gift hampers combining our signature flowers, bags, and plush keepsakes in luxury packaging.', '/images/products/blossom-box.svg', 4)
-ON DUPLICATE KEY UPDATE `name` = VALUES(`name`), `slug` = VALUES(`slug`);
+(1, 'Crochet Bags', 'crochet-bags', 'Handmade everyday totes, shoulder bags, and clutches crafted with durable, soft cotton cord.', '/images/moodboard/sage-crochet-tote.png', 1),
+(2, 'Flower Bouquets', 'flower-bouquets', 'Everlasting crochet blooms and botanical arrangements that never wilt, perfect for thoughtful gifts.', '/images/moodboard/crochet-tulip-bouquet.png', 2),
+(3, 'Crochet Toys', 'crochet-toys', 'Adorable amigurumi plushies, nursery companions, and heirloom soft toys crocheted with gentle hypoallergenic yarn.', '/images/moodboard/crochet-teddy-bear.png', 3),
+(4, 'Gift Sets', 'gift-sets', 'Curated gift hampers combining our signature flowers, bags, and plush keepsakes in luxury packaging.', '/images/moodboard/crochet-gift-box.png', 4)
+ON DUPLICATE KEY UPDATE `name` = VALUES(`name`), `slug` = VALUES(`slug`), `image_url` = VALUES(`image_url`);
 
 -- Products
 INSERT INTO `products` (
@@ -34,7 +34,7 @@ INSERT INTO `products` (
     '34cm width x 30cm height (handle drop 25cm)',
     'Sage Green, Warm Cream, Oatmeal Beige, Terracotta, Deep Forest',
     TRUE, TRUE, TRUE, 'Birthday, Everyday, Self Care, Mother''s Day',
-    '/images/products/sunday-tote.svg',
+    '/images/moodboard/sage-crochet-tote.png',
     'Gently spot clean with cool water and mild organic soap. Lay flat to dry on a clean towel. Do not tumble dry, wring, or bleach.'
 ),
 (
@@ -46,7 +46,7 @@ INSERT INTO `products` (
     'Height approx 38cm, Diameter approx 22cm',
     'Classic Pastel (Blush/Cream), Sunset Warmth (Peach/Mustard), Botanical Sage (Ivory/Eucalyptus)',
     TRUE, TRUE, TRUE, 'Anniversary, Birthday, Graduation, Valentine''s Day, Congratulations',
-    '/images/products/forever-bloom.svg',
+    '/images/moodboard/crochet-tulip-bouquet.png',
     'Dust gently with a soft dry brush or cool hair dryer setting. Keep away from direct moisture and prolonged harsh sunlight.'
 ),
 (
@@ -58,7 +58,7 @@ INSERT INTO `products` (
     '24cm seated height x 16cm width',
     'Honey Caramel, Soft Cream, Warm Taupe, Sage Moss',
     TRUE, TRUE, TRUE, 'Baby Shower, Birthday, Newborn Keepsake, Thinking of You',
-    '/images/products/honey-bear.svg',
+    '/images/moodboard/crochet-teddy-bear.png',
     'Hand wash in lukewarm water with gentle baby detergent. Squeeze gently without twisting; air dry in the shade.'
 ),
 (
@@ -70,7 +70,7 @@ INSERT INTO `products` (
     'Height 25cm, Bundle width 14cm',
     'Pure White & Gold, Pastel Pink & Buttercup, Lavender Daisy Mix',
     TRUE, FALSE, TRUE, 'Thank You, Friend''s Birthday, Desk Decor, Get Well Soon',
-    '/images/products/daisy-mini.svg',
+    '/images/moodboard/crochet-flower-bouquets.png',
     'Wipe lightly with a dry microfiber cloth. Stem wires can be gently bent to suit your favorite vase.'
 ),
 (
@@ -82,7 +82,7 @@ INSERT INTO `products` (
     '22cm length x 15cm height x 5cm base',
     'Oatmeal Beige, Deep Forest Green, Dusty Rose, Mustard Honey',
     TRUE, FALSE, TRUE, 'Everyday, Birthday, Bridesmaid Gift, Self Care',
-    '/images/products/everyday-pouch.svg',
+    '/images/moodboard/cream-daisy-tote.png',
     'Hand wash lining gently, spot clean exterior with damp cloth. Reshape and dry flat away from direct heat.'
 ),
 (
@@ -94,7 +94,7 @@ INSERT INTO `products` (
     '30cm tip of ears to toes',
     'Cloud White, Blush Meadow, Mist Grey, Warm Biscuit',
     TRUE, TRUE, TRUE, 'New Baby, First Birthday, Easter, Baby Shower',
-    '/images/products/cloud-bunny.svg',
+    '/images/moodboard/crochet-animal-friends.png',
     'Hand wash gently in cool water. Reshape ears while damp and lay flat to dry.'
 ),
 (
@@ -106,7 +106,7 @@ INSERT INTO `products` (
     'Box dimensions: 28cm x 22cm x 12cm',
     'Sage & Cream, Rose & Ivory, Warm Honey & Taupe',
     TRUE, TRUE, TRUE, 'Anniversary, Romantic, New Mum, Milestone Birthday',
-    '/images/products/blossom-box.svg',
+    '/images/moodboard/crochet-gift-box.png',
     'Refer to individual product care guides inside the box.'
 ),
 (
@@ -118,24 +118,24 @@ INSERT INTO `products` (
     '36cm x 36cm with 28cm shoulder strap drop',
     'Lavender & Sage, Sunlit Amber, Vintage Rose',
     TRUE, FALSE, TRUE, 'Weekend Outing, Vacation, Birthday, Creative Gift',
-    '/images/products/lavender-tote.svg',
+    '/images/moodboard/sage-crossbody-bag.png',
     'Spot clean or delicate dry clean. Do not machine wash.'
 )
-ON DUPLICATE KEY UPDATE `name` = VALUES(`name`), `price` = VALUES(`price`);
+ON DUPLICATE KEY UPDATE `name` = VALUES(`name`), `price` = VALUES(`price`), `primary_image` = VALUES(`primary_image`);
 
 -- Product Images (Additional gallery images)
 INSERT INTO `product_images` (`product_id`, `image_url`, `alt_text`, `is_primary`, `sort_order`) VALUES
-(1, '/images/products/sunday-tote.svg', 'The Sunday Tote front view in sage green', TRUE, 1),
-(1, '/images/products/sunday-tote-detail.svg', 'The Sunday Tote textured stitch and handle detail', FALSE, 2),
-(2, '/images/products/forever-bloom.svg', 'Forever Bloom Bouquet wrapped in kraft paper', TRUE, 1),
-(2, '/images/products/forever-bloom-detail.svg', 'Close-up of crochet rose and lavender stems', FALSE, 2),
-(3, '/images/products/honey-bear.svg', 'Honey Bear crochet plush sitting upright', TRUE, 1),
-(3, '/images/products/honey-bear-detail.svg', 'Close-up of Honey Bear gentle embroidered face', FALSE, 2),
-(4, '/images/products/daisy-mini.svg', 'Daisy Mini Bouquet tied with chiffon ribbon', TRUE, 1),
-(5, '/images/products/everyday-pouch.svg', 'The Everyday Pouch in warm beige', TRUE, 1),
-(6, '/images/products/cloud-bunny.svg', 'Little Cloud Bunny with soft floppy ears', TRUE, 1),
-(7, '/images/products/blossom-box.svg', 'Blossom and Bear curated luxury gift box', TRUE, 1),
-(8, '/images/products/lavender-tote.svg', 'Lavender Garden Tote granny square bag', TRUE, 1);
+(1, '/images/moodboard/sage-crochet-tote.png', 'The Sunday Tote in sage green', TRUE, 1),
+(1, '/images/moodboard/cream-daisy-tote.png', 'Handmade crochet tote detail', FALSE, 2),
+(2, '/images/moodboard/crochet-tulip-bouquet.png', 'Forever Bloom crochet bouquet', TRUE, 1),
+(2, '/images/moodboard/crochet-flower-bouquets.png', 'Handmade crochet flowers in soft colours', FALSE, 2),
+(3, '/images/moodboard/crochet-teddy-bear.png', 'Honey Bear crochet plush', TRUE, 1),
+(3, '/images/moodboard/crochet-animal-friends.png', 'Handmade crochet animal toys', FALSE, 2),
+(4, '/images/moodboard/crochet-flower-bouquets.png', 'Daisy Mini crochet bouquet', TRUE, 1),
+(5, '/images/moodboard/cream-daisy-tote.png', 'The Everyday Pouch in warm beige', TRUE, 1),
+(6, '/images/moodboard/crochet-animal-friends.png', 'Little Cloud Bunny crochet plush', TRUE, 1),
+(7, '/images/moodboard/crochet-gift-box.png', 'Blossom and Bear handmade gift box', TRUE, 1),
+(8, '/images/moodboard/sage-crossbody-bag.png', 'Lavender Garden crochet tote', TRUE, 1);
 
 -- Customer Testimonials / Reviews (Clearly labeled sample reviews)
 INSERT INTO `reviews` (`id`, `product_id`, `customer_name`, `rating`, `comment`, `is_approved`, `is_featured`) VALUES

@@ -21,10 +21,10 @@ class Product {
       params.push(categorySlug);
     }
 
-    if (search && search.trim()) {
-      sql += ` AND (p.name LIKE ? OR p.short_description LIKE ? OR p.detailed_description LIKE ?)`;
+    if (typeof search === 'string' && search.trim()) {
+      sql += ` AND (p.name LIKE ? OR p.short_description LIKE ? OR p.detailed_description LIKE ? OR p.available_colors LIKE ? OR p.occasions LIKE ?)`;
       const searchTerm = `%${search.trim()}%`;
-      params.push(searchTerm, searchTerm, searchTerm);
+      params.push(searchTerm, searchTerm, searchTerm, searchTerm, searchTerm);
     }
 
     // Sort order
@@ -50,12 +50,7 @@ class Product {
     sql += ` LIMIT ? OFFSET ?`;
     params.push(parseInt(limit, 10), parseInt(offset, 10));
 
-    try {
-      return await db.query(sql, params);
-    } catch (err) {
-      console.error('[Product.findAll] Query error:', err.message);
-      return [];
-    }
+    return db.query(sql, params);
   }
 
   /**
@@ -75,19 +70,14 @@ class Product {
       params.push(categorySlug);
     }
 
-    if (search && search.trim()) {
-      sql += ` AND (p.name LIKE ? OR p.short_description LIKE ?)`;
+    if (typeof search === 'string' && search.trim()) {
+      sql += ` AND (p.name LIKE ? OR p.short_description LIKE ? OR p.detailed_description LIKE ? OR p.available_colors LIKE ? OR p.occasions LIKE ?)`;
       const term = `%${search.trim()}%`;
-      params.push(term, term);
+      params.push(term, term, term, term, term);
     }
 
-    try {
-      const rows = await db.query(sql, params);
-      return rows[0] ? rows[0].total : 0;
-    } catch (err) {
-      console.error('[Product.countAll] Query error:', err.message);
-      return 0;
-    }
+    const rows = await db.query(sql, params);
+    return rows[0] ? rows[0].total : 0;
   }
 
   /**
@@ -102,12 +92,7 @@ class Product {
       ORDER BY p.created_at DESC
       LIMIT ?
     `;
-    try {
-      return await db.query(sql, [parseInt(limit, 10)]);
-    } catch (err) {
-      console.error('[Product.findFeatured] Query error:', err.message);
-      return [];
-    }
+    return db.query(sql, [parseInt(limit, 10)]);
   }
 
   /**
@@ -120,13 +105,8 @@ class Product {
       LEFT JOIN categories c ON p.category_id = c.id
       WHERE p.id = ?
     `;
-    try {
-      const rows = await db.query(sql, [id]);
-      return rows[0] || null;
-    } catch (err) {
-      console.error('[Product.findById] Query error:', err.message);
-      return null;
-    }
+    const rows = await db.query(sql, [id]);
+    return rows[0] || null;
   }
 
   /**
@@ -139,13 +119,8 @@ class Product {
       LEFT JOIN categories c ON p.category_id = c.id
       WHERE p.slug = ? AND p.is_active = 1
     `;
-    try {
-      const rows = await db.query(sql, [slug]);
-      return rows[0] || null;
-    } catch (err) {
-      console.error('[Product.findBySlug] Query error:', err.message);
-      return null;
-    }
+    const rows = await db.query(sql, [slug]);
+    return rows[0] || null;
   }
 
   /**
@@ -160,12 +135,7 @@ class Product {
       ORDER BY RAND()
       LIMIT ?
     `;
-    try {
-      return await db.query(sql, [categoryId, currentProductId, parseInt(limit, 10)]);
-    } catch (err) {
-      console.error('[Product.findRelated] Query error:', err.message);
-      return [];
-    }
+    return db.query(sql, [categoryId, currentProductId, parseInt(limit, 10)]);
   }
 
   /**
@@ -177,12 +147,19 @@ class Product {
       WHERE product_id = ?
       ORDER BY is_primary DESC, sort_order ASC, id ASC
     `;
-    try {
-      return await db.query(sql, [productId]);
-    } catch (err) {
-      console.error('[Product.getImages] Query error:', err.message);
-      return [];
-    }
+    return db.query(sql, [productId]);
+  }
+
+  static async findActiveByIds(ids) {
+    if (!ids.length) return [];
+    const placeholders = ids.map(() => '?').join(', ');
+    const sql = `
+      SELECT id, name, slug, price, stock_status, estimated_production_days,
+        available_colors, is_customizable
+      FROM products
+      WHERE is_active = 1 AND id IN (${placeholders})
+    `;
+    return db.query(sql, ids);
   }
 
   /**
@@ -288,12 +265,7 @@ class Product {
       WHERE p.is_active = 1
       ORDER BY p.price ASC
     `;
-    try {
-      return await db.query(sql);
-    } catch (err) {
-      console.error('[Product.findForGiftBox] Query error:', err.message);
-      return [];
-    }
+    return db.query(sql);
   }
 }
 

@@ -12,12 +12,7 @@ class Category {
       GROUP BY c.id
       ORDER BY c.display_order ASC, c.name ASC
     `;
-    try {
-      return await db.query(sql);
-    } catch (err) {
-      console.error('[Category.findAll] Query error:', err.message);
-      return [];
-    }
+    return db.query(sql);
   }
 
   /**

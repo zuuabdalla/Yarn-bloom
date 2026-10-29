@@ -87,4 +87,31 @@ describe('admin product publishing', () => {
     expect(shopResponse.text).toContain('New Crochet Bouquet');
     expect(shopResponse.text).toContain('has been successfully created!');
   });
+
+  test('shows validation errors and preserves entered values when creation fails validation', async () => {
+    const admin = request.agent(app);
+    await admin.post('/admin/login').send({
+      username: 'admin',
+      password: 'valid-password'
+    });
+
+    const invalidDescription = 'x'.repeat(256);
+    const createResponse = await admin.post('/admin/products/new').send({
+      name: 'Unfinished Bouquet',
+      price: '1800',
+      short_description: invalidDescription,
+      detailed_description: 'A handmade bouquet created in our studio.'
+    });
+
+    expect(createResponse.status).toBe(302);
+    expect(createResponse.headers.location).toBe('/admin/products/new');
+    expect(Product.create).not.toHaveBeenCalled();
+
+    const formResponse = await admin.get(createResponse.headers.location);
+
+    expect(formResponse.status).toBe(200);
+    expect(formResponse.text).toContain('Short description cannot exceed 255 characters.');
+    expect(formResponse.text).toContain('value="Unfinished Bouquet"');
+    expect(formResponse.text).toContain(invalidDescription);
+  });
 });
