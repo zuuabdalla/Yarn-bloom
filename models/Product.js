@@ -205,8 +205,29 @@ class Product {
       data.primary_image,
       data.care_instructions || ''
     ];
-    const result = await db.query(sql, params);
-    return result.insertId;
+    const connection = await db.getConnection();
+    try {
+      await connection.beginTransaction();
+      const [result] = await connection.execute(sql, params);
+      const galleryImages = [data.primary_image, ...(data.gallery_images || [])]
+        .filter((imageUrl, index, imageUrls) => imageUrl && imageUrls.indexOf(imageUrl) === index);
+
+      for (const [index, imageUrl] of galleryImages.entries()) {
+        await connection.execute(
+          `INSERT INTO product_images (product_id, image_url, alt_text, is_primary, sort_order)
+           VALUES (?, ?, ?, ?, ?)`,
+          [result.insertId, imageUrl, data.name, index === 0 ? 1 : 0, index]
+        );
+      }
+
+      await connection.commit();
+      return result.insertId;
+    } catch (error) {
+      await connection.rollback();
+      throw error;
+    } finally {
+      connection.release();
+    }
   }
 
   /**

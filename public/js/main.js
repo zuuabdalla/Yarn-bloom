@@ -138,11 +138,9 @@ document.addEventListener('DOMContentLoaded', () => {
     if (bagStatus) bagStatus.textContent = 'The shopping bag could not be read from this browser.';
   }
 
-  const moneyLabel = (amount) => new Intl.NumberFormat('en-KE', {
-    style: 'currency',
-    currency: 'KES',
+  const moneyLabel = (amount) => `KSh ${new Intl.NumberFormat('en-KE', {
     maximumFractionDigits: 0
-  }).format(amount);
+  }).format(amount)}`;
 
   const saveBag = (message = '') => {
     try {
@@ -389,6 +387,22 @@ document.addEventListener('DOMContentLoaded', () => {
     navToggle.addEventListener('click', () => {
       const isOpen = nav.classList.toggle('open');
       navToggle.setAttribute('aria-expanded', String(isOpen));
+      navToggle.setAttribute('aria-label', isOpen ? 'Close menu' : 'Open menu');
+    });
+    nav.querySelectorAll('a').forEach((link) => {
+      link.addEventListener('click', () => {
+        nav.classList.remove('open');
+        navToggle.setAttribute('aria-expanded', 'false');
+        navToggle.setAttribute('aria-label', 'Open menu');
+      });
+    });
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && nav.classList.contains('open')) {
+        nav.classList.remove('open');
+        navToggle.setAttribute('aria-expanded', 'false');
+        navToggle.setAttribute('aria-label', 'Open menu');
+        navToggle.focus();
+      }
     });
   }
 
@@ -433,11 +447,8 @@ document.addEventListener('DOMContentLoaded', () => {
       const quantity = Math.min(99, Math.max(1, Number.parseInt(quantityInput.value, 10) || 1));
       quantityInput.value = String(quantity);
       const selectedColor = colorInput.value;
-      const subtotal = new Intl.NumberFormat('en-KE', {
-        style: 'currency',
-        currency: 'KES',
-        maximumFractionDigits: 0
-      }).format(productPrice * quantity);
+      const subtotal = moneyLabel(productPrice * quantity);
+      const customization = customizationInput ? customizationInput.value.trim().slice(0, 500) : '';
       const message = [
         'Hello Yarn & Bloom!',
         '',
@@ -447,6 +458,7 @@ document.addEventListener('DOMContentLoaded', () => {
         `Quantity: ${quantity}`,
         `Selected colour: ${selectedColor}`,
         `Estimated subtotal: ${subtotal}`,
+        ...(customization ? [`Personalisation: ${customization}`] : []),
         '',
         'Please confirm availability, production time, and delivery options. Thank you!'
       ].join('\n');
@@ -456,6 +468,7 @@ document.addEventListener('DOMContentLoaded', () => {
     colorInput.addEventListener('change', updateOrderLink);
     quantityInput.addEventListener('change', updateOrderLink);
     quantityInput.addEventListener('blur', updateOrderLink);
+    if (customizationInput) customizationInput.addEventListener('input', updateOrderLink);
     updateOrderLink();
   }
 

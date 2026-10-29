@@ -12,6 +12,8 @@
   .bag-item-image { width: 76px; }
   .bag-line-total { grid-column: 2; }
   .bag-item-controls { flex-wrap: wrap; }
+  .checkout-layout { grid-template-columns: 1fr; }
+  .checkout-summary { position: static; }
   .shop-results-summary { align-items: flex-start; flex-direction: column; }
   .shop-favorites-tools { align-items: flex-start; flex-direction: column; }
   .favorites-status:empty { display: none; }
@@ -287,7 +289,7 @@ label { font-size: .82rem; }
   .hero .btn { width: auto; }
   .home-bestsellers, .home-categories { padding: 1.4rem 0; }
   .product-grid { grid-template-columns: repeat(2,minmax(0,1fr)); gap: .65rem; }
-  .category-grid { grid-template-columns: repeat(3,minmax(0,1fr)); gap: .45rem; }
+  .category-grid { grid-template-columns: repeat(2,minmax(0,1fr)); gap: .65rem; }
   .card-image-wrap img { height: 125px; }
   .card-body { padding: .65rem; }
   .card-body h3 { font-size: 1.05rem; }
@@ -297,6 +299,7 @@ label { font-size: .82rem; }
   .home-categories .card-image-wrap img { height: 76px; }
   .home-categories .card-body h3 { font-size: .95rem; }
   .home-categories .card-body p { display: none; }
+  .home-categories .product-card:last-child:nth-child(odd) { grid-column: 1 / -1; }
   .home-custom-order { width: calc(100% - 1.5rem); min-height: 120px; padding: .9rem; }
   .home-custom-order > img { width: 34%; max-height: 125px; }
   .home-custom-order h2 { font-size: 1.45rem; }
@@ -307,6 +310,8 @@ label { font-size: .82rem; }
   .shop-heading h1, .custom-order-heading h1, .contact-heading h1 { font-size: 1.85rem; }
   .shop-filter-form { grid-template-columns: 1fr; }
   .shop-filter-form .form-group:last-child { grid-column: auto; }
+  .checkout-page .section-header { align-items: flex-start; flex-direction: column; }
+  .checkout-page .section-header .btn { width: auto; }
   .shop-category-links { flex-wrap: nowrap; overflow-x: auto; padding-bottom: .3rem; }
   .shop-category-link { white-space: nowrap; }
   .shop-results-summary { align-items: flex-start; flex-direction: column; }

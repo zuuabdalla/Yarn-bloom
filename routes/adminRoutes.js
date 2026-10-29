@@ -31,7 +31,10 @@ router.get('/products/new', isAuthenticated, adminController.getAddProduct);
 router.post(
   '/products/new',
   isAuthenticated,
-  upload.single('primary_image'),
+  upload.fields([
+    { name: 'primary_image', maxCount: 1 },
+    { name: 'additional_images', maxCount: 5 }
+  ]),
   productValidationRules,
   checkValidation('/admin/products/new'),
   adminController.postAddProduct
@@ -40,7 +43,10 @@ router.get('/products/:id/edit', isAuthenticated, adminController.getEditProduct
 router.post(
   '/products/:id/edit',
   isAuthenticated,
-  upload.single('primary_image'),
+  upload.fields([
+    { name: 'primary_image', maxCount: 1 },
+    { name: 'additional_images', maxCount: 5 }
+  ]),
   productValidationRules,
   checkValidation('back'),
   adminController.postEditProduct

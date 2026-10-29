@@ -60,9 +60,9 @@ async function priceCart(rawCart) {
       return { error: 'One or more products in your bag are unavailable. Please return to the shop and update your bag.' };
     }
 
-    const availableColors = typeof product.available_colors === 'string'
+    const availableColors = typeof product.available_colors === 'string' && product.available_colors.trim()
       ? product.available_colors.split(',').map(color => color.trim()).filter(Boolean)
-      : [];
+      : ['Natural Cream', 'Sage Green', 'Warm Honey', 'As pictured'];
     const color = selection.color || availableColors[0] || 'As pictured';
     if (availableColors.length && !availableColors.some(item => item.toLowerCase() === color.toLowerCase())) {
       return { error: `${product.name} is not available in the selected colour. Please update your bag.` };

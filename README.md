@@ -7,6 +7,8 @@ A handmade crochet storefront and enquiry platform built with Express.js, EJS, M
 - Responsive storefront for handmade crochet products
 - Product catalogue with category filters and search
 - Product detail pages with WhatsApp ordering links
+- Persistent browser shopping bag and server-priced guest checkout
+- Order enquiry and line-item records saved transactionally in MySQL
 - Custom order enquiry form and confirmation page
 - Gift box builder with live price estimation
 - AI-assisted crochet gift finder and gift box builder, with catalog-matching fallback
@@ -43,6 +45,7 @@ A handmade crochet storefront and enquiry platform built with Express.js, EJS, M
    AI_GATEWAY_API_KEY=your_private_gateway_key
    AI_GATEWAY_MODEL=google/gemini-2.5-flash-lite
    WHATSAPP_NUMBER=254141703242
+   DELIVERY_FEE_KSH=0
    ```
 
    The AI gift features use the Vercel AI Gateway. Add your API key to the local `.env` file (never commit it); without a key, both tools continue to suggest items using the local catalog matcher. You can change `AI_GATEWAY_MODEL` to another current model ID supported by your Gateway account.
@@ -52,6 +55,8 @@ A handmade crochet storefront and enquiry platform built with Express.js, EJS, M
    ```powershell
    npm run seed
    ```
+
+   This loads the catalogue and its local image paths. Product browsing requires seeded catalogue data; the app deliberately does not invent products if the database is empty.
 
 7. Start the server:
 
@@ -80,6 +85,11 @@ npx jest --runInBand --detectOpenHandles --forceExit
 ## Deployment notes
 
 - Set environment variables securely in production.
+- Configure `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD`, and `DB_NAME` on Render to point to a reachable MySQL database. The site currently renders an empty shop if that database has no active products; it does not seed live data automatically.
+- For an empty production database, open the Render service Shell after setting its database variables and run `npm run seed` once. The seed includes the catalogue in `database/seed.sql`; back up a database containing real catalogue changes before reseeding.
+- Existing databases need the checkout tables created with `database/migrations/001-store-orders.sql`. New databases receive them from `database/schema.sql`.
+- `DELIVERY_FEE_KSH=0` sets the current checkout delivery fee. Update the server environment and restart the service if the fee changes. Orders are saved as pending enquiries; no online payment is taken or marked paid.
+- Render's local filesystem is ephemeral. If admins upload product images, attach a persistent disk and set `UPLOAD_DIR` to a directory on its mount path; otherwise uploaded files can disappear after a restart or redeploy. Keep the image URL paths saved in MySQL consistent with the hosted files.
 - Use a real MySQL server with strong credentials.
 - Keep `WHATSAPP_NUMBER` in international format without spaces or plus signs.
 - Use HTTPS in production and consider a reverse proxy such as Nginx.

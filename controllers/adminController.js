@@ -280,10 +280,12 @@ exports.postAddProduct = async (req, res, next) => {
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/^-+|-+$/g, '') + '-' + Math.floor(Math.random() * 1000);
 
-    let primaryImage = '/images/moodboard/brand-panel.png';
-    if (req.file) {
-      primaryImage = `/uploads/${req.file.filename}`;
-    }
+    const uploadedFiles = req.files || {};
+    const primaryImageFile = uploadedFiles.primary_image && uploadedFiles.primary_image[0];
+    const primaryImage = primaryImageFile
+      ? `/uploads/${primaryImageFile.filename}`
+      : '/images/moodboard/brand-panel.png';
+    const galleryImages = (uploadedFiles.additional_images || []).map(file => `/uploads/${file.filename}`);
 
     const productId = await Product.create({
       category_id: category_id ? parseInt(category_id, 10) : null,
@@ -303,7 +305,8 @@ exports.postAddProduct = async (req, res, next) => {
       is_active: true,
       occasions: occasions ? occasions.trim() : '',
       primary_image: primaryImage,
-      care_instructions: care_instructions ? care_instructions.trim() : ''
+      care_instructions: care_instructions ? care_instructions.trim() : '',
+      gallery_images: galleryImages
     });
 
     req.flash('success', `Product "${name}" has been successfully created!`);
@@ -374,10 +377,10 @@ exports.postEditProduct = async (req, res, next) => {
       care_instructions
     } = req.body;
 
-    let primaryImage = existing.primary_image;
-    if (req.file) {
-      primaryImage = `/uploads/${req.file.filename}`;
-    }
+    const uploadedFiles = req.files || {};
+    const primaryImageFile = uploadedFiles.primary_image && uploadedFiles.primary_image[0];
+    const primaryImage = primaryImageFile ? `/uploads/${primaryImageFile.filename}` : existing.primary_image;
+    const galleryImages = (uploadedFiles.additional_images || []).map(file => `/uploads/${file.filename}`);
 
     await Product.update(id, {
       category_id: category_id ? parseInt(category_id, 10) : null,
@@ -397,7 +400,8 @@ exports.postEditProduct = async (req, res, next) => {
       is_active: Boolean(is_active),
       occasions: occasions ? occasions.trim() : '',
       primary_image: primaryImage,
-      care_instructions: care_instructions ? care_instructions.trim() : ''
+      care_instructions: care_instructions ? care_instructions.trim() : '',
+      gallery_images: galleryImages
     });
 
     req.flash('success', `Product "${name}" updated successfully.`);

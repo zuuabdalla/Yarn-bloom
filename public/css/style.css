@@ -145,11 +145,27 @@ p { margin: 0 0 1.2rem; color: rgba(52,75,59,0.82); }
 .bag-item p { margin-bottom: .35rem; }
 .bag-item-controls { display: flex; align-items: center; gap: .5rem; margin-top: .75rem; }
 .bag-item-controls input { width: 5rem; padding: .5rem; }
+.bag-quantity-button { display: inline-grid; place-items: center; min-width: 2.5rem; min-height: 2.5rem; border: 1px solid rgba(52,75,59,.16); border-radius: 8px; background: var(--cream); color: var(--forest); font-size: 1.2rem; cursor: pointer; }
 .bag-remove { padding: .35rem .6rem; border: 0; background: transparent; color: #7a2b2b; font-weight: 700; cursor: pointer; }
 .bag-line-total { white-space: nowrap; color: var(--forest); font-weight: 800; }
 .bag-summary { position: sticky; top: 100px; }
 .bag-summary .btn { width: 100%; }
 .bag-summary h2 { margin: .5rem 0; }
+.checkout-layout { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(260px, .7fr); align-items: start; gap: 1.5rem; }
+.checkout-summary { position: sticky; top: 100px; }
+.checkout-summary [data-checkout-summary] > p { margin: .75rem 0; }
+.checkout-summary-note, .checkout-payment-note { font-size: .86rem; }
+.checkout-status { min-height: 1.5rem; font-size: .9rem; }
+.checkout-form button:disabled, [data-checkout-form] button:disabled { cursor: wait; opacity: .6; }
+.order-confirmation { max-width: 860px; margin: 0 auto; }
+.order-reference { margin: 1.5rem 0; }
+.order-reference p { margin: .25rem 0; }
+.order-confirmation-items { display: grid; gap: .5rem; margin: 1.5rem 0; }
+.order-confirmation-items .small-row { border-bottom: 1px solid rgba(52,75,59,.12); padding: .5rem 0; }
+.order-totals { max-width: 420px; margin: 0 0 1.5rem auto; }
+.order-totals p { display: flex; justify-content: space-between; gap: 1rem; margin: .5rem 0; }
+.order-totals .order-total { padding-top: .75rem; border-top: 1px solid rgba(52,75,59,.2); font-size: 1.1rem; }
+.checkout-confirmation-actions { justify-content: flex-start; }
 .bag-clear-button { width: 100%; margin-top: .75rem; padding: .65rem; border: 0; background: transparent; color: var(--forest); cursor: pointer; text-decoration: underline; }
 .footer-socials { display: flex; flex-wrap: wrap; gap: .6rem; margin-top: 1rem; }
 .footer-socials a { padding: .4rem .75rem; border: 1px solid rgba(255,255,255,.24); border-radius: 999px; }

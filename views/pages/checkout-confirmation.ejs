@@ -1,0 +1,33 @@
+<section class="page-shell">
+  <div class="container">
+    <article class="page-card order-confirmation" data-order-confirmation>
+      <div class="eyebrow">Order enquiry received</div>
+      <h1>Thank you, <%= order.customer_name %>.</h1>
+      <p>Your order has been saved. We’ll contact you to confirm availability and next steps.</p>
+      <div class="summary-box order-reference">
+        <p><strong>Reference:</strong> <%= order.reference_number %></p>
+        <p><strong>Status:</strong> Awaiting confirmation</p>
+        <p><strong>Delivery to:</strong> <%= order.delivery_location %></p>
+      </div>
+      <div class="order-confirmation-items">
+        <% order.items.forEach((item) => { %>
+          <div class="small-row">
+            <span><%= item.product_name %> — <%= item.selected_color %> × <%= item.quantity %></span>
+            <strong><%= formatKSh(item.line_total) %></strong>
+          </div>
+          <% if (item.customization) { %><p>Personalisation: <%= item.customization %></p><% } %>
+        <% }) %>
+      </div>
+      <div class="order-totals">
+        <p><span>Subtotal</span><strong><%= formatKSh(order.subtotal) %></strong></p>
+        <p><span>Delivery</span><strong><%= formatKSh(order.delivery_fee) %></strong></p>
+        <p class="order-total"><span>Estimated total</span><strong><%= formatKSh(order.total) %></strong></p>
+      </div>
+      <p class="checkout-payment-note">This is an order enquiry, not a payment confirmation. We’ll confirm payment details with you directly.</p>
+      <div class="small-row checkout-confirmation-actions">
+        <a class="btn btn-primary" href="<%= whatsappUrl %>" target="_blank" rel="noreferrer">Continue on WhatsApp</a>
+        <a class="btn btn-secondary" href="/shop">Continue shopping</a>
+      </div>
+    </article>
+  </div>
+</section>

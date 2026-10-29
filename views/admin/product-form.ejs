@@ -63,8 +63,12 @@
         <input id="care_instructions" name="care_instructions" value="<%= product && product.care_instructions ? product.care_instructions : '' %>" />
       </div>
       <div class="form-group full">
-        <label for="primary_image">Primary image</label>
+        <label for="primary_image">Primary image <%= isEdit ? '(leave empty to keep the current image)' : '' %></label>
         <input id="primary_image" name="primary_image" type="file" accept="image/*" />
+      </div>
+      <div class="form-group full">
+        <label for="additional_images">Additional product images (up to 5)</label>
+        <input id="additional_images" name="additional_images" type="file" accept="image/*" multiple />
       </div>
       <div class="form-group full">
         <label><input type="checkbox" name="is_featured" <%= product && product.is_featured ? 'checked' : '' %> /> Featured</label>

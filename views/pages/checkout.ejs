@@ -1,0 +1,52 @@
+<section class="page-shell checkout-page">
+  <div class="container">
+    <div class="section-header">
+      <div>
+        <div class="eyebrow">A few details</div>
+        <h1>Checkout</h1>
+        <p>Order without creating an account. We’ll confirm availability and payment details with you before proceeding.</p>
+      </div>
+      <a class="btn btn-secondary" href="/bag">Back to bag</a>
+    </div>
+
+    <div class="checkout-layout">
+      <form class="page-card form-grid" action="/checkout" method="POST" data-checkout-form>
+        <input type="hidden" name="cart_items" value="[]" />
+        <div class="form-group">
+          <label for="checkout-name">Your name</label>
+          <input id="checkout-name" name="customer_name" autocomplete="name" minlength="2" maxlength="120" required />
+        </div>
+        <div class="form-group">
+          <label for="checkout-phone">Phone number</label>
+          <input id="checkout-phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" minlength="9" maxlength="20" required />
+        </div>
+        <div class="form-group full">
+          <label for="checkout-email">Email address <span>(optional)</span></label>
+          <input id="checkout-email" name="email" type="email" autocomplete="email" maxlength="120" />
+        </div>
+        <div class="form-group full">
+          <label for="delivery-location">Delivery location</label>
+          <textarea id="delivery-location" name="delivery_location" autocomplete="street-address" maxlength="500" required placeholder="Area, estate/building, and any delivery directions"></textarea>
+        </div>
+        <div class="form-group full">
+          <label for="checkout-gift-message">Gift message <span>(optional)</span></label>
+          <textarea id="checkout-gift-message" name="gift_message" maxlength="500" placeholder="Add a short note for the recipient"></textarea>
+        </div>
+        <div class="form-group full">
+          <p class="checkout-payment-note">No online payment is taken here. We’ll confirm your order and payment details directly with you.</p>
+          <p class="checkout-status" data-checkout-status role="status" aria-live="polite">Checking your bag and verifying current product prices…</p>
+          <button class="btn btn-primary" type="submit" disabled>Place order enquiry</button>
+        </div>
+      </form>
+
+      <aside class="page-card checkout-summary">
+        <div class="eyebrow">Order summary</div>
+        <div data-checkout-summary aria-live="polite">
+          <p>Your verified order total will appear here.</p>
+          <p>Delivery: KSh <%= Number(deliveryFee).toLocaleString('en-KE') %></p>
+        </div>
+        <p class="checkout-summary-note">All prices are verified against the current catalogue when your order is submitted.</p>
+      </aside>
+    </div>
+  </div>
+</section>
