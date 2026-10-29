@@ -13,8 +13,28 @@ jest.mock('../models/Admin', () => ({
   createInitialSuperadmin: jest.fn()
 }));
 
+jest.mock('../models/CustomOrder', () => ({
+  findAll: jest.fn()
+}));
+
+jest.mock('../models/GiftBox', () => ({
+  findAll: jest.fn()
+}));
+
+jest.mock('../models/Contact', () => ({
+  findAll: jest.fn()
+}));
+
+jest.mock('../models/Review', () => ({
+  findAll: jest.fn()
+}));
+
 const app = require('../app');
 const Admin = require('../models/Admin');
+const CustomOrder = require('../models/CustomOrder');
+const GiftBox = require('../models/GiftBox');
+const Contact = require('../models/Contact');
+const Review = require('../models/Review');
 
 describe('admin authentication pages', () => {
   beforeEach(() => {
@@ -37,6 +57,32 @@ describe('admin authentication pages', () => {
 
     expect(response.status).toBe(302);
     expect(response.headers.location).toBe('/admin/login');
+  });
+
+  test('renders enquiry management sections for an authenticated admin', async () => {
+    Admin.findByUsername.mockResolvedValue({
+      id: 1,
+      username: 'admin',
+      email: 'admin@example.com',
+      role: 'superadmin',
+      password_hash: 'hash'
+    });
+    Admin.verifyPassword.mockResolvedValue(true);
+    CustomOrder.findAll.mockResolvedValue([]);
+    GiftBox.findAll.mockResolvedValue([]);
+    Contact.findAll.mockResolvedValue([]);
+    Review.findAll.mockResolvedValue([]);
+
+    const agent = request.agent(app);
+    await agent.post('/admin/login').send({ username: 'admin', password: 'valid-password' });
+    const response = await agent.get('/admin/enquiries');
+
+    expect(response.status).toBe(200);
+    expect(response.text).toContain('Custom orders');
+    expect(response.text).toContain('Gift box orders');
+    expect(response.text).toContain('Contact messages');
+    expect(response.text).toContain('Customer reviews');
+    expect(response.text).toContain('No custom order enquiries yet.');
   });
 
   test('shows first-time setup before login and blocks public sign-up after setup', async () => {

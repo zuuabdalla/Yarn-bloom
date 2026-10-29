@@ -339,3 +339,228 @@
   .admin-auth-back { margin-bottom: 1.35rem; }
   .admin-auth-content h1 { font-size: 2.6rem; }
 }
+
+.admin-page-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.admin-page-heading h1,
+.enquiry-group-heading h2 {
+  margin: .25rem 0;
+  color: #243a2f;
+}
+
+.admin-page-heading p,
+.enquiry-group-heading p {
+  margin: 0;
+  color: rgba(52, 75, 59, .7);
+}
+
+.enquiry-jump-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .6rem;
+  margin-bottom: 2rem;
+}
+
+.enquiry-jump-links a {
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  padding: .65rem .85rem;
+  border: 1px solid rgba(52, 75, 59, .12);
+  border-radius: 999px;
+  background: #fff;
+  color: #243a2f;
+  font-size: .85rem;
+  font-weight: 700;
+}
+
+.enquiry-jump-links span,
+.enquiry-count {
+  display: inline-grid;
+  min-width: 1.6rem;
+  min-height: 1.6rem;
+  place-items: center;
+  border-radius: 50%;
+  background: #e9eee6;
+  color: #243a2f;
+  font-size: .75rem;
+}
+
+.enquiry-group {
+  margin: 0 0 2.5rem;
+  scroll-margin-top: 1rem;
+}
+
+.enquiry-group-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.enquiry-list {
+  display: grid;
+  gap: 1rem;
+}
+
+.enquiry-card,
+.enquiry-empty {
+  padding: clamp(1rem, 3vw, 1.5rem);
+  border: 1px solid rgba(52, 75, 59, .1);
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 8px 24px rgba(52, 75, 59, .04);
+}
+
+.enquiry-card-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(52, 75, 59, .09);
+}
+
+.enquiry-card-heading h3 {
+  margin: .25rem 0;
+  color: #243a2f;
+  font-size: 1.2rem;
+}
+
+.enquiry-card-heading p,
+.enquiry-reference {
+  margin: 0;
+  color: rgba(52, 75, 59, .65);
+  font-size: .78rem;
+}
+
+.enquiry-reference {
+  font-weight: 700;
+  letter-spacing: .04em;
+}
+
+.enquiry-status {
+  flex: 0 0 auto;
+  padding: .35rem .65rem;
+  border-radius: 999px;
+  background: #f1eee5;
+  color: #475b43;
+  font-size: .75rem;
+  font-weight: 700;
+  text-transform: capitalize;
+}
+
+.enquiry-details {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: .9rem 1.5rem;
+  margin: 1rem 0;
+}
+
+.enquiry-details dt {
+  margin-bottom: .2rem;
+  color: rgba(52, 75, 59, .62);
+  font-size: .72rem;
+  font-weight: 700;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+
+.enquiry-details dd {
+  margin: 0;
+  color: #263a30;
+  font-size: .9rem;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+.enquiry-detail-wide {
+  grid-column: 1 / -1;
+}
+
+.enquiry-attachment {
+  display: inline-block;
+  margin-bottom: 1rem;
+  color: #49644e;
+  font-weight: 700;
+  text-decoration: underline;
+}
+
+.enquiry-update-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: .75rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(52, 75, 59, .09);
+}
+
+.enquiry-update-form label {
+  display: grid;
+  gap: .35rem;
+  color: #3d5143;
+  font-size: .78rem;
+  font-weight: 700;
+}
+
+.enquiry-update-form select,
+.enquiry-update-form input {
+  min-height: 42px;
+  min-width: 180px;
+  padding: .55rem .7rem;
+  border: 1px solid rgba(52, 75, 59, .18);
+  border-radius: 8px;
+  background: #fffefb;
+  color: #263a30;
+}
+
+.enquiry-update-form .enquiry-notes-field {
+  flex: 1 1 220px;
+}
+
+.enquiry-update-form .enquiry-notes-field input {
+  width: 100%;
+}
+
+.enquiry-empty {
+  color: rgba(52, 75, 59, .72);
+}
+
+.enquiry-review-rating {
+  margin: 1rem 0 .4rem;
+  color: #9a7734;
+  letter-spacing: .08em;
+}
+
+.enquiry-review-comment {
+  margin: 0 0 1rem;
+  color: #263a30;
+  white-space: pre-wrap;
+}
+
+.enquiry-review-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .6rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(52, 75, 59, .09);
+}
+
+@media (max-width: 600px) {
+  .admin-main { padding: 1rem; }
+  .enquiry-details { grid-template-columns: 1fr; }
+  .enquiry-detail-wide { grid-column: auto; }
+  .enquiry-update-form,
+  .enquiry-update-form label,
+  .enquiry-update-form select,
+  .enquiry-update-form input,
+  .enquiry-update-form button { width: 100%; }
+  .enquiry-card-heading { flex-direction: column; }
+}
