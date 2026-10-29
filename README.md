@@ -86,9 +86,9 @@ npx jest --runInBand --detectOpenHandles --forceExit
 
 - Set environment variables securely in production.
 - Configure `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD`, and `DB_NAME` on Render to point to a reachable MySQL database. The site currently renders an empty shop if that database has no active products; it does not seed live data automatically.
-- For an empty production database, open the Render service Shell after setting its database variables and run `npm run seed` once. The seed includes the catalogue in `database/seed.sql`; back up a database containing real catalogue changes before reseeding.
+- Do not run the sample `database/seed.sql` against production unless you intend to publish its sample catalogue. Create the real categories and products in the admin area or import the business's actual catalogue; products saved as active appear in the shop.
 - Existing databases need the checkout tables created with `database/migrations/001-store-orders.sql`. New databases receive them from `database/schema.sql`.
-- `DELIVERY_FEE_KSH=0` sets the current checkout delivery fee. Update the server environment and restart the service if the fee changes. Orders are saved as pending enquiries; no online payment is taken or marked paid.
+- `DELIVERY_FEE_KSH=0` sets the current checkout delivery fee. Update the server environment and restart the service if the fee changes. Orders are saved as pending enquiries and can be reviewed in **Admin → Enquiries**; no online payment is taken or marked paid.
 - Render's local filesystem is ephemeral. If admins upload product images, attach a persistent disk and set `UPLOAD_DIR` to a directory on its mount path; otherwise uploaded files can disappear after a restart or redeploy. Keep the image URL paths saved in MySQL consistent with the hosted files.
 - Use a real MySQL server with strong credentials.
 - Keep `WHATSAPP_NUMBER` in international format without spaces or plus signs.

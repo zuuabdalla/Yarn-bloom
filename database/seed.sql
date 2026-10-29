@@ -121,7 +121,7 @@ INSERT INTO `products` (
     '/images/moodboard/sage-crossbody-bag.png',
     'Spot clean or delicate dry clean. Do not machine wash.'
 )
-ON DUPLICATE KEY UPDATE `name` = VALUES(`name`), `price` = VALUES(`price`), `primary_image` = VALUES(`primary_image`);
+ON DUPLICATE KEY UPDATE `name` = VALUES(`name`), `price` = VALUES(`price`), `primary_image` = VALUES(`primary_image`), `is_active` = VALUES(`is_active`);
 
 -- Product Images (Additional gallery images)
 INSERT INTO `product_images` (`product_id`, `image_url`, `alt_text`, `is_primary`, `sort_order`) VALUES

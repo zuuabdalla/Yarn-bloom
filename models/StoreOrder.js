@@ -1,6 +1,28 @@
 const db = require('../config/database');
 
 class StoreOrder {
+  static async findAll({ limit = 50 } = {}) {
+    const orders = await db.query(
+      'SELECT * FROM store_orders ORDER BY created_at DESC LIMIT ?',
+      [Number.parseInt(limit, 10)]
+    );
+    if (!orders.length) return [];
+
+    const placeholders = orders.map(() => '?').join(', ');
+    const items = await db.query(
+      `SELECT * FROM store_order_items WHERE order_id IN (${placeholders}) ORDER BY id ASC`,
+      orders.map(order => order.id)
+    );
+    const itemsByOrder = new Map(orders.map(order => [order.id, []]));
+    items.forEach(item => itemsByOrder.get(item.order_id).push(item));
+
+    return orders.map(order => ({ ...order, items: itemsByOrder.get(order.id) }));
+  }
+
+  static async updateStatus(id, status) {
+    return db.query('UPDATE store_orders SET status = ? WHERE id = ?', [status, id]);
+  }
+
   static async create(order, items) {
     const connection = await db.getConnection();
     try {

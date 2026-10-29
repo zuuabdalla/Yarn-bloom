@@ -123,7 +123,7 @@ document.addEventListener('DOMContentLoaded', () => {
         price: Math.max(0, Number(item.price) || 0),
         image: typeof item.image === 'string' && item.image.startsWith('/') && !item.image.startsWith('//')
           ? item.image
-          : '/images/products/placeholder-1.jpg',
+          : '/images/moodboard/brand-panel.png',
         quantity: Math.min(99, Math.max(1, Number.parseInt(item.quantity, 10) || 1)),
         color: typeof item.color === 'string' ? item.color : 'As pictured',
         customization: typeof item.customization === 'string' ? item.customization.slice(0, 500) : '',
@@ -247,6 +247,95 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   };
 
+  const checkoutForm = document.querySelector('[data-checkout-form]');
+  const checkoutItems = checkoutForm && checkoutForm.querySelector('[name="cart_items"]');
+  const checkoutSummary = document.querySelector('[data-checkout-summary]');
+  const checkoutStatus = document.querySelector('[data-checkout-status]');
+  const checkoutSubmit = checkoutForm && checkoutForm.querySelector('[type="submit"]');
+  let checkoutQuoteRevision = 0;
+
+  const updateCheckout = () => {
+    if (!checkoutForm) return;
+
+    const revision = ++checkoutQuoteRevision;
+    const checkoutCart = bagProducts.map(({ productId, quantity, color, customization }) => ({
+      productId,
+      quantity,
+      color,
+      customization
+    }));
+    checkoutItems.value = JSON.stringify(checkoutCart);
+    checkoutSubmit.disabled = true;
+    checkoutSummary.replaceChildren();
+
+    const delivery = document.createElement('p');
+    delivery.textContent = `Delivery: ${moneyLabel(Number(checkoutForm.dataset.deliveryFee) || 0)}`;
+    checkoutSummary.append(delivery);
+
+    if (checkoutCart.length === 0) {
+      checkoutStatus.textContent = 'Your bag is empty. Add a product from the shop before checkout.';
+      return;
+    }
+
+    checkoutStatus.textContent = 'Checking your bag and verifying current product prices…';
+    const summaryMessage = document.createElement('p');
+    summaryMessage.textContent = 'Your verified order total will appear here.';
+    checkoutSummary.prepend(summaryMessage);
+
+    fetch('/checkout/quote', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ items: checkoutCart })
+    }).then(async (response) => {
+      let result;
+      try {
+        result = await response.json();
+      } catch {
+        throw new Error('We could not verify prices right now. Please try again in a moment.');
+      }
+      if (!response.ok) throw new Error(result.error || 'Your order total could not be verified.');
+      if (revision !== checkoutQuoteRevision) return;
+
+      checkoutSummary.replaceChildren();
+      result.items.forEach((item) => {
+        const row = document.createElement('p');
+        row.textContent = `${item.name} — ${item.color} × ${item.quantity}: ${moneyLabel(item.line_total)}`;
+        checkoutSummary.append(row);
+      });
+      const subtotal = document.createElement('p');
+      subtotal.textContent = `Subtotal: ${moneyLabel(result.subtotal)}`;
+      const deliveryFee = document.createElement('p');
+      deliveryFee.textContent = `Delivery: ${moneyLabel(result.deliveryFee)}`;
+      const total = document.createElement('strong');
+      total.textContent = `Estimated total: ${moneyLabel(result.total)}`;
+      checkoutSummary.append(subtotal, deliveryFee, total);
+      checkoutStatus.textContent = 'Prices are verified from the current product catalogue.';
+      checkoutSubmit.disabled = false;
+    }).catch((error) => {
+      if (revision !== checkoutQuoteRevision) return;
+      console.error('Could not verify checkout prices.', error);
+      checkoutStatus.textContent = error.message || 'Your order total could not be verified. Please try again.';
+    });
+  };
+
+  if (checkoutForm) {
+    checkoutForm.addEventListener('submit', (event) => {
+      const checkoutCart = bagProducts.map(({ productId, quantity, color, customization }) => ({
+        productId,
+        quantity,
+        color,
+        customization
+      }));
+      checkoutItems.value = JSON.stringify(checkoutCart);
+      if (checkoutSubmit.disabled || checkoutCart.length === 0) {
+        event.preventDefault();
+        checkoutStatus.textContent = checkoutCart.length === 0
+          ? 'Your bag is empty. Add a product from the shop before checkout.'
+          : 'Please wait while we verify your order total.';
+      }
+    });
+  }
+
   document.querySelectorAll('[data-add-to-bag]').forEach((button) => {
     button.addEventListener('click', () => {
       const productOrder = button.closest('[data-product-order]');
@@ -300,66 +389,7 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       bagProducts = normalizeBagProducts(JSON.parse(event.newValue || '[]'));
       renderBag();
-
-      const checkoutForm = document.querySelector('[data-checkout-form]');
-      if (checkoutForm) {
-        const checkoutItems = checkoutForm.querySelector('[name="cart_items"]');
-        const checkoutSummary = document.querySelector('[data-checkout-summary]');
-        const checkoutStatus = document.querySelector('[data-checkout-status]');
-        const checkoutSubmit = checkoutForm.querySelector('[type="submit"]');
-
-        const renderQuote = (quote) => {
-          checkoutSummary.replaceChildren();
-          quote.items.forEach((item) => {
-            const row = document.createElement('p');
-            row.textContent = `${item.name} — ${item.color} × ${item.quantity}: ${moneyLabel(item.line_total)}`;
-            checkoutSummary.append(row);
-          });
-          const subtotal = document.createElement('p');
-          subtotal.textContent = `Subtotal: ${moneyLabel(quote.subtotal)}`;
-          const delivery = document.createElement('p');
-          delivery.textContent = `Delivery: ${moneyLabel(quote.deliveryFee)}`;
-          const total = document.createElement('strong');
-          total.textContent = `Estimated total: ${moneyLabel(quote.total)}`;
-          checkoutSummary.append(subtotal, delivery, total);
-        };
-
-        const checkoutCart = bagProducts.map(({ productId, quantity, color, customization }) => ({
-          productId,
-          quantity,
-          color,
-          customization
-        }));
-        checkoutItems.value = JSON.stringify(checkoutCart);
-        checkoutSubmit.disabled = true;
-
-        if (checkoutCart.length === 0) {
-          checkoutStatus.textContent = 'Your bag is empty. Add a product from the shop before checkout.';
-        } else {
-          fetch('/checkout/quote', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ items: checkoutCart })
-          }).then(async (response) => {
-            const result = await response.json();
-            if (!response.ok) throw new Error(result.error || 'Your order total could not be verified.');
-            renderQuote(result);
-            checkoutStatus.textContent = 'Prices are verified from the current product catalogue.';
-            checkoutSubmit.disabled = false;
-          }).catch((error) => {
-            console.error('Could not verify checkout prices.', error);
-            checkoutStatus.textContent = error.message || 'Your order total could not be verified. Please try again.';
-          });
-        }
-
-        checkoutForm.addEventListener('submit', (event) => {
-          checkoutItems.value = JSON.stringify(checkoutCart);
-          if (checkoutSubmit.disabled || checkoutCart.length === 0) {
-            event.preventDefault();
-            checkoutStatus.textContent = 'Please wait while we verify your order total.';
-          }
-        });
-      }
+      updateCheckout();
 
       if (document.querySelector('[data-order-confirmation]')) {
         try {
@@ -379,6 +409,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
   renderBag();
+  updateCheckout();
 
   const navToggle = document.querySelector('[data-nav-toggle]');
   const nav = document.querySelector('[data-nav]');

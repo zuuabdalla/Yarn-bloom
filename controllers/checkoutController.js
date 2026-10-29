@@ -177,7 +177,7 @@ exports.createOrder = async (req, res, next) => {
       return res.redirect('/bag');
     }
 
-    const referenceNumber = `YB-${Date.now().toString(36).toUpperCase()}-${randomBytes(4).toString('hex').toUpperCase()}`;
+    const referenceNumber = `YB-${Date.now().toString(36).toUpperCase()}-${randomBytes(8).toString('hex').toUpperCase()}`;
     await StoreOrder.create({
       reference_number: referenceNumber,
       ...customer,
@@ -214,6 +214,7 @@ exports.getConfirmation = async (req, res, next) => {
       `Estimated total: ${formatKSh(order.total)}`,
       `Delivery location: ${order.delivery_location}`,
       `Phone: ${order.phone}`,
+      ...(order.gift_message ? [`Gift message: ${order.gift_message}`] : []),
       '',
       'Please confirm availability and payment details. Thank you!'
     ];

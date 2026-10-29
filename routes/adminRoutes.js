@@ -56,6 +56,7 @@ router.post('/products/:id/delete', isAuthenticated, adminController.deleteProdu
 // Enquiries & Orders
 router.get('/enquiries', isAuthenticated, adminController.getEnquiries);
 router.post('/enquiries/custom-order/:id', isAuthenticated, adminController.updateCustomOrderStatus);
+router.post('/enquiries/store-order/:id', isAuthenticated, adminController.updateStoreOrderStatus);
 router.post('/enquiries/contact/:id', isAuthenticated, adminController.updateContactStatus);
 
 // Reviews

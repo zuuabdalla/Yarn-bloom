@@ -3,18 +3,77 @@
     <div>
       <div class="eyebrow">Customer care</div>
       <h1>Enquiries</h1>
-      <p>Review custom requests, gift box orders, and customer messages.</p>
+      <p>Review product orders, custom requests, gift boxes, and customer messages.</p>
     </div>
   </header>
 
   <%- include('../partials/flash-messages') %>
 
   <nav class="enquiry-jump-links" aria-label="Enquiry sections">
+    <a href="#store-orders">Product orders <span><%= storeOrders.length %></span></a>
     <a href="#custom-orders">Custom orders <span><%= customOrders.length %></span></a>
     <a href="#gift-boxes">Gift boxes <span><%= giftBoxes.length %></span></a>
     <a href="#contact-messages">Messages <span><%= contacts.length %></span></a>
     <a href="#reviews">Reviews <span><%= reviews.length %></span></a>
   </nav>
+
+  <section class="enquiry-group" id="store-orders">
+    <div class="enquiry-group-heading">
+      <div>
+        <h2>Product orders</h2>
+        <p>Guest checkout orders awaiting confirmation or fulfilment.</p>
+      </div>
+      <span class="enquiry-count"><%= storeOrders.length %></span>
+    </div>
+    <% if (storeOrders.length) { %>
+      <div class="enquiry-list">
+        <% storeOrders.forEach((order) => { %>
+          <article class="enquiry-card">
+            <div class="enquiry-card-heading">
+              <div>
+                <span class="enquiry-reference"><%= order.reference_number %></span>
+                <h3><%= order.customer_name %></h3>
+                <p><%= order.created_at ? new Date(order.created_at).toLocaleString('en-KE') : '' %></p>
+              </div>
+              <span class="enquiry-status"><%= order.status.replace(/_/g, ' ') %></span>
+            </div>
+            <dl class="enquiry-details">
+              <div><dt>Phone</dt><dd><%= order.phone %></dd></div>
+              <% if (order.email) { %><div><dt>Email</dt><dd><%= order.email %></dd></div><% } %>
+              <div class="enquiry-detail-wide"><dt>Delivery location</dt><dd><%= order.delivery_location %></dd></div>
+              <div><dt>Subtotal</dt><dd><%= formatKSh(order.subtotal) %></dd></div>
+              <div><dt>Delivery</dt><dd><%= formatKSh(order.delivery_fee) %></dd></div>
+              <div><dt>Total</dt><dd><strong><%= formatKSh(order.total) %></strong></dd></div>
+              <div><dt>Payment</dt><dd><%= order.payment_status.replace(/_/g, ' ') %></dd></div>
+              <% if (order.gift_message) { %><div class="enquiry-detail-wide"><dt>Gift message</dt><dd><%= order.gift_message %></dd></div><% } %>
+              <div class="enquiry-detail-wide">
+                <dt>Items</dt>
+                <dd>
+                  <% order.items.forEach((item) => { %>
+                    <p><%= item.product_name %> — <%= item.selected_color %> × <%= item.quantity %> (<%= formatKSh(item.line_total) %>)</p>
+                    <% if (item.customization) { %><p>Personalisation: <%= item.customization %></p><% } %>
+                  <% }) %>
+                </dd>
+              </div>
+            </dl>
+            <form class="enquiry-update-form" action="/admin/enquiries/store-order/<%= order.id %>" method="POST">
+              <label>
+                Status
+                <select name="status" required>
+                  <% ['pending', 'confirmed', 'in_production', 'completed', 'cancelled'].forEach((status) => { %>
+                    <option value="<%= status %>" <%= order.status === status ? 'selected' : '' %>><%= status.replace(/_/g, ' ') %></option>
+                  <% }) %>
+                </select>
+              </label>
+              <button class="btn btn-primary small" type="submit">Save status</button>
+            </form>
+          </article>
+        <% }) %>
+      </div>
+    <% } else { %>
+      <div class="enquiry-empty">No product checkout orders yet.</div>
+    <% } %>
+  </section>
 
   <section class="enquiry-group" id="custom-orders">
     <div class="enquiry-group-heading">

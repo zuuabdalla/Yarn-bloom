@@ -29,12 +29,18 @@ jest.mock('../models/Review', () => ({
   findAll: jest.fn()
 }));
 
+jest.mock('../models/StoreOrder', () => ({
+  findAll: jest.fn(),
+  updateStatus: jest.fn()
+}));
+
 const app = require('../app');
 const Admin = require('../models/Admin');
 const CustomOrder = require('../models/CustomOrder');
 const GiftBox = require('../models/GiftBox');
 const Contact = require('../models/Contact');
 const Review = require('../models/Review');
+const StoreOrder = require('../models/StoreOrder');
 
 describe('admin authentication pages', () => {
   beforeEach(() => {
@@ -72,6 +78,7 @@ describe('admin authentication pages', () => {
     GiftBox.findAll.mockResolvedValue([]);
     Contact.findAll.mockResolvedValue([]);
     Review.findAll.mockResolvedValue([]);
+    StoreOrder.findAll.mockResolvedValue([]);
 
     const agent = request.agent(app);
     await agent.post('/admin/login').send({ username: 'admin', password: 'valid-password' });
@@ -82,7 +89,47 @@ describe('admin authentication pages', () => {
     expect(response.text).toContain('Gift box orders');
     expect(response.text).toContain('Contact messages');
     expect(response.text).toContain('Customer reviews');
+    expect(response.text).toContain('Product orders');
+    expect(response.text).toContain('No product checkout orders yet.');
     expect(response.text).toContain('No custom order enquiries yet.');
+  });
+
+  test('allows an authenticated admin to update valid checkout order statuses', async () => {
+    Admin.findByUsername.mockResolvedValue({
+      id: 1,
+      username: 'admin',
+      email: 'admin@example.com',
+      role: 'superadmin',
+      password_hash: 'hash'
+    });
+    Admin.verifyPassword.mockResolvedValue(true);
+
+    const agent = request.agent(app);
+    await agent.post('/admin/login').send({ username: 'admin', password: 'valid-password' });
+    const response = await agent.post('/admin/enquiries/store-order/41').send({ status: 'confirmed' });
+
+    expect(StoreOrder.updateStatus).toHaveBeenCalledWith('41', 'confirmed');
+    expect(response.status).toBe(302);
+    expect(response.headers.location).toBe('/admin/enquiries#store-orders');
+  });
+
+  test('rejects invalid checkout order statuses', async () => {
+    Admin.findByUsername.mockResolvedValue({
+      id: 1,
+      username: 'admin',
+      email: 'admin@example.com',
+      role: 'superadmin',
+      password_hash: 'hash'
+    });
+    Admin.verifyPassword.mockResolvedValue(true);
+
+    const agent = request.agent(app);
+    await agent.post('/admin/login').send({ username: 'admin', password: 'valid-password' });
+    const response = await agent.post('/admin/enquiries/store-order/41').send({ status: 'paid' });
+
+    expect(StoreOrder.updateStatus).not.toHaveBeenCalled();
+    expect(response.status).toBe(302);
+    expect(response.headers.location).toBe('/admin/enquiries#store-orders');
   });
 
   test('shows first-time setup before login and blocks public sign-up after setup', async () => {

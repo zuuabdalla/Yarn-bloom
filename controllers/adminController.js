@@ -1,3 +1,4 @@
+const { randomBytes } = require('crypto');
 const Admin = require('../models/Admin');
 const Product = require('../models/Product');
 const Category = require('../models/Category');
@@ -5,6 +6,7 @@ const CustomOrder = require('../models/CustomOrder');
 const GiftBox = require('../models/GiftBox');
 const Contact = require('../models/Contact');
 const Review = require('../models/Review');
+const StoreOrder = require('../models/StoreOrder');
 const { formatKSh } = require('../utils/money');
 
 /**
@@ -274,11 +276,13 @@ exports.postAddProduct = async (req, res, next) => {
       care_instructions
     } = req.body;
 
-    const slug = name
+    const slugBase = name
       .toLowerCase()
       .trim()
       .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-+|-+$/g, '') + '-' + Math.floor(Math.random() * 1000);
+      .replace(/^-+|-+$/g, '')
+      .slice(0, 145) || 'handmade-product';
+    const slug = `${slugBase}-${randomBytes(6).toString('hex')}`;
 
     const uploadedFiles = req.files || {};
     const primaryImageFile = uploadedFiles.primary_image && uploadedFiles.primary_image[0];
@@ -430,11 +434,12 @@ exports.deleteProduct = async (req, res, next) => {
  */
 exports.getEnquiries = async (req, res, next) => {
   try {
-    const [customOrders, giftBoxes, contacts, reviews] = await Promise.all([
+    const [customOrders, giftBoxes, contacts, reviews, storeOrders] = await Promise.all([
       CustomOrder.findAll({ limit: 50 }),
       GiftBox.findAll({ limit: 50 }),
       Contact.findAll({ limit: 50 }),
-      Review.findAll({ limit: 50 })
+      Review.findAll({ limit: 50 }),
+      StoreOrder.findAll({ limit: 50 })
     ]);
 
     res.render('admin/enquiries', {
@@ -445,8 +450,26 @@ exports.getEnquiries = async (req, res, next) => {
       giftBoxes,
       contacts,
       reviews,
+      storeOrders,
       formatKSh
     });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.updateStoreOrderStatus = async (req, res, next) => {
+  try {
+    const allowedStatuses = ['pending', 'confirmed', 'in_production', 'completed', 'cancelled'];
+    const { status } = req.body;
+    if (!allowedStatuses.includes(status)) {
+      req.flash('error', 'Choose a valid order status.');
+      return res.redirect('/admin/enquiries#store-orders');
+    }
+
+    await StoreOrder.updateStatus(req.params.id, status);
+    req.flash('success', `Store order status updated to ${status.replace(/_/g, ' ')}.`);
+    res.redirect('/admin/enquiries#store-orders');
   } catch (error) {
     next(error);
   }

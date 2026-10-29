@@ -74,7 +74,7 @@
                   <% groupItems.forEach((item) => { %>
                     <label class="gift-item-choice">
                       <input type="checkbox" name="selected_product_ids" value="<%= item.id %>" <%= selectedProductIds && selectedProductIds.includes(String(item.id)) ? 'checked' : '' %> data-gift-price="<%= item.price %>" />
-                      <img src="<%= item.primary_image || item.image_url || '/images/products/placeholder.svg' %>" alt="" loading="lazy" />
+                      <img src="<%= item.primary_image || item.image_url || '/images/moodboard/brand-panel.png' %>" alt="" loading="lazy" />
                       <span><strong><%= item.name %></strong><small><%= formatKSh(item.price) %></small></span>
                     </label>
                   <% }) %>

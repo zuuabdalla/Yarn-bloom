@@ -1,5 +1,6 @@
 jest.mock('../config/database', () => ({
-  getConnection: jest.fn()
+  getConnection: jest.fn(),
+  query: jest.fn()
 }));
 
 const db = require('../config/database');
@@ -18,6 +19,33 @@ describe('StoreOrder transactions', () => {
       release: jest.fn()
     };
     db.getConnection.mockResolvedValue(connection);
+  });
+
+  test('loads recent orders with their line items', async () => {
+    db.query
+      .mockResolvedValueOnce([{ id: 41, reference_number: 'YB-RECENT' }])
+      .mockResolvedValueOnce([{ order_id: 41, product_name: 'Sage Tote', quantity: 2 }]);
+
+    await expect(StoreOrder.findAll()).resolves.toEqual([{
+      id: 41,
+      reference_number: 'YB-RECENT',
+      items: [{ order_id: 41, product_name: 'Sage Tote', quantity: 2 }]
+    }]);
+    expect(db.query).toHaveBeenNthCalledWith(
+      1,
+      'SELECT * FROM store_orders ORDER BY created_at DESC LIMIT ?',
+      [50]
+    );
+    expect(db.query.mock.calls[1][0]).toContain('WHERE order_id IN (?)');
+  });
+
+  test('updates an order status using its id', async () => {
+    db.query.mockResolvedValue({ affectedRows: 1 });
+    await StoreOrder.updateStatus(41, 'confirmed');
+    expect(db.query).toHaveBeenCalledWith(
+      'UPDATE store_orders SET status = ? WHERE id = ?',
+      ['confirmed', 41]
+    );
   });
 
   test('persists order and line items in one transaction', async () => {

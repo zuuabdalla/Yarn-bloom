@@ -10,7 +10,7 @@
     </div>
 
     <div class="checkout-layout">
-      <form class="page-card form-grid" action="/checkout" method="POST" data-checkout-form>
+      <form class="page-card form-grid" action="/checkout" method="POST" data-checkout-form data-delivery-fee="<%= Number(deliveryFee) %>">
         <input type="hidden" name="cart_items" value="[]" />
         <div class="form-group">
           <label for="checkout-name">Your name</label>

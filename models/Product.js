@@ -265,7 +265,42 @@ class Product {
       data.care_instructions || '',
       id
     ];
-    return await db.query(sql, params);
+    const connection = await db.getConnection();
+    try {
+      await connection.beginTransaction();
+      const [updateResult] = await connection.execute(sql, params);
+
+      const galleryImages = [data.primary_image, ...(data.gallery_images || [])]
+        .filter((imageUrl, index, imageUrls) => imageUrl && imageUrls.indexOf(imageUrl) === index);
+      await connection.execute('UPDATE product_images SET is_primary = 0 WHERE product_id = ?', [id]);
+
+      for (const [index, imageUrl] of galleryImages.entries()) {
+        const [existingImages] = await connection.execute(
+          'SELECT id FROM product_images WHERE product_id = ? AND image_url = ? LIMIT 1',
+          [id, imageUrl]
+        );
+        if (existingImages.length) {
+          await connection.execute(
+            'UPDATE product_images SET is_primary = ?, sort_order = ? WHERE id = ?',
+            [index === 0 ? 1 : 0, index, existingImages[0].id]
+          );
+        } else {
+          await connection.execute(
+            `INSERT INTO product_images (product_id, image_url, alt_text, is_primary, sort_order)
+             VALUES (?, ?, ?, ?, ?)`,
+            [id, imageUrl, data.name, index === 0 ? 1 : 0, index]
+          );
+        }
+      }
+
+      await connection.commit();
+      return updateResult;
+    } catch (error) {
+      await connection.rollback();
+      throw error;
+    } finally {
+      connection.release();
+    }
   }
 
   /**
