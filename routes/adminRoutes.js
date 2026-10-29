@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const adminController = require('../controllers/adminController');
-const { isAuthenticated, isGuest, isSuperAdmin } = require('../middleware/authMiddleware');
+const { isAuthenticated, isGuest } = require('../middleware/authMiddleware');
 const upload = require('../config/upload');
 const {
   adminSignupValidationRules,
@@ -12,11 +12,9 @@ const {
 // Auth routes
 router.get('/login', isGuest, adminController.getLogin);
 router.post('/login', isGuest, adminController.postLogin);
-router.get('/signup', isAuthenticated, isSuperAdmin, adminController.getSignup);
+router.get('/signup', adminController.getSignup);
 router.post(
   '/signup',
-  isAuthenticated,
-  isSuperAdmin,
   adminSignupValidationRules,
   checkValidation('/admin/signup'),
   adminController.postSignup
@@ -24,7 +22,7 @@ router.post(
 router.post('/logout', isAuthenticated, adminController.logout);
 
 // Dashboard
-router.get('/', isAuthenticated, adminController.getDashboard);
+router.get('/', adminController.getAdminHome);
 router.get('/dashboard', isAuthenticated, adminController.getDashboard);
 
 // Products

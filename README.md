@@ -65,15 +65,9 @@ A handmade crochet storefront and enquiry platform built with Express.js, EJS, M
    http://localhost:3000
    ```
 
-## Admin login
+## Admin setup and login
 
-Default admin account from the sample data:
-
-- Username: `admin`
-- Email: `admin@yarnandbloom.co.ke`
-- Password: `Admin@YarnBloom2025!`
-
-Only a signed-in superadmin can create additional admin accounts from **Create admin account** in the admin dashboard. New accounts are assigned the admin role and are sent to the login page after sign-up.
+After starting the app, open `http://localhost:3000/admin`. If no admin account exists, the one-time setup page appears first. Create the initial superadmin account, then sign in on the login page. After setup, public sign-up is disabled; only a signed-in superadmin can create additional admin accounts from **Create admin account** in the dashboard. New accounts are assigned the admin role and are sent to the login page after sign-up.
 
 ## Testing
 

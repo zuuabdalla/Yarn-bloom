@@ -30,6 +30,11 @@ class Admin {
     }
   }
 
+  static async countAll() {
+    const rows = await db.query('SELECT COUNT(*) AS count FROM admins');
+    return Number(rows[0].count);
+  }
+
   /**
    * Create an administrator account
    */
@@ -39,6 +44,41 @@ class Admin {
       VALUES (?, ?, ?, 'admin')
     `;
     return await db.query(sql, [username, email, passwordHash]);
+  }
+
+  /**
+   * Create the first superadmin while preventing concurrent initial sign-ups
+   */
+  static async createInitialSuperadmin({ username, email, passwordHash }) {
+    const connection = await db.getConnection();
+    const lockName = 'yarn_bloom_initial_admin_setup';
+    let lockAcquired = false;
+
+    try {
+      const [lockRows] = await connection.query('SELECT GET_LOCK(?, 10) AS acquired', [lockName]);
+      lockAcquired = lockRows[0].acquired === 1;
+      if (!lockAcquired) {
+        const error = new Error('Could not acquire the initial admin setup lock.');
+        error.code = 'ADMIN_SETUP_LOCK_TIMEOUT';
+        throw error;
+      }
+
+      const [countRows] = await connection.query('SELECT COUNT(*) AS count FROM admins');
+      if (Number(countRows[0].count) > 0) return null;
+
+      const [result] = await connection.execute(
+        `INSERT INTO admins (username, email, password_hash, role)
+         VALUES (?, ?, ?, 'superadmin')`,
+        [username, email, passwordHash]
+      );
+      return result;
+    } finally {
+      try {
+        if (lockAcquired) await connection.query('SELECT RELEASE_LOCK(?)', [lockName]);
+      } finally {
+        connection.release();
+      }
+    }
   }
 
   /**

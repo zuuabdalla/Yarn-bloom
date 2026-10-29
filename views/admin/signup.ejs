@@ -22,11 +22,11 @@
       </section>
 
       <section class="admin-auth-content">
-        <a class="admin-auth-back" href="/admin/dashboard">← Back to dashboard</a>
+        <a class="admin-auth-back" href="<%= isInitialSetup ? '/' : '/admin/dashboard' %>"><%= isInitialSetup ? '← Back to shop' : '← Back to dashboard' %></a>
         <div class="admin-auth-brand" aria-hidden="true">Y&amp;B</div>
         <div class="eyebrow">Private admin portal</div>
-        <h1>Create admin</h1>
-        <p class="admin-auth-description">Add an administrator account for the Yarn &amp; Bloom team.</p>
+        <h1><%= isInitialSetup ? 'Set up admin' : 'Create admin' %></h1>
+        <p class="admin-auth-description"><%= isInitialSetup ? 'Create your first administrator account to get started.' : 'Add an administrator account for the Yarn &amp; Bloom team.' %></p>
 
         <%- include('../partials/flash-messages') %>
 
@@ -50,7 +50,7 @@
           <button class="btn btn-primary admin-auth-submit" type="submit">Create account <span aria-hidden="true">→</span></button>
         </form>
 
-        <p class="admin-auth-note"><span aria-hidden="true">▣</span> Admin accounts are created by a superadmin</p>
+        <p class="admin-auth-note"><span aria-hidden="true">▣</span> <%= isInitialSetup ? 'You will be the superadmin for this store' : 'Admin accounts are created by a superadmin' %></p>
       </section>
     </main>
   </body>

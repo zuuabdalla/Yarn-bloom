@@ -5,10 +5,12 @@ jest.mock('../config/database', () => ({
 }));
 
 jest.mock('../models/Admin', () => ({
+  countAll: jest.fn(),
   findByUsername: jest.fn(),
   verifyPassword: jest.fn(),
   hashPassword: jest.fn(),
-  create: jest.fn()
+  create: jest.fn(),
+  createInitialSuperadmin: jest.fn()
 }));
 
 const app = require('../app');
@@ -17,6 +19,7 @@ const Admin = require('../models/Admin');
 describe('admin authentication pages', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    Admin.countAll.mockResolvedValue(1);
   });
 
   test('renders a private, unindexed admin login page', async () => {
@@ -36,7 +39,17 @@ describe('admin authentication pages', () => {
     expect(response.headers.location).toBe('/admin/login');
   });
 
-  test('allows only a superadmin to open the admin sign-up page', async () => {
+  test('shows first-time setup before login and blocks public sign-up after setup', async () => {
+    Admin.countAll.mockResolvedValue(0);
+    const homeResponse = await request(app).get('/admin');
+    expect(homeResponse.status).toBe(302);
+    expect(homeResponse.headers.location).toBe('/admin/signup');
+
+    const setupResponse = await request(app).get('/admin/signup');
+    expect(setupResponse.status).toBe(200);
+    expect(setupResponse.text).toContain('Set up admin');
+
+    Admin.countAll.mockResolvedValue(1);
     const guestResponse = await request(app).get('/admin/signup');
     expect(guestResponse.status).toBe(302);
     expect(guestResponse.headers.location).toBe('/admin/login');
@@ -75,7 +88,29 @@ describe('admin authentication pages', () => {
     expect(superadminResponse.text).toContain('password_confirmation');
   });
 
-  test('creates an admin account and redirects to the login page', async () => {
+  test('creates the first superadmin and redirects to the login page', async () => {
+    Admin.countAll.mockResolvedValue(1);
+    Admin.hashPassword.mockResolvedValue('new-password-hash');
+    Admin.createInitialSuperadmin.mockResolvedValue({ insertId: 1 });
+
+    const response = await request(app).post('/admin/signup').send({
+      username: 'first.admin',
+      email: 'first.admin@example.com',
+      password: 'a-very-secure-password',
+      password_confirmation: 'a-very-secure-password'
+    });
+
+    expect(Admin.createInitialSuperadmin).toHaveBeenCalledWith({
+      username: 'first.admin',
+      email: 'first.admin@example.com',
+      passwordHash: 'new-password-hash'
+    });
+    expect(response.status).toBe(302);
+    expect(response.headers.location).toBe('/admin/login');
+  });
+
+  test('allows the superadmin to create another admin and redirects to login', async () => {
+    Admin.countAll.mockResolvedValue(1);
     Admin.findByUsername.mockResolvedValue({
       id: 1,
       username: 'admin',

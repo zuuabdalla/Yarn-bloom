@@ -3,11 +3,12 @@
 
 USE `yarn_bloom`;
 
--- Default Admin Account: username = admin, email = admin@yarnandbloom.co.ke
--- Default password: Admin@YarnBloom2025! (hashed with bcrypt 10 rounds)
-INSERT INTO `admins` (`id`, `username`, `email`, `password_hash`, `role`)
-VALUES (1, 'admin', 'admin@yarnandbloom.co.ke', '$2a$10$7vF9a2UqZ6K4e2z9/1u7ueD1lK0k4m8nL3j5qQ7v9W1e3r5t7y9u.', 'superadmin')
-ON DUPLICATE KEY UPDATE `username` = VALUES(`username`);
+-- Create the initial superadmin through the one-time setup page at /admin/signup.
+-- Remove only the previous sample admin account; real admin accounts are preserved.
+DELETE FROM `admins`
+WHERE `username` = 'admin'
+  AND `email` = 'admin@yarnandbloom.co.ke'
+  AND `password_hash` = '$2a$10$7vF9a2UqZ6K4e2z9/1u7ueD1lK0k4m8nL3j5qQ7v9W1e3r5t7y9u.';
 
 -- Categories
 INSERT INTO `categories` (`id`, `name`, `slug`, `description`, `image_url`, `display_order`) VALUES

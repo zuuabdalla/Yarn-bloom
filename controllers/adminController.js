@@ -10,27 +10,59 @@ const { formatKSh } = require('../utils/money');
 /**
  * Render admin login page
  */
-exports.getLogin = (req, res) => {
-  res.set('X-Robots-Tag', 'noindex, nofollow, noarchive');
-  res.render('admin/login', {
-    title: 'Admin Portal Login — Yarn & Bloom',
-    layout: false
-  });
+exports.getAdminHome = async (req, res, next) => {
+  try {
+    if (req.session && req.session.adminUser) {
+      return res.redirect('/admin/dashboard');
+    }
+    const adminCount = await Admin.countAll();
+    return res.redirect(adminCount === 0 ? '/admin/signup' : '/admin/login');
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.getLogin = async (req, res, next) => {
+  try {
+    if (await Admin.countAll() === 0) {
+      return res.redirect('/admin/signup');
+    }
+
+    res.set('X-Robots-Tag', 'noindex, nofollow, noarchive');
+    res.render('admin/login', {
+      title: 'Admin Portal Login — Yarn & Bloom',
+      layout: false
+    });
+  } catch (error) {
+    next(error);
+  }
 };
 
 /**
- * Render the superadmin-only admin account sign-up page
+ * Render the initial admin setup or superadmin-only account sign-up page
  */
-exports.getSignup = (req, res) => {
-  res.set('X-Robots-Tag', 'noindex, nofollow, noarchive');
-  res.render('admin/signup', {
-    title: 'Create Admin Account — Yarn & Bloom',
-    layout: false
-  });
+exports.getSignup = async (req, res, next) => {
+  try {
+    const isSuperAdmin = req.session?.adminUser?.role === 'superadmin';
+    const adminCount = isSuperAdmin ? 1 : await Admin.countAll();
+    const isInitialSetup = !isSuperAdmin && adminCount === 0;
+    if (!isSuperAdmin && !isInitialSetup) {
+      return res.redirect(req.session?.adminUser ? '/admin/dashboard' : '/admin/login');
+    }
+
+    res.set('X-Robots-Tag', 'noindex, nofollow, noarchive');
+    res.render('admin/signup', {
+      title: isInitialSetup ? 'Admin Setup — Yarn & Bloom' : 'Create Admin Account — Yarn & Bloom',
+      isInitialSetup,
+      layout: false
+    });
+  } catch (error) {
+    next(error);
+  }
 };
 
 /**
- * Create an admin account and send the creator to sign in
+ * Create the first superadmin or a superadmin-authorized admin account
  */
 exports.postSignup = async (req, res, next) => {
   try {
@@ -38,7 +70,15 @@ exports.postSignup = async (req, res, next) => {
     const passwordHash = await Admin.hashPassword(password);
 
     try {
-      await Admin.create({ username, email, passwordHash });
+      if (req.session?.adminUser?.role === 'superadmin') {
+        await Admin.create({ username, email, passwordHash });
+      } else {
+        const createdAdmin = await Admin.createInitialSuperadmin({ username, email, passwordHash });
+        if (!createdAdmin) {
+          req.flash('error', 'Admin setup is already complete. Please sign in.');
+          return res.redirect(req.session?.adminUser ? '/admin/dashboard' : '/admin/login');
+        }
+      }
     } catch (error) {
       if (error.code === 'ER_DUP_ENTRY') {
         req.flash('error', 'An admin account with that username or email already exists.');
