@@ -56,7 +56,8 @@ async function priceCart(rawCart) {
 
   for (const selection of parsed.items) {
     const product = productById.get(selection.id);
-    if (!product || product.stock_status === 'out_of_stock') {
+    if (!product || product.stock_status === 'out_of_stock' ||
+        (product.stock_status === 'in_stock' && Number(product.stock_quantity) < selection.quantity)) {
       return { error: 'One or more products in your bag are unavailable. Please return to the shop and update your bag.' };
     }
 
@@ -178,13 +179,21 @@ exports.createOrder = async (req, res, next) => {
     }
 
     const referenceNumber = `YB-${Date.now().toString(36).toUpperCase()}-${randomBytes(8).toString('hex').toUpperCase()}`;
-    await StoreOrder.create({
-      reference_number: referenceNumber,
-      ...customer,
-      subtotal: quote.subtotal,
-      delivery_fee: quote.delivery_fee,
-      total: quote.total
-    }, quote.items);
+    try {
+      await StoreOrder.create({
+        reference_number: referenceNumber,
+        ...customer,
+        subtotal: quote.subtotal,
+        delivery_fee: quote.delivery_fee,
+        total: quote.total
+      }, quote.items);
+    } catch (error) {
+      if (error.code === 'PRODUCT_STOCK_UNAVAILABLE') {
+        req.flash('error', 'A product in your bag just sold out or no longer has enough stock. Please review your bag.');
+        return res.redirect('/bag');
+      }
+      throw error;
+    }
 
     res.redirect(`/checkout/confirmation/${encodeURIComponent(referenceNumber)}`);
   } catch (error) {

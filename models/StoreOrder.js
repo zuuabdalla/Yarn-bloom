@@ -27,6 +27,48 @@ class StoreOrder {
     const connection = await db.getConnection();
     try {
       await connection.beginTransaction();
+      const productIds = [...new Set(items.map(item => Number(item.id)))].sort((a, b) => a - b);
+      const productPlaceholders = productIds.map(() => '?').join(', ');
+      const [products] = await connection.execute(
+        `SELECT id, is_active, stock_status, stock_quantity
+         FROM products
+         WHERE id IN (${productPlaceholders})
+         ORDER BY id
+         FOR UPDATE`,
+        productIds
+      );
+      const productsById = new Map(products.map(product => [Number(product.id), product]));
+      const quantitiesByProduct = new Map();
+      for (const item of items) {
+        const productId = Number(item.id);
+        quantitiesByProduct.set(productId, (quantitiesByProduct.get(productId) || 0) + Number(item.quantity));
+      }
+
+      for (const [productId, quantity] of quantitiesByProduct) {
+        const product = productsById.get(productId);
+        if (!product || !product.is_active ||
+            product.stock_status === 'out_of_stock' ||
+            (product.stock_status === 'in_stock' && Number(product.stock_quantity) < quantity)) {
+          const error = new Error('A product in the order is no longer available in the requested quantity.');
+          error.code = 'PRODUCT_STOCK_UNAVAILABLE';
+          throw error;
+        }
+
+        if (product.stock_status === 'in_stock') {
+          const [updateResult] = await connection.execute(
+            `UPDATE products
+             SET stock_quantity = stock_quantity - ?
+             WHERE id = ? AND is_active = 1 AND stock_status = 'in_stock' AND stock_quantity >= ?`,
+            [quantity, productId, quantity]
+          );
+          if (updateResult.affectedRows !== 1) {
+            const error = new Error('Product stock changed while the order was being submitted.');
+            error.code = 'PRODUCT_STOCK_UNAVAILABLE';
+            throw error;
+          }
+        }
+      }
+
       const [result] = await connection.execute(
         `INSERT INTO store_orders (
           reference_number, customer_name, phone, email, delivery_location,

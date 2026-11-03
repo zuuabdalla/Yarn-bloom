@@ -2,6 +2,7 @@ const Product = require('../models/Product');
 const Category = require('../models/Category');
 const Review = require('../models/Review');
 const Admin = require('../models/Admin');
+const WhatsAppService = require('../services/whatsappService');
 const { formatKSh } = require('../utils/money');
 
 exports.getHome = async (req, res, next) => {
@@ -20,7 +21,8 @@ exports.getHome = async (req, res, next) => {
       categories,
       testimonials,
       settings,
-      formatKSh
+      formatKSh,
+      WhatsAppService
     });
   } catch (error) {
     next(error);

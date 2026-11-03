@@ -1,0 +1,45 @@
+<section class="admin-section admin-access-requests">
+  <header class="admin-page-heading">
+    <div>
+      <div class="eyebrow">Superadmin review</div>
+      <h1>Admin access requests</h1>
+      <p>Review each request before creating a new administrator account.</p>
+    </div>
+  </header>
+
+  <% if (accessRequests.length) { %>
+    <div class="admin-access-request-list">
+      <% accessRequests.forEach((accessRequest) => { %>
+        <article class="admin-panel admin-access-request">
+          <div class="admin-access-request-details">
+            <span class="admin-access-request-avatar" aria-hidden="true"><%= accessRequest.username.charAt(0).toUpperCase() %></span>
+            <div>
+              <span class="eyebrow">Requested <%= accessRequest.created_at ? new Date(accessRequest.created_at).toLocaleDateString('en-KE', { day: 'numeric', month: 'short', year: 'numeric' }) : '' %></span>
+              <h2><%= accessRequest.username %></h2>
+              <a href="mailto:<%= accessRequest.email %>"><%= accessRequest.email %></a>
+            </div>
+          </div>
+          <span class="admin-status-pill <%= accessRequest.status === 'approved' ? 'is-complete' : accessRequest.status === 'rejected' ? 'is-cancelled' : 'is-pending' %>"><%= accessRequest.status %></span>
+          <% if (accessRequest.status === 'pending') { %>
+            <div class="admin-access-request-actions">
+              <form action="/admin/access-requests/<%= accessRequest.id %>/approve" method="POST">
+                <button class="btn btn-primary small" type="submit">Approve &amp; create account</button>
+              </form>
+              <form action="/admin/access-requests/<%= accessRequest.id %>/reject" method="POST" onsubmit="return confirm('Reject this admin access request?');">
+                <button class="btn btn-secondary small admin-delete-button" type="submit">Reject</button>
+              </form>
+            </div>
+          <% } else if (accessRequest.reviewed_at) { %>
+            <small class="admin-access-reviewed">Reviewed <%= new Date(accessRequest.reviewed_at).toLocaleDateString('en-KE', { day: 'numeric', month: 'short', year: 'numeric' }) %></small>
+          <% } %>
+        </article>
+      <% }) %>
+    </div>
+  <% } else { %>
+    <div class="admin-panel admin-empty-state">
+      <span aria-hidden="true">✿</span>
+      <strong>No admin access requests yet.</strong>
+      <p>New requests will appear here for superadmin review.</p>
+    </div>
+  <% } %>
+</section>

@@ -10,6 +10,10 @@ exports.getShop = async (req, res, next) => {
     const category = typeof req.query.category === 'string' ? req.query.category : null;
     const search = typeof req.query.search === 'string' ? req.query.search : '';
     const sort = typeof req.query.sort === 'string' ? req.query.sort : 'newest';
+    const requestedAvailability = typeof req.query.availability === 'string' ? req.query.availability : 'all';
+    const availability = ['available', 'unavailable'].includes(requestedAvailability)
+      ? requestedAvailability
+      : 'all';
     const requestedPage = Number.parseInt(req.query.page, 10);
     const page = Number.isFinite(requestedPage) && requestedPage > 0 ? requestedPage : 1;
     const limit = 12;
@@ -21,12 +25,14 @@ exports.getShop = async (req, res, next) => {
         categorySlug: category,
         search,
         sortBy: sort,
+        availability,
         limit,
         offset
       }),
       Product.countAll({
         categorySlug: category,
-        search
+        search,
+        availability
       }),
       Admin.getSettings()
     ]);
@@ -46,6 +52,7 @@ exports.getShop = async (req, res, next) => {
       activeCategory,
       searchQuery: search,
       sortBy: sort,
+      availability,
       settings,
       formatKSh,
       calculateDiscount,

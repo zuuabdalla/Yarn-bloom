@@ -18,10 +18,17 @@ INSERT INTO `categories` (`id`, `name`, `slug`, `description`, `image_url`, `dis
 (4, 'Gift Sets', 'gift-sets', 'Curated gift hampers combining our signature flowers, bags, and plush keepsakes in luxury packaging.', '/images/moodboard/crochet-gift-box.png', 4)
 ON DUPLICATE KEY UPDATE `name` = VALUES(`name`), `slug` = VALUES(`slug`), `image_url` = VALUES(`image_url`);
 
+INSERT INTO `categories` (`name`, `slug`, `description`, `display_order`) VALUES
+('Crochet Flowers', 'crochet-flowers', 'Handmade crochet flowers and bouquets.', 2),
+('Baby Accessories', 'baby-accessories', 'Thoughtful handmade accessories for babies.', 4),
+('Crochet Hats', 'crochet-hats', 'Handmade crochet hats and headwear.', 5),
+('Custom Creations', 'custom-creations', 'Custom-designed handmade crochet pieces.', 7)
+ON DUPLICATE KEY UPDATE `name` = VALUES(`name`), `description` = VALUES(`description`), `display_order` = VALUES(`display_order`);
+
 -- Products
 INSERT INTO `products` (
     `id`, `category_id`, `name`, `slug`, `short_description`, `detailed_description`,
-    `price`, `compare_at_price`, `stock_status`, `estimated_production_days`,
+    `price`, `compare_at_price`, `stock_status`, `stock_quantity`, `estimated_production_days`,
     `materials`, `dimensions`, `available_colors`, `is_customizable`, `is_featured`,
     `is_active`, `occasions`, `primary_image`, `care_instructions`
 ) VALUES
@@ -29,7 +36,7 @@ INSERT INTO `products` (
     1, 1, 'The Sunday Tote', 'the-sunday-tote',
     'A spacious, textured crochet tote bag with sturdy double handles for your market runs and weekend strolls.',
     'Carefully handcrafted using premium 100% recycled cotton yarn in our signature ribbed cluster stitch. The Sunday Tote is both lightweight and surprisingly durable, designed to carry your daily essentials, books, or farmers market treasures with graceful ease. Features reinforced handles and a charming scalloped rim.',
-    3200.00, 3600.00, 'made_to_order', 4,
+    3200.00, 3600.00, 'made_to_order', 0, 4,
     '100% Recycled Cotton Cord, Brass Magnetic Snap',
     '34cm width x 30cm height (handle drop 25cm)',
     'Sage Green, Warm Cream, Oatmeal Beige, Terracotta, Deep Forest',
@@ -41,7 +48,7 @@ INSERT INTO `products` (
     2, 2, 'Forever Bloom Bouquet', 'forever-bloom-bouquet',
     'A breathtaking artisan bouquet of crochet roses, daisies, lavender sprigs, and eucalyptus leaves that never wilt.',
     'Express your lasting affection with flowers that stay fresh forever. This signature bouquet features 7 meticulously crocheted stems: 2 blush roses, 2 creamy daisies, 2 fragrant purple lavender sprigs, and handcrafted eucalyptus foliage wrapped in craft paper with rustic twine and a personalized calligraphy tag.',
-    2800.00, 3200.00, 'in_stock', 2,
+    2800.00, 3200.00, 'in_stock', 10, 2,
     'Mercerized Cotton Yarn, Coated Floral Wire Stems, Eco Kraft Paper',
     'Height approx 38cm, Diameter approx 22cm',
     'Classic Pastel (Blush/Cream), Sunset Warmth (Peach/Mustard), Botanical Sage (Ivory/Eucalyptus)',
@@ -53,7 +60,7 @@ INSERT INTO `products` (
     3, 3, 'Honey Bear', 'honey-bear',
     'A delightfully huggable amigurumi teddy bear wearing a miniature knitted scarf and safety eyes.',
     'Our beloved Honey Bear is crocheted by hand in super-soft milk cotton yarn. Stuffed with hypoallergenic polyester fiberfill and fitted with child-safe lock eyes, Honey Bear is made to be treasured across generations as a nursery bedtime companion or baby shower keepsake.',
-    1800.00, NULL, 'in_stock', 3,
+    1800.00, NULL, 'in_stock', 10, 3,
     'Milk Cotton Yarn, Hypoallergenic Polyfill, Safety Eyes',
     '24cm seated height x 16cm width',
     'Honey Caramel, Soft Cream, Warm Taupe, Sage Moss',
@@ -65,7 +72,7 @@ INSERT INTO `products` (
     4, 2, 'Daisy Mini Bouquet', 'daisy-mini-bouquet',
     'A cheerful, compact bunch of vibrant hand-stitched daisies designed to brighten up any desk or windowsill.',
     'Five joyful crochet daisies with golden centers and bendable green stems, tied together with raw chiffon ribbon. Perfect as a quick "thinking of you" gesture, desk companion, or teacher appreciation token.',
-    1400.00, 1600.00, 'in_stock', 2,
+    1400.00, 1600.00, 'in_stock', 10, 2,
     '100% Combed Cotton, Flexible Floral Wire, Silk Chiffon Ribbon',
     'Height 25cm, Bundle width 14cm',
     'Pure White & Gold, Pastel Pink & Buttercup, Lavender Daisy Mix',
@@ -77,7 +84,7 @@ INSERT INTO `products` (
     5, 1, 'The Everyday Pouch', 'the-everyday-pouch',
     'A chic textured crochet zippered pouch ideal for makeup, pencils, keys, or tech accessories.',
     'Minimalist and tactile, The Everyday Pouch features a tight moss stitch pattern that prevents small items from slipping through, lined with soft linen fabric and finished with a smooth metallic zip and a handcrafted yarn tassel.',
-    1600.00, NULL, 'in_stock', 2,
+    1600.00, NULL, 'in_stock', 10, 2,
     'Organic Cotton Yarn, Linen Inner Lining, Antique Brass Zipper',
     '22cm length x 15cm height x 5cm base',
     'Oatmeal Beige, Deep Forest Green, Dusty Rose, Mustard Honey',
@@ -89,7 +96,7 @@ INSERT INTO `products` (
     6, 3, 'Little Cloud Bunny', 'little-cloud-bunny',
     'An heirloom floppy-eared bunny stuffed with love, perfect for little hands to cuddle.',
     'With long, sweet droopy ears and an embroidered heart nose, Little Cloud Bunny is an instant favorite for babies and young children. Soft to the touch and lightweight, it makes the perfect cuddle companion.',
-    2000.00, 2400.00, 'made_to_order', 3,
+    2000.00, 2400.00, 'made_to_order', 0, 3,
     'Organic Bamboo-Cotton Blend Yarn, Hypoallergenic Polyfill',
     '30cm tip of ears to toes',
     'Cloud White, Blush Meadow, Mist Grey, Warm Biscuit',
@@ -101,7 +108,7 @@ INSERT INTO `products` (
     7, 4, 'Blossom & Bear Gift Box', 'blossom-and-bear-gift-box',
     'A curated luxury keepsake gift box featuring our Honey Bear, Forever Bloom mini bouquet, and a personalized card.',
     'A complete gift ready to impress. Includes our handcrafted Honey Bear, a coordinating 3-stem crochet bloom bouquet, botanical tissue wrap, a premium rigid keepsake gift box tied with sage ribbon, and a customized handwritten wax-sealed greeting card.',
-    4500.00, 5200.00, 'made_to_order', 4,
+    4500.00, 5200.00, 'made_to_order', 0, 4,
     'Handmade Crochet Items, Rigid Keepsake Box, Chiffon Ribbon, Wax Seal Card',
     'Box dimensions: 28cm x 22cm x 12cm',
     'Sage & Cream, Rose & Ivory, Warm Honey & Taupe',
@@ -113,7 +120,7 @@ INSERT INTO `products` (
     8, 1, 'Lavender Garden Tote', 'lavender-garden-tote',
     'An intricate floral granny square shoulder bag with vintage charm and sturdy woven straps.',
     'A true celebration of slow fashion. Thirteen individual floral squares crocheted in harmonious earthy hues and joined with delicate border stitches. Lined with sturdy cotton canvas with an interior pocket for your smartphone.',
-    3500.00, 3900.00, 'made_to_order', 5,
+    3500.00, 3900.00, 'made_to_order', 0, 5,
     '100% Egyptian Cotton Yarn, Canvas Interior Lining, Canvas Pocket',
     '36cm x 36cm with 28cm shoulder strap drop',
     'Lavender & Sage, Sunlit Amber, Vintage Rose',

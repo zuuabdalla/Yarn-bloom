@@ -4,14 +4,27 @@ class Product {
   /**
    * Find all products with optional filters (category, search, sorting)
    */
-  static async findAll({ categorySlug = null, categoryId = null, search = '', sortBy = 'newest', limit = 50, offset = 0 } = {}) {
+  static async findAll({
+    categorySlug = null,
+    categoryId = null,
+    search = '',
+    sortBy = 'newest',
+    availability = 'all',
+    includeInactive = false,
+    limit = 50,
+    offset = 0
+  } = {}) {
     let sql = `
       SELECT p.*, c.name AS category_name, c.slug AS category_slug
       FROM products p
       LEFT JOIN categories c ON p.category_id = c.id
-      WHERE p.is_active = 1
+      WHERE 1 = 1
     `;
     const params = [];
+
+    if (!includeInactive) {
+      sql += ' AND p.is_active = 1';
+    }
 
     if (categoryId) {
       sql += ` AND p.category_id = ?`;
@@ -22,9 +35,15 @@ class Product {
     }
 
     if (typeof search === 'string' && search.trim()) {
-      sql += ` AND (p.name LIKE ? OR p.short_description LIKE ? OR p.detailed_description LIKE ? OR p.available_colors LIKE ? OR p.occasions LIKE ?)`;
+      sql += ` AND (p.name LIKE ? OR p.short_description LIKE ? OR p.detailed_description LIKE ? OR c.name LIKE ? OR p.available_colors LIKE ? OR p.occasions LIKE ?)`;
       const searchTerm = `%${search.trim()}%`;
-      params.push(searchTerm, searchTerm, searchTerm, searchTerm, searchTerm);
+      params.push(searchTerm, searchTerm, searchTerm, searchTerm, searchTerm, searchTerm);
+    }
+
+    if (availability === 'available') {
+      sql += ` AND (p.stock_status = 'made_to_order' OR (p.stock_status = 'in_stock' AND p.stock_quantity > 0))`;
+    } else if (availability === 'unavailable') {
+      sql += ` AND (p.stock_status = 'out_of_stock' OR (p.stock_status = 'in_stock' AND p.stock_quantity = 0))`;
     }
 
     // Sort order
@@ -47,8 +66,10 @@ class Product {
         break;
     }
 
-    sql += ` LIMIT ? OFFSET ?`;
-    params.push(parseInt(limit, 10), parseInt(offset, 10));
+    if (limit !== null) {
+      sql += ` LIMIT ? OFFSET ?`;
+      params.push(parseInt(limit, 10), parseInt(offset, 10));
+    }
 
     return db.query(sql, params);
   }
@@ -56,7 +77,7 @@ class Product {
   /**
    * Count products matching filters for pagination
    */
-  static async countAll({ categorySlug = null, search = '' } = {}) {
+  static async countAll({ categorySlug = null, search = '', availability = 'all' } = {}) {
     let sql = `
       SELECT COUNT(*) AS total
       FROM products p
@@ -71,9 +92,15 @@ class Product {
     }
 
     if (typeof search === 'string' && search.trim()) {
-      sql += ` AND (p.name LIKE ? OR p.short_description LIKE ? OR p.detailed_description LIKE ? OR p.available_colors LIKE ? OR p.occasions LIKE ?)`;
+      sql += ` AND (p.name LIKE ? OR p.short_description LIKE ? OR p.detailed_description LIKE ? OR c.name LIKE ? OR p.available_colors LIKE ? OR p.occasions LIKE ?)`;
       const term = `%${search.trim()}%`;
-      params.push(term, term, term, term, term);
+      params.push(term, term, term, term, term, term);
+    }
+
+    if (availability === 'available') {
+      sql += ` AND (p.stock_status = 'made_to_order' OR (p.stock_status = 'in_stock' AND p.stock_quantity > 0))`;
+    } else if (availability === 'unavailable') {
+      sql += ` AND (p.stock_status = 'out_of_stock' OR (p.stock_status = 'in_stock' AND p.stock_quantity = 0))`;
     }
 
     const rows = await db.query(sql, params);
@@ -154,7 +181,7 @@ class Product {
     if (!ids.length) return [];
     const placeholders = ids.map(() => '?').join(', ');
     const sql = `
-      SELECT id, name, slug, price, stock_status, estimated_production_days,
+      SELECT id, name, slug, price, stock_status, stock_quantity, estimated_production_days,
         available_colors, is_customizable
       FROM products
       WHERE is_active = 1 AND id IN (${placeholders})
@@ -180,10 +207,10 @@ class Product {
     const sql = `
       INSERT INTO products (
         category_id, name, slug, short_description, detailed_description,
-        price, compare_at_price, stock_status, estimated_production_days,
+        price, compare_at_price, stock_status, stock_quantity, estimated_production_days,
         materials, dimensions, available_colors, is_customizable,
         is_featured, is_active, occasions, primary_image, care_instructions
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
     const params = [
       data.category_id || null,
@@ -194,6 +221,7 @@ class Product {
       data.price,
       data.compare_at_price || null,
       data.stock_status || 'made_to_order',
+      Number.parseInt(data.stock_quantity, 10) || 0,
       data.estimated_production_days || 3,
       data.materials || '100% Cotton Yarn',
       data.dimensions || null,
@@ -238,7 +266,7 @@ class Product {
       UPDATE products SET
         category_id = ?, name = ?, slug = ?, short_description = ?,
         detailed_description = ?, price = ?, compare_at_price = ?,
-        stock_status = ?, estimated_production_days = ?, materials = ?,
+        stock_status = ?, stock_quantity = ?, estimated_production_days = ?, materials = ?,
         dimensions = ?, available_colors = ?, is_customizable = ?,
         is_featured = ?, is_active = ?, occasions = ?, primary_image = ?,
         care_instructions = ?
@@ -253,6 +281,7 @@ class Product {
       data.price,
       data.compare_at_price || null,
       data.stock_status || 'made_to_order',
+      Number.parseInt(data.stock_quantity, 10) || 0,
       data.estimated_production_days || 3,
       data.materials || '100% Cotton Yarn',
       data.dimensions || null,

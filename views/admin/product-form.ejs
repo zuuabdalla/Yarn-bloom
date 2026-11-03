@@ -1,7 +1,14 @@
-<section class="admin-section">
-  <h1><%= isEdit ? 'Edit product' : 'Add new product' %></h1>
-  <div class="page-card">
-    <form action="<%= isEdit ? '/admin/products/' + product.id + '/edit' : '/admin/products/new' %>" method="POST" enctype="multipart/form-data" class="form-grid">
+<section class="admin-section admin-product-editor">
+  <header class="admin-page-heading">
+    <div>
+      <div class="eyebrow">Atelier Nairobi · Catalog management</div>
+      <h1><%= isEdit ? 'Edit your handmade piece' : 'Add a new atelier piece' %></h1>
+      <p>Share the details that make this piece special.</p>
+    </div>
+    <a class="btn btn-secondary" href="/admin/products">← Back to catalog</a>
+  </header>
+  <div class="admin-panel">
+    <form action="<%= isEdit ? '/admin/products/edit/' + product.id : '/admin/products/add' %>" method="POST" enctype="multipart/form-data" class="form-grid admin-product-form">
       <div class="form-group">
         <label for="name">Product name</label>
         <input id="name" name="name" value="<%= product && product.name ? product.name : '' %>" required />
@@ -25,10 +32,15 @@
       <div class="form-group">
         <label for="stock_status">Stock status</label>
         <select id="stock_status" name="stock_status">
-          <option value="in_stock" <%= product && product.stock_status === 'in_stock' ? 'selected' : '' %>>In stock</option>
-          <option value="made_to_order" <%= product && product.stock_status === 'made_to_order' ? 'selected' : '' %>>Made to order</option>
+          <option value="in_stock" <%= product && product.stock_status === 'in_stock' ? 'selected' : '' %>>In stock (tracked quantity)</option>
+          <option value="made_to_order" <%= !product || !product.stock_status || product.stock_status === 'made_to_order' ? 'selected' : '' %>>Made to order</option>
           <option value="out_of_stock" <%= product && product.stock_status === 'out_of_stock' ? 'selected' : '' %>>Out of stock</option>
         </select>
+      </div>
+      <div class="form-group">
+        <label for="stock_quantity">Stock quantity</label>
+        <input id="stock_quantity" name="stock_quantity" type="number" min="0" max="4294967295" step="1" value="<%= product && Number.isInteger(Number(product.stock_quantity)) ? product.stock_quantity : 0 %>" required />
+        <small>In-stock quantities decrease automatically when a checkout is submitted.</small>
       </div>
       <div class="form-group">
         <label for="estimated_production_days">Production days</label>
@@ -64,16 +76,17 @@
       </div>
       <div class="form-group full">
         <label for="primary_image">Primary image <%= isEdit ? '(leave empty to keep the current image)' : '' %></label>
-        <input id="primary_image" name="primary_image" type="file" accept="image/*" />
+        <input id="primary_image" name="primary_image" type="file" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" />
+        <small>JPG, PNG, or WebP; maximum 5 MB per image.</small>
       </div>
       <div class="form-group full">
         <label for="additional_images">Additional product images (up to 5)</label>
-        <input id="additional_images" name="additional_images" type="file" accept="image/*" multiple />
+        <input id="additional_images" name="additional_images" type="file" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" multiple />
       </div>
       <div class="form-group full">
         <label><input type="checkbox" name="is_featured" <%= product && product.is_featured ? 'checked' : '' %> /> Featured</label>
         <label><input type="checkbox" name="is_customizable" <%= product && product.is_customizable ? 'checked' : '' %> /> Customizable</label>
-        <label><input type="checkbox" name="is_active" <%= product && product.is_active !== false ? 'checked' : '' %> /> Active</label>
+        <label><input type="checkbox" name="is_active" <%= !product || product.is_active === undefined || product.is_active === true || product.is_active === 1 || product.is_active === 'on' ? 'checked' : '' %> /> Active — visible in the shop</label>
       </div>
       <div class="form-group full">
         <button class="btn btn-primary" type="submit"><%= isEdit ? 'Update product' : 'Create product' %></button>

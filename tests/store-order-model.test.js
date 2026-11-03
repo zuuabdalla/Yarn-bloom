@@ -13,7 +13,11 @@ describe('StoreOrder transactions', () => {
     jest.clearAllMocks();
     connection = {
       beginTransaction: jest.fn().mockResolvedValue(undefined),
-      execute: jest.fn().mockResolvedValue([{ insertId: 41 }, []]),
+      execute: jest.fn().mockImplementation(async sql => (
+        sql.startsWith('SELECT id, is_active, stock_status, stock_quantity')
+          ? [[{ id: 8, is_active: 1, stock_status: 'in_stock', stock_quantity: 4 }], []]
+          : [{ insertId: 41, affectedRows: 1 }, []]
+      )),
       commit: jest.fn().mockResolvedValue(undefined),
       rollback: jest.fn().mockResolvedValue(undefined),
       release: jest.fn()
@@ -72,17 +76,54 @@ describe('StoreOrder transactions', () => {
 
     expect(orderId).toBe(41);
     expect(connection.beginTransaction).toHaveBeenCalledTimes(1);
-    expect(connection.execute).toHaveBeenCalledTimes(2);
-    expect(connection.execute.mock.calls[0][0]).toContain('INSERT INTO store_orders');
-    expect(connection.execute.mock.calls[1][0]).toContain('INSERT INTO store_order_items');
+    expect(connection.execute).toHaveBeenCalledTimes(4);
+    expect(connection.execute.mock.calls[0][0]).toContain('SELECT id, is_active, stock_status, stock_quantity');
+    expect(connection.execute.mock.calls[1][0]).toContain('stock_quantity = stock_quantity - ?');
+    expect(connection.execute.mock.calls[2][0]).toContain('INSERT INTO store_orders');
+    expect(connection.execute.mock.calls[3][0]).toContain('INSERT INTO store_order_items');
     expect(connection.commit).toHaveBeenCalledTimes(1);
     expect(connection.release).toHaveBeenCalledTimes(1);
   });
 
+  test('does not save an order when tracked stock is insufficient', async () => {
+    connection.execute.mockImplementation(async sql => (
+      sql.startsWith('SELECT id, is_active, stock_status, stock_quantity')
+        ? [[{ id: 8, is_active: 1, stock_status: 'in_stock', stock_quantity: 1 }], []]
+        : [{ insertId: 41, affectedRows: 1 }, []]
+    ));
+
+    await expect(StoreOrder.create({
+      reference_number: 'YB-OUT-OF-STOCK',
+      customer_name: 'Nia Wanjiku',
+      phone: '+254712345678',
+      delivery_location: 'Westlands, Nairobi',
+      subtotal: 6400,
+      delivery_fee: 0,
+      total: 6400
+    }, [{
+      id: 8,
+      name: 'Sage Tote',
+      slug: 'sage-tote',
+      unit_price: 3200,
+      quantity: 2,
+      color: 'Sage',
+      line_total: 6400
+    }])).rejects.toMatchObject({ code: 'PRODUCT_STOCK_UNAVAILABLE' });
+
+    expect(connection.execute).toHaveBeenCalledTimes(1);
+    expect(connection.commit).not.toHaveBeenCalled();
+    expect(connection.rollback).toHaveBeenCalledTimes(1);
+  });
+
   test('rolls back and releases a failed order transaction', async () => {
-    connection.execute
-      .mockResolvedValueOnce([{ insertId: 41 }, []])
-      .mockRejectedValueOnce(new Error('order item insert failed'));
+    connection.execute.mockImplementation(async sql => {
+      if (sql.startsWith('SELECT id, is_active, stock_status, stock_quantity')) {
+        return [[{ id: 8, is_active: 1, stock_status: 'in_stock', stock_quantity: 4 }], []];
+      }
+      if (sql.startsWith('UPDATE products')) return [{ affectedRows: 1 }, []];
+      if (sql.startsWith('INSERT INTO store_orders')) return [{ insertId: 41 }, []];
+      throw new Error('order item insert failed');
+    });
 
     await expect(StoreOrder.create({
       reference_number: 'YB-TEST-2',

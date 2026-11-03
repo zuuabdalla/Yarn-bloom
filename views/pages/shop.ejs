@@ -1,12 +1,14 @@
 <section class="page-shell shop-page">
   <div class="container">
     <div class="section-header shop-heading">
-      <div>
-        <div class="eyebrow">Shop all</div>
-        <h1>Shop Our Collection</h1>
-        <p>Handmade with love, just for you.</p>
+      <div class="shop-breadcrumb"><a href="/">Home</a><span aria-hidden="true">/</span><span>Shop collection</span></div>
+      <div class="shop-heading-copy">
+        <div>
+          <div class="eyebrow">Slow-made textiles</div>
+          <h1>Explore Our Handmade Collection</h1>
+        </div>
+        <p>Lovingly hand-stitched pieces made with natural fibres and attention to every loop. Thoughtful keepsakes for everyday living and meaningful gifting.</p>
       </div>
-      <img src="/images/moodboard/brand-panel.png" alt="Handmade crochet in the Yarn & Bloom studio" />
     </div>
 
     <div class="page-card">
@@ -22,7 +24,7 @@
         </div>
         <div class="form-group">
           <label for="search">Search</label>
-          <input id="search" name="search" value="<%= searchQuery || '' %>" placeholder="Search products, colours, gifts..." />
+          <input id="search" name="search" value="<%= searchQuery || '' %>" placeholder="Search crochet bags, bouquets, baby gifts..." />
         </div>
         <div class="form-group">
           <label for="sort">Sort by</label>
@@ -32,6 +34,14 @@
             <option value="price-asc" <%= sortBy === 'price-asc' ? 'selected' : '' %>>Price: Low to high</option>
             <option value="price-desc" <%= sortBy === 'price-desc' ? 'selected' : '' %>>Price: High to low</option>
             <option value="name-asc" <%= sortBy === 'name-asc' ? 'selected' : '' %>>Name</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="availability">Availability</label>
+          <select id="availability" name="availability">
+            <option value="all" <%= availability === 'all' ? 'selected' : '' %>>All availability</option>
+            <option value="available" <%= availability === 'available' ? 'selected' : '' %>>Available to order</option>
+            <option value="unavailable" <%= availability === 'unavailable' ? 'selected' : '' %>>Out of stock</option>
           </select>
         </div>
         <div class="form-group">
@@ -63,7 +73,7 @@
             <% if (activeCategory) { %> in <strong><%= activeCategory.name %></strong><% } %>
             <% if (searchQuery) { %> for “<strong><%= searchQuery %></strong>”<% } %>
           </p>
-          <% if (selectedCategory !== 'all' || searchQuery) { %>
+          <% if (selectedCategory !== 'all' || searchQuery || availability !== 'all') { %>
             <a class="shop-clear-link" href="/shop">Clear filters</a>
           <% } %>
         </div>
@@ -82,11 +92,11 @@
           <div class="small-row shop-pagination" data-shop-pagination style="margin-top:2rem; justify-content:center;">
             <% const currentPageNum = Number(currentPage || 1); %>
             <% if (currentPageNum > 1) { %>
-              <a class="btn btn-secondary" href="/shop?category=<%= selectedCategory %>&search=<%= encodeURIComponent(searchQuery || '') %>&sort=<%= sortBy %>&page=<%= currentPageNum - 1 %>">Previous</a>
+              <a class="btn btn-secondary" href="/shop?category=<%= selectedCategory %>&search=<%= encodeURIComponent(searchQuery || '') %>&sort=<%= sortBy %>&availability=<%= availability %>&page=<%= currentPageNum - 1 %>">Previous</a>
             <% } %>
             <span>Page <%= currentPageNum %> of <%= totalPages %></span>
             <% if (currentPageNum < totalPages) { %>
-              <a class="btn btn-secondary" href="/shop?category=<%= selectedCategory %>&search=<%= encodeURIComponent(searchQuery || '') %>&sort=<%= sortBy %>&page=<%= currentPageNum + 1 %>">Next</a>
+              <a class="btn btn-secondary" href="/shop?category=<%= selectedCategory %>&search=<%= encodeURIComponent(searchQuery || '') %>&sort=<%= sortBy %>&availability=<%= availability %>&page=<%= currentPageNum + 1 %>">Next</a>
             <% } %>
           </div>
         <% } %>
@@ -105,6 +115,20 @@
           </div>
         </div>
       <% } %>
+    </div>
+
+    <section class="shop-custom-cta">
+      <div>
+        <span class="eyebrow">Tailor-made commissions</span>
+        <h2>Need a custom colour combination or personalised size?</h2>
+        <p>We’re happy to craft bespoke pieces. Share your idea and we’ll help you bring it to life.</p>
+      </div>
+      <a class="btn btn-secondary" href="/custom-order">Request a custom order <span aria-hidden="true">→</span></a>
+    </section>
+    <div class="shop-service-notes" aria-label="Yarn and Bloom service highlights">
+      <div><span aria-hidden="true">✿</span><strong>Handmade in Nairobi</strong><small>Small-batch pieces, carefully made by hand.</small></div>
+      <div><span aria-hidden="true">♡</span><strong>Personal touches</strong><small>Custom colors and gift notes are welcome.</small></div>
+      <div><span aria-hidden="true">↗</span><strong>Order with care</strong><small>We’ll help with details and delivery arrangements.</small></div>
     </div>
   </div>
 </section>

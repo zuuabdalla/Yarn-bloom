@@ -7,7 +7,7 @@
     <meta name="description" content="Yarn & Bloom — handmade crochet bags, flowers, toys and personalised gifts." />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="/css/style.css" />
     <link rel="stylesheet" href="/css/responsive.css" />
     <link rel="stylesheet" href="/css/admin.css" />
@@ -16,15 +16,15 @@
   <body>
     <div class="topbar">
       <div class="container small-row">
-        <span>Handmade with love in Nairobi</span>
-        <span><%= settings && settings.business_hours ? settings.business_hours : 'Mon–Sat • 9am–5pm' %></span>
+        <span>Handcrafted with love in Nairobi · Thoughtful gifts, made by hand</span>
+        <span>Order online or chat with our atelier</span>
       </div>
     </div>
 
     <header class="site-header">
       <div class="container nav-wrap">
         <a href="/" class="brand" aria-label="Yarn & Bloom home">
-          <span class="brand-mark">Y&B</span>
+          <span class="brand-mark" aria-hidden="true">Y&amp;B</span>
           <span class="brand-text">
             <strong>Yarn & Bloom</strong>
             <small>Made with love</small>
@@ -37,8 +37,8 @@
           <a href="/" class="<%= activeNav === 'home' ? 'active' : '' %>">Home</a>
           <a href="/shop" class="<%= activeNav === 'shop' ? 'active' : '' %>">Shop</a>
           <a href="/custom-order" class="<%= activeNav === 'custom-order' ? 'active' : '' %>">Custom Orders</a>
+          <a href="/gift-box" aria-label="AI Gift Builder" title="AI Gift Builder" class="<%= activeNav === 'gift-box' ? 'active' : '' %>">Gift Box</a>
           <a href="/gift-finder" aria-label="AI Gift Finder" title="AI Gift Finder" class="<%= activeNav === 'gift-finder' ? 'active' : '' %>">Gift Finder</a>
-          <a href="/gift-box" aria-label="AI Gift Builder" title="AI Gift Builder" class="<%= activeNav === 'gift-box' ? 'active' : '' %>">Gift Boxes</a>
           <a href="/our-story" class="<%= activeNav === 'our-story' ? 'active' : '' %>">About</a>
           <a href="/contact" class="<%= activeNav === 'contact' ? 'active' : '' %>">Contact</a>
           <a class="header-search-link" href="/shop" aria-label="Search products">

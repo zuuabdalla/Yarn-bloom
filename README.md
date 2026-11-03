@@ -14,6 +14,7 @@ A handmade crochet storefront and enquiry platform built with Express.js, EJS, M
 - AI-assisted crochet gift finder and gift box builder, with catalog-matching fallback
 - Contact and FAQ pages
 - Admin authentication and product/enquiry management
+- Admin-managed product inventory, image uploads, categories, and live shop availability
 - Secure session handling and validation
 
 ## Local setup on Windows (PowerShell)
@@ -72,7 +73,7 @@ A handmade crochet storefront and enquiry platform built with Express.js, EJS, M
 
 ## Admin setup and login
 
-After starting the app, open `http://localhost:3000/admin`. If no admin account exists, the one-time setup page appears first. Create the initial superadmin account, then sign in on the login page. After setup, public sign-up is disabled; only a signed-in superadmin can create additional admin accounts from **Create admin account** in the dashboard. New accounts are assigned the admin role and are sent to the login page after sign-up.
+After starting the app, open `http://localhost:3000/admin`. If no admin account exists, the one-time setup page appears first. Create the initial superadmin account, then sign in on the login page. Once an admin exists, visitors can submit a public admin access request; a superadmin must approve it before an admin account is created. Signed-in superadmins can also create regular admin accounts from the dashboard.
 
 ## Testing
 
@@ -87,7 +88,8 @@ npx jest --runInBand --detectOpenHandles --forceExit
 - Set environment variables securely in production.
 - Configure `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD`, and `DB_NAME` on Render to point to a reachable MySQL database. The site currently renders an empty shop if that database has no active products; it does not seed live data automatically.
 - Do not run the sample `database/seed.sql` against production unless you intend to publish its sample catalogue. Create the real categories and products in the admin area or import the business's actual catalogue; products saved as active appear in the shop.
-- Existing databases need the checkout tables created with `database/migrations/001-store-orders.sql`. New databases receive them from `database/schema.sql`.
+- Existing databases need the checkout tables from `database/migrations/001-store-orders.sql`, admin access request table from `database/migrations/002-admin-access-requests.sql`, and product inventory/categories from `database/migrations/003-product-inventory.sql`. New databases receive the product inventory column from `database/schema.sql`; run `npm run seed` to initialize the catalog and categories. Existing in-stock products receive one available unit from the inventory migration; update quantities to match the real stock before accepting checkout orders.
+- Checkout reserves tracked `in_stock` quantities in the same transaction that saves the order. `made_to_order` products remain available without a finite stock count.
 - `DELIVERY_FEE_KSH=0` sets the current checkout delivery fee. Update the server environment and restart the service if the fee changes. Orders are saved as pending enquiries and can be reviewed in **Admin → Enquiries**; no online payment is taken or marked paid.
 - Render's local filesystem is ephemeral. If admins upload product images, attach a persistent disk and set `UPLOAD_DIR` to a directory on its mount path; otherwise uploaded files can disappear after a restart or redeploy. Keep the image URL paths saved in MySQL consistent with the hosted files.
 - Use a real MySQL server with strong credentials.

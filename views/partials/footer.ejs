@@ -4,31 +4,44 @@
       <div class="container footer-grid">
         <div class="footer-brand">
           <h4>Yarn & Bloom</h4>
-          <p>More than crochet — handmade gifts designed around your story.</p>
+          <p>An artisan knitwear and botanical textile studio rooted in Nairobi, Kenya. We craft meaningful pieces designed to celebrate everyday moments and heartfelt gifting.</p>
           <p class="footer-location"><%= settings && settings.business_location ? settings.business_location : 'Nairobi, Kenya' %></p>
-        </div>
-        <div>
-          <h5>Quick links</h5>
-          <ul>
-            <li><a href="/shop">Shop</a></li>
-            <li><a href="/gift-finder">Gift finder</a></li>
-            <li><a href="/gift-box">Gift boxes</a></li>
-            <li><a href="/custom-order">Custom orders</a></li>
-            <li><a href="/our-story">Our story</a></li>
-            <li><a href="/faq">FAQs &amp; delivery</a></li>
-            <li><a href="/bag">Shopping bag</a></li>
-          </ul>
-        </div>
-        <div class="footer-contact">
-          <h5>Come say hello</h5>
-          <ul>
-            <li><a href="mailto:<%= settings && settings.business_email ? settings.business_email : 'zuhuraabdalla495@gmail.com' %>"><%= settings && settings.business_email ? settings.business_email : 'zuhuraabdalla495@gmail.com' %></a></li>
-            <li><a href="tel:<%= settings && settings.business_phone ? settings.business_phone.replace(/\s+/g, '') : '+254141703242' %>"><%= settings && settings.business_phone ? settings.business_phone : '+254141703242' %></a></li>
-          </ul>
           <div class="footer-socials" aria-label="Social media">
             <a href="https://www.instagram.com/<%= settings && settings.instagram_handle ? settings.instagram_handle.replace(/^@/, '') : 'yarnandbloom.ke' %>/" target="_blank" rel="noreferrer">Instagram</a>
             <a href="https://wa.me/<%= (settings && settings.whatsapp_number ? settings.whatsapp_number : settings && settings.business_phone ? settings.business_phone : '254141703242').replace(/\D/g, '') %>" target="_blank" rel="noreferrer">WhatsApp</a>
           </div>
+        </div>
+        <div>
+          <h5>Collections</h5>
+          <ul>
+            <li><a href="/shop">Handmade collection</a></li>
+            <li><a href="/shop?category=crochet-bags">Crochet bags</a></li>
+            <li><a href="/shop?category=crochet-flowers">Crochet flowers</a></li>
+            <li><a href="/gift-box">Bespoke gift boxes</a></li>
+            <li><a href="/custom-order">Custom commissions</a></li>
+          </ul>
+        </div>
+        <div class="footer-contact">
+          <h5>Customer care</h5>
+          <ul>
+            <li><a href="/faq">Delivery &amp; care</a></li>
+            <li><a href="/faq">Yarn care &amp; washing</a></li>
+            <li><a href="/gift-finder">Gift finder</a></li>
+            <li><a href="/contact">Contact the atelier</a></li>
+            <li><a href="/our-story">Our story</a></li>
+            <li><a href="mailto:<%= settings && settings.business_email ? settings.business_email : 'zuhuraabdalla495@gmail.com' %>"><%= settings && settings.business_email ? settings.business_email : 'zuhuraabdalla495@gmail.com' %></a></li>
+            <li><a href="tel:<%= settings && settings.business_phone ? settings.business_phone.replace(/\s+/g, '') : '+254141703242' %>"><%= settings && settings.business_phone ? settings.business_phone : '+254141703242' %></a></li>
+          </ul>
+        </div>
+        <div class="footer-newsletter">
+          <h5>Join the guild</h5>
+          <p>Seasonal releases, craft stories, and thoughtful gifting ideas — straight to your inbox.</p>
+          <form action="/newsletter" method="POST">
+            <label class="sr-only" for="footer-newsletter-email">Your email address</label>
+            <input id="footer-newsletter-email" type="email" name="email" placeholder="Your email address" required />
+            <button type="submit" aria-label="Join the newsletter">Join</button>
+          </form>
+          <small>Mindful inbox only. Unsubscribe anytime.</small>
         </div>
       </div>
       <div class="container footer-bottom">

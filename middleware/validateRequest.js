@@ -75,6 +75,15 @@ const productValidationRules = [
   body('price')
     .notEmpty().withMessage('Product price is required.')
     .isFloat({ min: 0 }).withMessage('Price must be a positive number in KSh.'),
+  body('category_id')
+    .optional({ checkFalsy: true })
+    .isInt({ min: 1 }).withMessage('Select a valid product category.'),
+  body('stock_quantity')
+    .notEmpty().withMessage('Stock quantity is required.')
+    .isInt({ min: 0, max: 4294967295 }).withMessage('Stock quantity must be a non-negative whole number.'),
+  body('stock_status')
+    .isIn(['in_stock', 'made_to_order', 'out_of_stock'])
+    .withMessage('Select a valid stock status.'),
   body('short_description')
     .trim()
     .notEmpty().withMessage('Short description is required.')
@@ -95,7 +104,9 @@ function checkValidation(redirectUrl = 'back') {
       if (req.flash) {
         req.flash('error', errorMessages.join(' '));
         // Save form values in session for repopulating
-        req.session.formData = req.body;
+        req.session.formData = Object.fromEntries(
+          Object.entries(req.body).filter(([key]) => !/password/i.test(key))
+        );
       }
       return res.redirect(redirectUrl);
     }

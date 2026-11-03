@@ -16,6 +16,17 @@ class Admin {
     }
   }
 
+  static async findByEmail(email) {
+    const sql = `SELECT id FROM admins WHERE email = ?`;
+    try {
+      const rows = await db.query(sql, [email]);
+      return rows[0] || null;
+    } catch (err) {
+      console.error('[Admin.findByEmail] Query error:', err.message);
+      throw err;
+    }
+  }
+
   /**
    * Find admin by ID
    */

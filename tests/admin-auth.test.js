@@ -10,7 +10,16 @@ jest.mock('../models/Admin', () => ({
   verifyPassword: jest.fn(),
   hashPassword: jest.fn(),
   create: jest.fn(),
-  createInitialSuperadmin: jest.fn()
+  createInitialSuperadmin: jest.fn(),
+  findByEmail: jest.fn()
+}));
+
+jest.mock('../models/AdminAccessRequest', () => ({
+  create: jest.fn(),
+  findAll: jest.fn(),
+  countPending: jest.fn(),
+  approveAndCreateAdmin: jest.fn(),
+  reject: jest.fn()
 }));
 
 jest.mock('../models/CustomOrder', () => ({
@@ -36,6 +45,7 @@ jest.mock('../models/StoreOrder', () => ({
 
 const app = require('../app');
 const Admin = require('../models/Admin');
+const AdminAccessRequest = require('../models/AdminAccessRequest');
 const CustomOrder = require('../models/CustomOrder');
 const GiftBox = require('../models/GiftBox');
 const Contact = require('../models/Contact');
@@ -46,6 +56,8 @@ describe('admin authentication pages', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     Admin.countAll.mockResolvedValue(1);
+    Admin.findByUsername.mockResolvedValue(null);
+    Admin.findByEmail.mockResolvedValue(null);
   });
 
   test('renders a private, unindexed admin login page', async () => {
@@ -132,7 +144,7 @@ describe('admin authentication pages', () => {
     expect(response.headers.location).toBe('/admin/enquiries#store-orders');
   });
 
-  test('shows first-time setup before login and blocks public sign-up after setup', async () => {
+  test('shows first-time setup and public access requests while restricting signed-in staff', async () => {
     Admin.countAll.mockResolvedValue(0);
     const homeResponse = await request(app).get('/admin');
     expect(homeResponse.status).toBe(302);
@@ -144,8 +156,10 @@ describe('admin authentication pages', () => {
 
     Admin.countAll.mockResolvedValue(1);
     const guestResponse = await request(app).get('/admin/signup');
-    expect(guestResponse.status).toBe(302);
-    expect(guestResponse.headers.location).toBe('/admin/login');
+    expect(guestResponse.status).toBe(200);
+    expect(guestResponse.text).toContain('Request access');
+    expect(guestResponse.text).toContain('Submit access request');
+    expect(guestResponse.text).toContain('superadmin will review your request');
 
     Admin.findByUsername.mockResolvedValue({
       id: 2,
@@ -181,8 +195,83 @@ describe('admin authentication pages', () => {
     expect(superadminResponse.text).toContain('password_confirmation');
   });
 
-  test('creates the first superadmin and redirects to the login page', async () => {
+  test('public sign-up submits a pending access request and does not create or authenticate an admin', async () => {
     Admin.countAll.mockResolvedValue(1);
+    Admin.findByUsername.mockResolvedValue(null);
+    Admin.findByEmail.mockResolvedValue(null);
+    Admin.hashPassword.mockResolvedValue('hashed-request-password');
+    AdminAccessRequest.create.mockResolvedValue({ insertId: 7 });
+
+    const response = await request(app).post('/admin/signup').send({
+      username: 'new.applicant',
+      email: 'applicant@example.com',
+      password: 'a-very-secure-password',
+      password_confirmation: 'a-very-secure-password'
+    });
+
+    expect(AdminAccessRequest.create).toHaveBeenCalledWith({
+      username: 'new.applicant',
+      email: 'applicant@example.com',
+      passwordHash: 'hashed-request-password'
+    });
+    expect(Admin.create).not.toHaveBeenCalled();
+    expect(Admin.createInitialSuperadmin).not.toHaveBeenCalled();
+    expect(response.status).toBe(302);
+    expect(response.headers.location).toBe('/admin/login');
+  });
+
+  test('superadmin can review and approve access requests', async () => {
+    Admin.countAll.mockResolvedValue(1);
+    Admin.findByUsername.mockResolvedValue({
+      id: 1,
+      username: 'admin',
+      email: 'admin@example.com',
+      role: 'superadmin',
+      password_hash: 'hash'
+    });
+    Admin.verifyPassword.mockResolvedValue(true);
+    AdminAccessRequest.findAll.mockResolvedValue([{
+      id: 7,
+      username: 'new.applicant',
+      email: 'applicant@example.com',
+      status: 'pending'
+    }]);
+    AdminAccessRequest.approveAndCreateAdmin.mockResolvedValue(2);
+
+    const agent = request.agent(app);
+    await agent.post('/admin/login').send({ username: 'admin', password: 'valid-password' });
+    const listResponse = await agent.get('/admin/access-requests');
+
+    expect(listResponse.status).toBe(200);
+    expect(listResponse.text).toContain('applicant@example.com');
+
+    const approveResponse = await agent.post('/admin/access-requests/7/approve');
+    expect(AdminAccessRequest.approveAndCreateAdmin).toHaveBeenCalledWith('7', 1);
+    expect(approveResponse.status).toBe(302);
+    expect(approveResponse.headers.location).toBe('/admin/access-requests');
+  });
+
+  test('non-superadmin cannot view access requests', async () => {
+    Admin.findByUsername.mockResolvedValue({
+      id: 2,
+      username: 'staff',
+      email: 'staff@example.com',
+      role: 'admin',
+      password_hash: 'hash'
+    });
+    Admin.verifyPassword.mockResolvedValue(true);
+
+    const agent = request.agent(app);
+    await agent.post('/admin/login').send({ username: 'staff', password: 'valid-password' });
+    const response = await agent.get('/admin/access-requests');
+
+    expect(response.status).toBe(302);
+    expect(response.headers.location).toBe('/admin/dashboard');
+    expect(AdminAccessRequest.findAll).not.toHaveBeenCalled();
+  });
+
+  test('creates the first superadmin and redirects to the login page', async () => {
+    Admin.countAll.mockResolvedValue(0);
     Admin.hashPassword.mockResolvedValue('new-password-hash');
     Admin.createInitialSuperadmin.mockResolvedValue({ insertId: 1 });
 

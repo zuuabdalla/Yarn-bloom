@@ -1,5 +1,6 @@
 const { randomBytes } = require('crypto');
 const Admin = require('../models/Admin');
+const AdminAccessRequest = require('../models/AdminAccessRequest');
 const Product = require('../models/Product');
 const Category = require('../models/Category');
 const CustomOrder = require('../models/CustomOrder');
@@ -46,16 +47,26 @@ exports.getLogin = async (req, res, next) => {
 exports.getSignup = async (req, res, next) => {
   try {
     const isSuperAdmin = req.session?.adminUser?.role === 'superadmin';
-    const adminCount = isSuperAdmin ? 1 : await Admin.countAll();
-    const isInitialSetup = !isSuperAdmin && adminCount === 0;
-    if (!isSuperAdmin && !isInitialSetup) {
-      return res.redirect(req.session?.adminUser ? '/admin/dashboard' : '/admin/login');
+    if (req.session?.adminUser && !isSuperAdmin) {
+      return res.redirect('/admin/dashboard');
     }
+
+    const adminCount = await Admin.countAll();
+    const isInitialSetup = !isSuperAdmin && adminCount === 0;
+    const formData = req.session.formData || {};
+    delete req.session.formData;
 
     res.set('X-Robots-Tag', 'noindex, nofollow, noarchive');
     res.render('admin/signup', {
-      title: isInitialSetup ? 'Admin Setup — Yarn & Bloom' : 'Create Admin Account — Yarn & Bloom',
+      title: isInitialSetup
+        ? 'Admin Setup — Yarn & Bloom'
+        : isSuperAdmin
+          ? 'Create Admin Account — Yarn & Bloom'
+          : 'Request Admin Access — Yarn & Bloom',
       isInitialSetup,
+      isSuperAdmin,
+      isAccessRequest: !isInitialSetup && !isSuperAdmin,
+      formData,
       layout: false
     });
   } catch (error) {
@@ -64,26 +75,49 @@ exports.getSignup = async (req, res, next) => {
 };
 
 /**
- * Create the first superadmin or a superadmin-authorized admin account
+ * Create the first superadmin, create an admin as a superadmin, or submit a public access request
  */
 exports.postSignup = async (req, res, next) => {
   try {
-    const { username, email, password } = req.body;
-    const passwordHash = await Admin.hashPassword(password);
+    const username = req.body.username.trim();
+    const email = req.body.email.trim();
+    const isSuperAdmin = req.session?.adminUser?.role === 'superadmin';
+    if (req.session?.adminUser && !isSuperAdmin) {
+      req.flash('error', 'Only a superadmin can create administrator accounts.');
+      return res.redirect('/admin/dashboard');
+    }
+
+    const adminCount = await Admin.countAll();
+    if (!isSuperAdmin && adminCount > 0) {
+      const [existingUsername, existingEmail] = await Promise.all([
+        Admin.findByUsername(username),
+        Admin.findByEmail(email)
+      ]);
+      if (existingUsername || existingEmail) {
+        req.flash('error', 'An account or access request already uses those details.');
+        return res.redirect('/admin/signup');
+      }
+    }
+
+    const passwordHash = await Admin.hashPassword(req.body.password);
 
     try {
-      if (req.session?.adminUser?.role === 'superadmin') {
+      if (isSuperAdmin) {
         await Admin.create({ username, email, passwordHash });
-      } else {
+      } else if (adminCount === 0) {
         const createdAdmin = await Admin.createInitialSuperadmin({ username, email, passwordHash });
         if (!createdAdmin) {
-          req.flash('error', 'Admin setup is already complete. Please sign in.');
-          return res.redirect(req.session?.adminUser ? '/admin/dashboard' : '/admin/login');
+          req.flash('error', 'Initial admin setup is already complete. Please sign in or request access.');
+          return res.redirect('/admin/login');
         }
+      } else {
+        await AdminAccessRequest.create({ username, email, passwordHash });
+        req.flash('success', 'Your admin access request was received. You can sign in once a superadmin approves it.');
+        return res.redirect('/admin/login');
       }
     } catch (error) {
       if (error.code === 'ER_DUP_ENTRY') {
-        req.flash('error', 'An admin account with that username or email already exists.');
+        req.flash('error', 'An account or access request already uses those details.');
         return res.redirect('/admin/signup');
       }
       throw error;
@@ -98,6 +132,50 @@ exports.postSignup = async (req, res, next) => {
         res.redirect('/admin/login');
       });
     });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.getAdminAccessRequests = async (req, res, next) => {
+  try {
+    const accessRequests = await AdminAccessRequest.findAll({ limit: 100 });
+    res.render('admin/access-requests', {
+      title: 'Admin Access Requests — Yarn & Bloom',
+      layout: 'admin/layout',
+      activeTab: 'access-requests',
+      accessRequests
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.approveAdminAccessRequest = async (req, res, next) => {
+  try {
+    await AdminAccessRequest.approveAndCreateAdmin(req.params.id, req.session.adminUser.id);
+    req.flash('success', 'Admin access request approved. The new administrator can now sign in.');
+    res.redirect('/admin/access-requests');
+  } catch (error) {
+    if (error.code === 'ER_DUP_ENTRY') {
+      req.flash('error', 'An account already uses this username or email. Reject this request or ask the applicant to submit a new one.');
+      return res.redirect('/admin/access-requests');
+    }
+    if (error.code === 'ADMIN_ACCESS_REQUEST_NOT_PENDING') {
+      req.flash('error', error.message);
+      return res.redirect('/admin/access-requests');
+    }
+    next(error);
+  }
+};
+
+exports.rejectAdminAccessRequest = async (req, res, next) => {
+  try {
+    const rejected = await AdminAccessRequest.reject(req.params.id, req.session.adminUser.id);
+    req.flash(rejected ? 'success' : 'error', rejected
+      ? 'Admin access request rejected.'
+      : 'This admin access request is no longer pending.');
+    res.redirect('/admin/access-requests');
   } catch (error) {
     next(error);
   }
@@ -163,6 +241,7 @@ exports.logout = (req, res) => {
  */
 exports.getDashboard = async (req, res, next) => {
   try {
+    const isSuperAdmin = req.session?.adminUser?.role === 'superadmin';
     const [
       totalProducts,
       categories,
@@ -170,6 +249,11 @@ exports.getDashboard = async (req, res, next) => {
       giftBoxes,
       contacts,
       reviews,
+      storeOrders,
+      customOrderStatuses,
+      unreadContactsCount,
+      pendingAccessRequestCount,
+      pendingAccessRequests,
       settings
     ] = await Promise.all([
       Product.countAll(),
@@ -178,11 +262,19 @@ exports.getDashboard = async (req, res, next) => {
       GiftBox.findAll({ limit: 10 }),
       Contact.findAll({ limit: 10 }),
       Review.findAll({ limit: 10 }),
+      StoreOrder.findAll({ limit: 5 }),
+      CustomOrder.countByStatus(),
+      Contact.countUnread(),
+      isSuperAdmin ? AdminAccessRequest.countPending() : Promise.resolve(0),
+      isSuperAdmin
+        ? AdminAccessRequest.findAll({ status: 'pending', limit: 5 })
+        : Promise.resolve([]),
       Admin.getSettings()
     ]);
 
-    const pendingOrdersCount = customOrders.filter(o => o.status === 'pending').length;
-    const unreadContactsCount = contacts.filter(c => c.status === 'unread').length;
+    const pendingOrdersCount = customOrderStatuses
+      .filter(orderStatus => orderStatus.status === 'pending')
+      .reduce((total, orderStatus) => total + Number(orderStatus.count), 0);
 
     res.render('admin/dashboard', {
       title: 'Admin Dashboard — Yarn & Bloom',
@@ -193,11 +285,14 @@ exports.getDashboard = async (req, res, next) => {
         totalCategories: categories.length,
         pendingOrders: pendingOrdersCount,
         unreadContacts: unreadContactsCount,
+        pendingAccessRequests: pendingAccessRequestCount,
         giftBoxCount: giftBoxes.length,
         totalReviews: reviews.length
       },
       categories,
       recentCustomOrders: customOrders.slice(0, 5),
+      pendingAccessRequests,
+      recentStoreOrders: storeOrders,
       recentContacts: contacts.slice(0, 5),
       recentGiftBoxes: giftBoxes.slice(0, 5),
       settings,
@@ -214,7 +309,7 @@ exports.getDashboard = async (req, res, next) => {
 exports.getProducts = async (req, res, next) => {
   try {
     const [products, categories] = await Promise.all([
-      Product.findAll({ limit: 100 }),
+      Product.findAll({ includeInactive: true, limit: null }),
       Category.findAll()
     ]);
 
@@ -266,6 +361,7 @@ exports.postAddProduct = async (req, res, next) => {
       price,
       compare_at_price,
       stock_status,
+      stock_quantity,
       estimated_production_days,
       materials,
       dimensions,
@@ -275,6 +371,11 @@ exports.postAddProduct = async (req, res, next) => {
       is_featured,
       care_instructions
     } = req.body;
+
+    if (category_id && !(await Category.findAll()).some(category => Number(category.id) === Number(category_id))) {
+      req.flash('error', 'Select a valid product category.');
+      return res.redirect('/admin/products/add');
+    }
 
     const slugBase = name
       .toLowerCase()
@@ -291,7 +392,7 @@ exports.postAddProduct = async (req, res, next) => {
       : '/images/moodboard/brand-panel.png';
     const galleryImages = (uploadedFiles.additional_images || []).map(file => `/uploads/${file.filename}`);
 
-    const productId = await Product.create({
+    await Product.create({
       category_id: category_id ? parseInt(category_id, 10) : null,
       name: name.trim(),
       slug,
@@ -300,21 +401,22 @@ exports.postAddProduct = async (req, res, next) => {
       price: parseFloat(price),
       compare_at_price: compare_at_price ? parseFloat(compare_at_price) : null,
       stock_status: stock_status || 'made_to_order',
+      stock_quantity: Number.parseInt(stock_quantity, 10) || 0,
       estimated_production_days: estimated_production_days ? parseInt(estimated_production_days, 10) : 3,
       materials: materials ? materials.trim() : '100% Cotton Yarn',
       dimensions: dimensions ? dimensions.trim() : null,
       available_colors: available_colors ? available_colors.trim() : '',
       is_customizable: Boolean(is_customizable),
       is_featured: Boolean(is_featured),
-      is_active: true,
+      is_active: Boolean(req.body.is_active),
       occasions: occasions ? occasions.trim() : '',
       primary_image: primaryImage,
       care_instructions: care_instructions ? care_instructions.trim() : '',
       gallery_images: galleryImages
     });
 
-    req.flash('success', `Product "${name}" has been successfully created!`);
-    res.redirect('/shop');
+    req.flash('success', `Product "${name}" has been successfully created.`);
+    res.redirect('/admin/products');
   } catch (error) {
     next(error);
   }
@@ -370,6 +472,7 @@ exports.postEditProduct = async (req, res, next) => {
       price,
       compare_at_price,
       stock_status,
+      stock_quantity,
       estimated_production_days,
       materials,
       dimensions,
@@ -386,6 +489,11 @@ exports.postEditProduct = async (req, res, next) => {
     const primaryImage = primaryImageFile ? `/uploads/${primaryImageFile.filename}` : existing.primary_image;
     const galleryImages = (uploadedFiles.additional_images || []).map(file => `/uploads/${file.filename}`);
 
+    if (category_id && !(await Category.findAll()).some(category => Number(category.id) === Number(category_id))) {
+      req.flash('error', 'Select a valid product category.');
+      return res.redirect(`/admin/products/edit/${id}`);
+    }
+
     await Product.update(id, {
       category_id: category_id ? parseInt(category_id, 10) : null,
       name: name.trim(),
@@ -395,6 +503,7 @@ exports.postEditProduct = async (req, res, next) => {
       price: parseFloat(price),
       compare_at_price: compare_at_price ? parseFloat(compare_at_price) : null,
       stock_status: stock_status || 'made_to_order',
+      stock_quantity: Number.parseInt(stock_quantity, 10) || 0,
       estimated_production_days: estimated_production_days ? parseInt(estimated_production_days, 10) : 3,
       materials: materials ? materials.trim() : '100% Cotton Yarn',
       dimensions: dimensions ? dimensions.trim() : null,

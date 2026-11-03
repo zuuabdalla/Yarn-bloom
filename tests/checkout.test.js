@@ -115,4 +115,24 @@ describe('checkout order flow', () => {
     expect(response.status).toBe(400);
     expect(response.body.error).toContain('unavailable');
   });
+
+  test('rejects a checkout quantity greater than tracked stock', async () => {
+    Product.findActiveByIds.mockResolvedValue([{
+      id: 8,
+      name: 'Sage Tote',
+      slug: 'sage-tote',
+      price: '3200.00',
+      stock_status: 'in_stock',
+      stock_quantity: 1,
+      available_colors: 'Sage, Cream',
+      is_customizable: 1
+    }]);
+
+    const response = await request(app).post('/checkout/quote').send({
+      items: [{ productId: 8, quantity: 2, color: 'Sage' }]
+    });
+
+    expect(response.status).toBe(400);
+    expect(response.body.error).toContain('unavailable');
+  });
 });

@@ -344,7 +344,11 @@ document.addEventListener('DOMContentLoaded', () => {
       const customizationInput = productOrder && productOrder.querySelector('[data-product-customization]');
       const colors = button.dataset.productColors ? button.dataset.productColors.split(',').map((color) => color.trim()).filter(Boolean) : [];
       const color = colorInput ? colorInput.value : (colors[0] || 'As pictured');
-      const quantity = Math.min(99, Math.max(1, Number.parseInt(quantityInput ? quantityInput.value : '1', 10) || 1));
+      const stockLimit = button.dataset.productAvailability === 'in_stock'
+        ? Number.parseInt(button.dataset.productStockQuantity, 10)
+        : 99;
+      const maxQuantity = Math.max(0, Math.min(99, Number.isFinite(stockLimit) ? stockLimit : 0));
+      const quantity = Math.min(maxQuantity, Math.max(1, Number.parseInt(quantityInput ? quantityInput.value : '1', 10) || 1));
       const customization = customizationInput ? customizationInput.value.trim().slice(0, 500) : '';
       const productId = Number(button.dataset.productId);
       if (!Number.isSafeInteger(productId) || productId < 1) {
@@ -356,8 +360,13 @@ document.addEventListener('DOMContentLoaded', () => {
         item.productId === productId && item.color === color && item.customization === customization
       );
 
+      if (maxQuantity < 1 || (existingItem && existingItem.quantity + quantity > maxQuantity)) {
+        if (bagStatus) bagStatus.textContent = `Only ${maxQuantity} of ${button.dataset.productName} are currently available.`;
+        return;
+      }
+
       if (existingItem) {
-        existingItem.quantity = Math.min(99, existingItem.quantity + quantity);
+        existingItem.quantity += quantity;
       } else {
         bagProducts.push({
           productId,
@@ -475,7 +484,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const businessNumber = productOrder.dataset.businessNumber;
 
     const updateOrderLink = () => {
-      const quantity = Math.min(99, Math.max(1, Number.parseInt(quantityInput.value, 10) || 1));
+      const quantityLimit = Number.parseInt(quantityInput.max, 10) || 99;
+      const quantity = Math.min(quantityLimit, Math.max(1, Number.parseInt(quantityInput.value, 10) || 1));
       quantityInput.value = String(quantity);
       const selectedColor = colorInput.value;
       const subtotal = moneyLabel(productPrice * quantity);
@@ -510,14 +520,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const updateGiftBoxTotal = () => {
       const selectedTotal = [...giftBoxForm.querySelectorAll('[name="selected_product_ids"]:checked')]
         .reduce((total, item) => total + (Number(item.dataset.giftPrice) || 0), 0);
+      const packagingOption = giftBoxForm.querySelector('[name="packaging_id"]:checked');
+      const packagingTotal = Number(packagingOption?.dataset.giftPackagingPrice) || 350;
       const estimatedTotal = selectedTotal
-        ? selectedTotal + 350 + (giftMessage.value.trim() ? 150 : 0)
+        ? selectedTotal + packagingTotal + (giftMessage?.value.trim() ? 150 : 0)
         : 0;
-      totalDisplay.textContent = new Intl.NumberFormat('en-KE', {
-        style: 'currency',
-        currency: 'KES',
+      totalDisplay.textContent = `KSh ${new Intl.NumberFormat('en-KE', {
         maximumFractionDigits: 0
-      }).format(estimatedTotal);
+      }).format(estimatedTotal)}`;
     };
 
     giftBoxForm.addEventListener('change', updateGiftBoxTotal);

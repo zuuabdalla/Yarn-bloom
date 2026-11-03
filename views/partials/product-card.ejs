@@ -2,8 +2,9 @@
   <div class="card-image-wrap">
     <img src="<%= product.primary_image || product.image_url || '/images/moodboard/brand-panel.png' %>" alt="<%= product.name %>" loading="lazy" />
     <% const cardStockStatus = product.stock_status || 'made_to_order'; %>
-    <span class="badge product-availability <%= cardStockStatus === 'out_of_stock' ? 'unavailable' : '' %>">
-      <%= cardStockStatus === 'out_of_stock' ? 'Currently unavailable' : cardStockStatus === 'in_stock' ? 'Ready to order' : 'Made to order' %>
+    <% const cardIsAvailable = cardStockStatus === 'made_to_order' || (cardStockStatus === 'in_stock' && Number(product.stock_quantity) > 0); %>
+    <span class="badge product-availability <%= cardIsAvailable ? '' : 'unavailable' %>">
+      <%= !cardIsAvailable ? 'Currently unavailable' : cardStockStatus === 'in_stock' ? `${Number(product.stock_quantity)} in stock` : 'Made to order' %>
     </span>
     <button class="favorite-toggle" type="button" data-favorite-toggle data-product-slug="<%= product.slug %>" data-product-name="<%= product.name %>" aria-pressed="false" aria-label="Save <%= product.name %> to favorites">
       <span aria-hidden="true">♡</span>
@@ -19,7 +20,7 @@
     <% if (product.is_customizable) { %><span class="tag">Customisable</span><% } %>
     <div class="card-actions">
       <a class="btn btn-secondary" href="/shop/<%= product.slug %>">View product</a>
-      <% if (cardStockStatus !== 'out_of_stock') { %>
+      <% if (cardIsAvailable) { %>
         <button
           class="btn btn-primary"
           type="button"
@@ -31,6 +32,7 @@
           data-product-image="<%= product.primary_image || product.image_url || '/images/moodboard/brand-panel.png' %>"
           data-product-colors="<%= product.available_colors || '' %>"
           data-product-availability="<%= cardStockStatus %>"
+          data-product-stock-quantity="<%= product.stock_quantity || 0 %>"
         >Add to bag</button>
       <% } else { %>
         <button class="btn btn-primary" type="button" disabled>Unavailable</button>

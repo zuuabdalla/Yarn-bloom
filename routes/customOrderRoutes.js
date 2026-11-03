@@ -9,6 +9,7 @@ router.get('/custom-order', customOrderController.getCustomOrderPage);
 router.post(
   '/custom-order',
   upload.single('reference_image'),
+  upload.verifyImages,
   customOrderValidationRules,
   checkValidation('/custom-order'),
   customOrderController.submitCustomOrder

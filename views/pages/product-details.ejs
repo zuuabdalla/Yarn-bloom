@@ -1,5 +1,10 @@
 <section class="page-shell product-details">
   <div class="container">
+    <nav class="product-breadcrumb" aria-label="Breadcrumb">
+      <a href="/">Home</a><span aria-hidden="true">/</span><a href="/shop">Shop Collection</a>
+      <% if (product.category_name) { %><span aria-hidden="true">/</span><span><%= product.category_name %></span><% } %>
+      <span aria-hidden="true">/</span><span aria-current="page"><%= product.name %></span>
+    </nav>
     <div class="feature-layout" style="align-items:flex-start;">
       <div class="product-gallery">
         <% const productImages = images && images.length ? images : [{ image_url: product.primary_image || '/images/moodboard/brand-panel.png', alt_text: product.name }]; %>
@@ -25,7 +30,7 @@
         <% } %>
       </div>
       <div>
-        <div class="eyebrow"><%= product.category_name || 'Crochet design' %></div>
+        <div class="product-detail-label"><span class="eyebrow"><%= product.category_name || 'Crochet design' %></span><span class="product-handmade-badge">✿ Handmade in Nairobi</span></div>
         <h1><%= product.name %></h1>
         <button class="favorite-toggle favorite-toggle-inline" type="button" data-favorite-toggle data-product-slug="<%= product.slug %>" data-product-name="<%= product.name %>" aria-pressed="false" aria-label="Save <%= product.name %> to favorites">
           <span aria-hidden="true">♡</span>
@@ -39,8 +44,9 @@
           <% } %>
         </div>
         <p><%= product.short_description %></p>
+        <% const productIsAvailable = product.stock_status === 'made_to_order' || (product.stock_status === 'in_stock' && Number(product.stock_quantity) > 0); %>
         <p class="product-stock-status">
-          <strong><%= product.stock_status === 'out_of_stock' ? 'Currently unavailable' : product.stock_status === 'in_stock' ? 'Ready to order' : 'Made to order' %></strong>
+          <strong><%= !productIsAvailable ? 'Currently unavailable' : product.stock_status === 'in_stock' ? `${Number(product.stock_quantity)} in stock` : 'Made to order' %></strong>
           <% if (product.stock_status === 'made_to_order' && product.estimated_production_days) { %>
             · Estimated production time: <%= product.estimated_production_days %> business days
           <% } %>
@@ -64,7 +70,7 @@
           </div>
           <div class="form-group">
             <label for="product-quantity">Quantity</label>
-            <input id="product-quantity" type="number" value="1" min="1" max="99" step="1" inputmode="numeric" data-product-quantity />
+            <input id="product-quantity" type="number" value="1" min="1" max="<%= product.stock_status === 'in_stock' ? Math.max(1, Number(product.stock_quantity || 0)) : 99 %>" step="1" inputmode="numeric" data-product-quantity />
           </div>
         </div>
         <% if (product.is_customizable) { %>
@@ -74,10 +80,10 @@
           </div>
         <% } %>
         <div class="small-row" style="justify-content:flex-start; margin-bottom:1rem;">
-          <% if (product.stock_status !== 'out_of_stock') { %>
-            <button class="btn btn-secondary" type="button" data-add-to-bag data-product-id="<%= product.id %>" data-product-slug="<%= product.slug %>" data-product-name="<%= product.name %>" data-product-price="<%= product.price %>" data-product-image="<%= product.primary_image || productImages[0].image_url %>" data-product-colors="<%= product.available_colors || '' %>" data-product-availability="<%= product.stock_status || 'made_to_order' %>">Add to bag</button>
+          <% if (productIsAvailable) { %>
+            <button class="btn btn-secondary" type="button" data-add-to-bag data-product-id="<%= product.id %>" data-product-slug="<%= product.slug %>" data-product-name="<%= product.name %>" data-product-price="<%= product.price %>" data-product-image="<%= product.primary_image || productImages[0].image_url %>" data-product-colors="<%= product.available_colors || '' %>" data-product-availability="<%= product.stock_status || 'made_to_order' %>" data-product-stock-quantity="<%= product.stock_quantity || 0 %>">Add to bag</button>
           <% } %>
-          <a class="btn btn-primary" href="<%= defaultWhatsAppUrl %>" target="_blank" rel="noreferrer" data-product-order-link><%= product.stock_status === 'out_of_stock' ? 'Ask about availability' : 'Order on WhatsApp' %></a>
+          <a class="btn btn-primary" href="<%= defaultWhatsAppUrl %>" target="_blank" rel="noreferrer" data-product-order-link><%= productIsAvailable ? 'Order on WhatsApp' : 'Ask about availability' %></a>
           <a class="btn btn-secondary" href="/shop">Continue shopping</a>
         </div>
         <p class="favorites-status" data-bag-status role="status" aria-live="polite"></p>

@@ -1,54 +1,203 @@
 <section class="admin-section">
-  <h1>Dashboard</h1>
-  <div class="stats-grid">
-    <div class="stat-card">
-      <span>Total products</span>
+  <header class="admin-page-heading admin-dashboard-heading">
+    <div>
+      <div class="eyebrow">Yarn &amp; Bloom · Atelier studio ledger</div>
+      <h1>Welcome back, <%= adminUser ? adminUser.username : 'artisan' %>.</h1>
+      <p>Here’s the rhythm of your studio today. A little care goes a long way.</p>
+    </div>
+    <div class="admin-dashboard-actions">
+      <a class="btn btn-secondary" href="/admin/enquiries">Review enquiries <span aria-hidden="true">→</span></a>
+      <a class="btn btn-primary" href="/admin/products/new"><span aria-hidden="true">＋</span> New atelier piece</a>
+    </div>
+  </header>
+
+  <div class="admin-studio-status"><span class="admin-live-dot"></span> Studio is open <span>·</span> Nairobi, Kenya</div>
+
+  <section class="stats-grid admin-dashboard-stats" aria-label="Studio overview">
+    <article class="stat-card">
+      <div class="admin-stat-label"><span>CATALOG</span><span class="admin-stat-icon">♧</span></div>
       <strong><%= stats.totalProducts %></strong>
-    </div>
-    <div class="stat-card">
-      <span>Pending orders</span>
+      <small>Handmade pieces in the shop</small>
+      <a href="/admin/products">Manage collection <span aria-hidden="true">→</span></a>
+    </article>
+    <article class="stat-card">
+      <div class="admin-stat-label"><span>COLLECTIONS</span><span class="admin-stat-icon">✿</span></div>
+      <strong><%= stats.totalCategories %></strong>
+      <small>Craft categories to explore</small>
+      <a href="/admin/products">Browse the catalog <span aria-hidden="true">→</span></a>
+    </article>
+    <article class="stat-card admin-stat-attention">
+      <div class="admin-stat-label"><span>COMMISSIONS</span><span class="admin-stat-icon">↗</span></div>
       <strong><%= stats.pendingOrders %></strong>
-    </div>
-    <div class="stat-card">
-      <span>Unread contacts</span>
+      <small>Custom orders awaiting review</small>
+      <a href="/admin/enquiries#custom-orders">Open commission queue <span aria-hidden="true">→</span></a>
+    </article>
+    <article class="stat-card">
+      <div class="admin-stat-label"><span>MESSAGES</span><span class="admin-stat-icon">✉</span></div>
       <strong><%= stats.unreadContacts %></strong>
-    </div>
-    <div class="stat-card">
-      <span>Gift boxes</span>
-      <strong><%= stats.giftBoxCount %></strong>
-    </div>
+      <small>Customer enquiries to read</small>
+      <a href="/admin/enquiries#contact-messages">Read customer notes <span aria-hidden="true">→</span></a>
+    </article>
+  </section>
+
+  <div class="admin-dashboard-primary">
+    <section class="admin-panel admin-order-stream">
+      <div class="admin-panel-heading">
+        <div>
+          <div class="eyebrow">Recent activity</div>
+          <h2>Product order stream</h2>
+          <p>Latest orders placed through your online shop.</p>
+        </div>
+        <a class="admin-text-link" href="/admin/enquiries#store-orders">View all orders <span aria-hidden="true">→</span></a>
+      </div>
+      <% if (recentStoreOrders && recentStoreOrders.length) { %>
+        <div class="admin-table-scroll">
+          <table class="admin-orders-table">
+            <thead>
+              <tr><th>ORDER</th><th>CUSTOMER</th><th>PIECES</th><th>TOTAL</th><th>STATUS</th></tr>
+            </thead>
+            <tbody>
+              <% recentStoreOrders.forEach((order) => { %>
+                <tr>
+                  <td><strong class="admin-order-reference"><%= order.reference_number %></strong><small><%= order.created_at ? new Date(order.created_at).toLocaleDateString('en-KE', { day: 'numeric', month: 'short' }) : 'Recent' %></small></td>
+                  <td><strong><%= order.customer_name %></strong><small><%= order.delivery_location %></small></td>
+                  <td>
+                    <div class="admin-order-piece-list">
+                      <% order.items.slice(0, 2).forEach((item) => { %>
+                        <span><%= item.product_name %><% if (item.quantity > 1) { %> × <%= item.quantity %><% } %></span>
+                      <% }) %>
+                      <% if (order.items.length > 2) { %><small>+ <%= order.items.length - 2 %> more</small><% } %>
+                    </div>
+                  </td>
+                  <td><strong class="admin-order-total"><%= formatKSh(order.total) %></strong></td>
+                  <td><span class="admin-status-pill <%= order.status === 'completed' ? 'is-complete' : order.status === 'cancelled' ? 'is-cancelled' : 'is-pending' %>"><%= order.status.replace(/_/g, ' ') %></span></td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+      <% } else { %>
+        <div class="admin-empty-state"><span aria-hidden="true">✿</span><strong>Your order stream is waiting.</strong><p>New online shop orders will appear here.</p></div>
+      <% } %>
+      <div class="admin-panel-footer"><span>Showing the latest <%= recentStoreOrders.length %> online orders</span><a href="/admin/enquiries#store-orders">Open order desk <span aria-hidden="true">→</span></a></div>
+    </section>
+
+    <aside class="admin-dashboard-side">
+      <section class="admin-panel admin-commission-panel">
+        <div class="admin-panel-heading">
+          <div><div class="eyebrow">Made for you</div><h2>Custom commissions</h2></div>
+          <a class="admin-text-link" href="/admin/enquiries#custom-orders">All <span aria-hidden="true">→</span></a>
+        </div>
+        <% if (recentCustomOrders.length) { %>
+          <div class="admin-activity-list">
+            <% recentCustomOrders.slice(0, 4).forEach((order) => { %>
+              <article class="admin-activity-item">
+                <span class="admin-activity-icon" aria-hidden="true">✿</span>
+                <div><strong><%= order.customer_name %></strong><p><%= order.category_name || 'Custom crochet piece' %><% if (order.occasion) { %> · <%= order.occasion %><% } %></p></div>
+                <span class="admin-status-dot <%= order.status === 'completed' || order.status === 'cancelled' ? 'is-muted' : '' %>" title="<%= order.status.replace(/_/g, ' ') %>"></span>
+              </article>
+            <% }) %>
+          </div>
+        <% } else { %>
+          <div class="admin-empty-state admin-empty-compact"><p>No custom commissions just yet.</p></div>
+        <% } %>
+        <a class="admin-panel-bottom-link" href="/admin/enquiries#custom-orders">Review custom requests <span aria-hidden="true">→</span></a>
+      </section>
+
+      <section class="admin-panel admin-message-panel" id="recent-enquiries">
+        <div class="admin-panel-heading">
+          <div><div class="eyebrow">A note from a customer</div><h2>Latest enquiries</h2></div>
+          <a class="admin-text-link" href="/admin/enquiries#contact-messages">All <span aria-hidden="true">→</span></a>
+        </div>
+        <% if (recentContacts.length) { %>
+          <div class="admin-activity-list">
+            <% recentContacts.slice(0, 3).forEach((contact) => { %>
+              <article class="admin-activity-item">
+                <span class="admin-avatar admin-contact-avatar" aria-hidden="true"><%= contact.name.charAt(0).toUpperCase() %></span>
+                <div><strong><%= contact.name %></strong><p><%= contact.subject %></p></div>
+                <% if (contact.status === 'unread') { %><span class="admin-unread-dot" title="Unread"></span><% } %>
+              </article>
+            <% }) %>
+          </div>
+        <% } else { %>
+          <div class="admin-empty-state admin-empty-compact"><p>Your customer messages will appear here.</p></div>
+        <% } %>
+        <a class="admin-panel-bottom-link" href="/admin/enquiries#contact-messages">Open customer messages <span aria-hidden="true">→</span></a>
+      </section>
+    </aside>
   </div>
 
-  <div class="page-card" style="margin-top:2rem;">
-    <h3>Business settings</h3>
-    <form action="/admin/settings" method="POST" class="form-grid">
+  <% if (adminUser && adminUser.role === 'superadmin') { %>
+    <section class="admin-panel admin-pending-access">
+      <div class="admin-panel-heading">
+        <div><div class="eyebrow">Superadmin review</div><h2>Admin access requests</h2><p><%= stats.pendingAccessRequests %> pending request<%= stats.pendingAccessRequests === 1 ? '' : 's' %> for your review.</p></div>
+        <a class="admin-text-link" href="/admin/access-requests">Review requests <span aria-hidden="true">→</span></a>
+      </div>
+      <% if (pendingAccessRequests.length) { %>
+        <div class="admin-access-request-preview">
+          <% pendingAccessRequests.forEach((accessRequest) => { %>
+            <div><span class="admin-access-request-avatar" aria-hidden="true"><%= accessRequest.username.charAt(0).toUpperCase() %></span><strong><%= accessRequest.username %></strong><span><%= accessRequest.email %></span></div>
+          <% }) %>
+        </div>
+      <% } else { %>
+        <div class="admin-empty-state admin-empty-compact"><p>No pending admin requests.</p></div>
+      <% } %>
+    </section>
+  <% } %>
+
+  <section class="admin-panel admin-gift-panel">
+    <div class="admin-panel-heading">
+      <div><div class="eyebrow">Thoughtful gifting</div><h2>Gift box requests</h2><p>Recently curated keepsakes from your customers.</p></div>
+      <a class="admin-text-link" href="/admin/enquiries#gift-boxes">Manage gift boxes <span aria-hidden="true">→</span></a>
+    </div>
+    <% if (recentGiftBoxes.length) { %>
+      <div class="admin-gift-grid">
+        <% recentGiftBoxes.slice(0, 3).forEach((giftBox) => { %>
+          <article class="admin-gift-card">
+            <div class="admin-gift-card-top"><span class="admin-activity-icon" aria-hidden="true">✿</span><span class="admin-status-pill <%= giftBox.status === 'completed' || giftBox.status === 'delivered' ? 'is-complete' : 'is-pending' %>"><%= giftBox.status.replace(/_/g, ' ') %></span></div>
+            <strong><%= giftBox.customer_name %></strong>
+            <p><%= giftBox.occasion || 'A little something special' %> · <%= giftBox.color_theme || 'Personalised palette' %></p>
+            <small><%= giftBox.created_at ? new Date(giftBox.created_at).toLocaleDateString('en-KE', { day: 'numeric', month: 'short', year: 'numeric' }) : '' %></small>
+          </article>
+        <% }) %>
+      </div>
+    <% } else { %>
+      <div class="admin-empty-state admin-empty-compact"><p>Your next thoughtful gift box is just around the corner.</p></div>
+    <% } %>
+  </section>
+
+  <section class="admin-panel admin-settings-panel" id="business-settings">
+    <div class="admin-panel-heading">
+      <div><div class="eyebrow">Atelier details</div><h2>Business settings</h2><p>Keep your customer contact details and studio notice up to date.</p></div>
+    </div>
+    <form action="/admin/settings" method="POST" class="form-grid admin-settings-form">
       <div class="form-group">
-        <label>WhatsApp number</label>
-        <input name="whatsapp_number" value="<%= settings && settings.whatsapp_number ? settings.whatsapp_number : '' %>" />
+        <label for="whatsapp_number">WhatsApp number</label>
+        <input id="whatsapp_number" name="whatsapp_number" value="<%= settings && settings.whatsapp_number ? settings.whatsapp_number : '' %>" />
       </div>
       <div class="form-group">
-        <label>Business email</label>
-        <input name="business_email" value="<%= settings && settings.business_email ? settings.business_email : '' %>" />
+        <label for="business_email">Business email</label>
+        <input id="business_email" name="business_email" value="<%= settings && settings.business_email ? settings.business_email : '' %>" />
       </div>
       <div class="form-group">
-        <label>Business phone</label>
-        <input name="business_phone" value="<%= settings && settings.business_phone ? settings.business_phone : '' %>" />
+        <label for="business_phone">Business phone</label>
+        <input id="business_phone" name="business_phone" value="<%= settings && settings.business_phone ? settings.business_phone : '' %>" />
       </div>
       <div class="form-group">
-        <label>Business hours</label>
-        <input name="business_hours" value="<%= settings && settings.business_hours ? settings.business_hours : '' %>" />
+        <label for="business_hours">Business hours</label>
+        <input id="business_hours" name="business_hours" value="<%= settings && settings.business_hours ? settings.business_hours : '' %>" />
       </div>
       <div class="form-group">
-        <label>Business location</label>
-        <input name="business_location" value="<%= settings && settings.business_location ? settings.business_location : '' %>" />
+        <label for="business_location">Business location</label>
+        <input id="business_location" name="business_location" value="<%= settings && settings.business_location ? settings.business_location : '' %>" />
       </div>
       <div class="form-group full">
-        <label>Announcement bar</label>
-        <input name="announcement_bar" value="<%= settings && settings.announcement_bar ? settings.announcement_bar : '' %>" />
+        <label for="announcement_bar">Announcement bar</label>
+        <input id="announcement_bar" name="announcement_bar" value="<%= settings && settings.announcement_bar ? settings.announcement_bar : '' %>" />
       </div>
       <div class="form-group full">
         <button class="btn btn-primary" type="submit">Save settings</button>
       </div>
     </form>
-  </div>
+  </section>
 </section>

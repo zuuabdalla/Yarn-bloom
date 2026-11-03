@@ -1,23 +1,34 @@
-<section class="admin-section">
-  <div class="small-row">
-    <h1>Products</h1>
-    <a class="btn btn-primary" href="/admin/products/new">Add new product</a>
-  </div>
+<section class="admin-section admin-products">
+  <header class="admin-page-heading">
+    <div>
+      <div class="eyebrow">Atelier Nairobi · Handmade catalog</div>
+      <h1>Products &amp; catalog</h1>
+      <p>Care for your collection, one thoughtfully made piece at a time.</p>
+    </div>
+    <a class="btn btn-primary" href="/admin/products/add"><span aria-hidden="true">＋</span> Add new product</a>
+  </header>
 
-  <div class="page-card" style="margin-top:1.5rem;">
+  <div class="admin-panel admin-product-list">
     <% if (products && products.length) { %>
       <div class="result-list">
         <% products.forEach((product) => { %>
-          <div class="summary-box" style="display:flex; justify-content:space-between; gap:1rem; align-items:center; flex-wrap:wrap;">
-            <div>
-              <strong><%= product.name %></strong>
-              <div><%= product.category_name || 'General' %> • <%= formatKSh(product.price) %></div>
+          <div class="summary-box admin-product-row">
+            <div class="admin-product-identity">
+              <img src="<%= product.primary_image || product.image_url || '/images/moodboard/brand-panel.png' %>" alt="" loading="lazy" />
+              <div>
+                <strong><%= product.name %></strong>
+                <small><%= product.category_name || 'General' %> · <%= product.slug %></small>
+              </div>
             </div>
-            <div class="small-row">
+            <div class="admin-product-price"><span>PRICE</span><strong><%= formatKSh(product.price) %></strong></div>
+            <span class="admin-status-pill <%= Number(product.is_active) === 1 ? 'is-complete' : 'is-cancelled' %>"><%= Number(product.is_active) === 1 ? 'active' : 'deactivated' %></span>
+            <div class="admin-product-price"><span>STOCK</span><strong><%= product.stock_status === 'in_stock' ? Number(product.stock_quantity || 0) : (product.stock_status === 'out_of_stock' ? '0' : 'Made to order') %></strong></div>
+            <span class="admin-status-pill <%= product.stock_status === 'out_of_stock' || (product.stock_status === 'in_stock' && Number(product.stock_quantity) === 0) ? 'is-cancelled' : product.stock_status === 'in_stock' ? 'is-complete' : 'is-pending' %>"><%= product.stock_status === 'in_stock' ? `${Number(product.stock_quantity || 0)} in stock` : (product.stock_status || 'made_to_order').replace(/_/g, ' ') %></span>
+            <div class="admin-product-actions">
               <a class="btn btn-secondary small" href="/shop/<%= product.slug %>" target="_blank">View</a>
-              <a class="btn btn-secondary small" href="/admin/products/<%= product.id %>/edit">Edit</a>
-              <form action="/admin/products/<%= product.id %>/delete" method="POST" onsubmit="return confirm('Delete this product?');">
-                <button class="btn btn-primary small" type="submit">Delete</button>
+              <a class="btn btn-secondary small" href="/admin/products/edit/<%= product.id %>">Edit</a>
+              <form action="/admin/products/delete/<%= product.id %>" method="POST" onsubmit="return confirm('Delete this product?');">
+                <button class="btn btn-secondary small admin-delete-button" type="submit">Delete</button>
               </form>
             </div>
           </div>

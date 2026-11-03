@@ -4,6 +4,9 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title><%= title || 'Admin' %></title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="/css/style.css" />
     <link rel="stylesheet" href="/css/admin.css" />
     <script defer src="/js/main.js"></script>
@@ -11,26 +14,39 @@
   <body class="admin-body">
     <div class="admin-shell">
       <aside class="admin-sidebar">
-        <div class="brand">
-          <span class="brand-mark">Y&B</span>
-          <span class="brand-text">
-            <strong>Yarn & Bloom</strong>
-            <small>Admin</small>
-          </span>
-        </div>
-        <nav class="admin-nav">
-          <a href="/admin/dashboard" class="<%= activeTab === 'dashboard' ? 'active' : '' %>">Dashboard</a>
-          <a href="/admin/products" class="<%= activeTab === 'products' ? 'active' : '' %>">Products</a>
-          <a href="/admin/enquiries" class="<%= activeTab === 'enquiries' ? 'active' : '' %>">Enquiries</a>
+        <a href="/admin/dashboard" class="admin-brand">
+          <span class="admin-brand-mark" aria-hidden="true">✿</span>
+          <span><strong>Yarn &amp; Bloom</strong><small>ATELIER · NAIROBI</small></span>
+        </a>
+        <div class="admin-live"><span></span> STUDIO ATELIER LIVE</div>
+        <nav class="admin-nav" aria-label="Admin navigation">
+          <a href="/admin/dashboard" class="<%= activeTab === 'dashboard' ? 'active' : '' %>"><span aria-hidden="true">▦</span> Dashboard overview</a>
+          <a href="/admin/products" class="<%= activeTab === 'products' ? 'active' : '' %>"><span aria-hidden="true">♧</span> Products &amp; catalog</a>
+          <a href="/admin/enquiries#store-orders" class="<%= activeTab === 'enquiries' ? 'active' : '' %>"><span aria-hidden="true">▤</span> Orders &amp; commissions</a>
+          <a href="/admin/enquiries#contact-messages" class="<%= activeTab === 'enquiries' ? 'active' : '' %>"><span aria-hidden="true">♧</span> Customer enquiries</a>
+          <a href="/admin/dashboard#business-settings"><span aria-hidden="true">⚙</span> Studio settings</a>
           <% if (adminUser && adminUser.role === 'superadmin') { %>
-            <a href="/admin/signup">Create admin account</a>
+            <a href="/admin/access-requests" class="<%= activeTab === 'access-requests' ? 'active' : '' %>"><span aria-hidden="true">✉</span> Access requests</a>
+            <a href="/admin/signup"><span aria-hidden="true">＋</span> Create admin account</a>
           <% } %>
-          <form action="/admin/logout" method="POST" style="margin-top:auto;">
-            <button class="btn btn-primary" type="submit">Logout</button>
-          </form>
         </nav>
+        <div class="admin-sidebar-account">
+          <span class="admin-avatar" aria-hidden="true"><%= (adminUser && adminUser.username ? adminUser.username.charAt(0) : 'A').toUpperCase() %></span>
+          <span class="admin-account-copy"><strong><%= adminUser ? adminUser.username : 'Administrator' %></strong><small><%= adminUser && adminUser.role === 'superadmin' ? 'Studio superadmin' : 'Atelier administrator' %></small></span>
+          <form action="/admin/logout" method="POST">
+            <button type="submit" class="admin-logout" aria-label="Log out">↗</button>
+          </form>
+        </div>
       </aside>
       <main class="admin-main">
+        <header class="admin-topbar">
+          <div class="admin-topbar-context"><span class="admin-live-dot"></span> Nairobi studio <span aria-hidden="true">·</span> Online &amp; taking orders</div>
+          <div class="admin-topbar-actions">
+            <a class="admin-notification" href="/admin/enquiries" aria-label="View customer enquiries">♧</a>
+            <a class="btn btn-primary admin-add-product" href="/admin/products/new"><span aria-hidden="true">＋</span> Add new product</a>
+            <span class="admin-avatar admin-avatar-small" aria-hidden="true"><%= (adminUser && adminUser.username ? adminUser.username.charAt(0) : 'A').toUpperCase() %></span>
+          </div>
+        </header>
         <%- include('../partials/flash-messages') %>
         <%- body %>
       </main>
