@@ -7,6 +7,7 @@
     "start": "node server.js",
     "dev": "node --watch server.js",
     "test": "jest --runInBand --detectOpenHandles --forceExit",
+    "migrate": "node database/run-migrations.js",
     "seed": "node database/run-seed.js"
   },
   "keywords": [
