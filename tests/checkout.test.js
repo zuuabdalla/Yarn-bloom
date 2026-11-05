@@ -40,6 +40,14 @@ describe('checkout order flow', () => {
     }]);
   });
 
+  test('renders checkout from the main navigation and marks it active', async () => {
+    const response = await request(app).get('/checkout');
+
+    expect(response.status).toBe(200);
+    expect(response.text).toContain('<h1>Checkout</h1>');
+    expect(response.text).toMatch(/href="\/checkout" class="active"/);
+  });
+
   test('quotes catalog prices rather than client-submitted prices', async () => {
     const response = await request(app).post('/checkout/quote').send({
       items: [{

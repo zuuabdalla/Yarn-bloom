@@ -140,7 +140,7 @@ function validateCustomer(body) {
 exports.getCheckout = (req, res) => {
   res.render('pages/checkout', {
     title: 'Checkout — Yarn & Bloom',
-    activeNav: 'bag',
+    activeNav: 'checkout',
     deliveryFee: DELIVERY_FEE
   });
 };
@@ -207,7 +207,7 @@ exports.getConfirmation = async (req, res, next) => {
     if (!order) {
       return res.status(404).render('pages/404', {
         title: 'Order Not Found — Yarn & Bloom',
-        activeNav: 'bag'
+        activeNav: 'checkout'
       });
     }
 
@@ -231,7 +231,7 @@ exports.getConfirmation = async (req, res, next) => {
 
     res.render('pages/checkout-confirmation', {
       title: 'Order Enquiry Received — Yarn & Bloom',
-      activeNav: 'bag',
+      activeNav: 'checkout',
       order,
       whatsappUrl,
       formatKSh
